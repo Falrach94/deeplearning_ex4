@@ -1,0 +1,2 @@
+
+WORKER_THREADS = 8

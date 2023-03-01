@@ -1,0 +1,110 @@
+import numpy as np
+import torch
+
+
+def calc_profile_f1(profile):
+
+    f1_raw = [s.f1 for s in profile.sessions]
+    f1_c_raw = [s.f1_crack for s in profile.sessions]
+    f1_i_raw = [s.f1_inactive for s in profile.sessions]
+
+    return calc_mean(profile, f1_raw), calc_mean(profile, f1_c_raw), calc_mean(profile, f1_i_raw),
+
+
+def categorize_data(data):
+    fine = []
+    not_fine = []
+    data = np.array(data)
+    for l in data:
+        if l[1] == 1 or l[2] == 1:
+            not_fine.append(l)
+        else:
+            fine.append(l)
+    return fine, not_fine
+
+
+def fully_categorize_data(data):
+    cat = [[],[],[],[]]
+    data = np.array(data)
+    for l in data:
+        if l[1] == 1 and l[2] == 1:
+            cat[3].append(l)
+        elif l[1] == 1:
+            cat[1].append(l)
+        elif l[2] == 1:
+            cat[2].append(l)
+        else:
+            cat[0].append(l)
+    return cat
+
+def calc_mean(profile, raw):
+
+    if len(raw) == 0:
+        return np.zeros((2,1))
+
+    max_len = max([len(ar) for ar in raw])
+    session_cnt = len(profile.sessions)
+    acc = np.full((session_cnt, max_len), np.nan)
+
+    for i in range(session_cnt):
+        acc[i, :len(raw[i])] = raw[i]
+
+    means = np.nanmean(acc, axis=0)
+ #   std = np.nanstd(acc, axis=0)
+ #   result = np.stack((means, std)).transpose()
+    return means
+
+
+def calc_data_stats(session):
+    tr_data = session.tr_data
+    v_data = session.val_data
+
+    tr_cat = fully_categorize_data(tr_data)
+    val_cat = fully_categorize_data(v_data)
+
+    res = [[len(tr_data), len(v_data)],
+           [len(tr_cat[0]), len(val_cat[0])],
+           [len(tr_cat[1]), len(val_cat[1])],
+           [len(tr_cat[2]), len(val_cat[2])],
+           [len(tr_cat[3]), len(val_cat[3])]]
+    return res
+
+
+def calc_multi_f1(prediction, label):
+
+    stat_c = calc_f1(prediction[:, 0], label[:, 0])
+    stat_i = calc_f1(prediction[:, 1], label[:, 1])
+    f1 = (stat_c['f1'] + stat_i['f1'])/2
+
+    return {'crack': stat_c, 'inactive': stat_i, 'mean': f1}
+
+def calc_f1(pred, label):
+    pred = pred > 0.5
+    label = label > 0.5
+
+    tp = np.logical_and(pred, label)
+    tn = np.logical_and(np.invert(pred), np.invert(label))
+    fp = np.logical_and(pred, np.invert(label))
+    fn = np.logical_and(np.invert(pred), label)
+
+    tp = tp.sum().item()
+    tn = tn.sum().item()
+    fp = fp.sum().item()
+    fn = fn.sum().item()
+
+    if tp + fp == 0:
+        precision = np.nan
+    else:
+        precision = tp / (tp + fp)
+
+    if tp + fn == 0:
+        recall = np.nan
+    else:
+        recall = tp/(tp + fn)
+
+    if np.isnan(recall) or np.isnan(precision) or precision + recall == 0:
+        return {'f1': 0,
+                'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
+
+    return {'f1': 2*precision*recall/(precision+recall),
+            'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}

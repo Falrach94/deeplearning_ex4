@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
+from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
@@ -30,9 +31,36 @@ best_autoenc_path = 'assets/best_model.ckp'
 best_classifier_path = 'assets/best_classifier_model.ckp'
 export_path = 'assets/export'
 
+main_model = ResNet50v2_Pretrained()
+
 AUTO_FCT = 0.3
 CLASS_FCT = 0.8
 SPARSE_FCT = 0.5
+
+NORMALIZE = True
+
+
+class AECLoss:
+    def __init__(self, cf, aef, ld):
+        self.image_loss = torch.nn.MSELoss().cuda()
+        self.classifier_loss = AsymmetricLossOptimized(3).cuda()
+
+        self.a = aef
+        self.b = cf
+        self.ld = ld
+
+    def calc_loss(self, input, pred, label):
+        return self.a * self.image_loss(pred[0], input) \
+            + self.b * self.classifier_loss(pred[1], label) \
+            + self.ld * torch.sum(torch.abs(pred[2]))
+
+
+class SimpleLoss:
+    def __init__(self):
+        self.loss = AsymmetricLossOptimized(3).cuda()
+
+    def calc_loss(self, input, pred, label):
+        return self.loss(pred, label)
 
 
 class Controller:
@@ -56,6 +84,8 @@ class Controller:
 
         self.model_state = None
 
+        self.loss_calculator = SimpleLoss()
+
         # --- setup training -----
         self.initialize_training_data()
         self.initialize_model_state()
@@ -63,6 +93,7 @@ class Controller:
         self.start_time = 0
 
         self.start_training()
+
     def initialize_training_data(self):
 
         if os.path.exists('assets/tr_data.csv'):
@@ -76,8 +107,8 @@ class Controller:
             val_data.to_csv('assets/val_data.csv', sep=';', index=False)
             print('no data set found; new split created')
 
-        self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, True)
-        self.val_dataset = AutoencoderDataset(val_data, 'val', 0, True)
+        self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, NORMALIZE)
+        self.val_dataset = AutoencoderDataset(val_data, 'val', 0, NORMALIZE)
 
         print('training sample cnt:', len(self.tr_dataset))
         print('validation sample cnt:', len(self.val_dataset))
@@ -85,20 +116,20 @@ class Controller:
         self.tr_dl = DataLoader(self.tr_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
         self.val_dl = DataLoader(self.val_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS)
 
-        self.model = ResNetAutoEncoder()
+        self.model = main_model
         self.model.cuda()
 
         optimizer = torch.optim.Adam(self.model.parameters(),
                                      lr=lr,
                                      weight_decay=decay)
-#        loss = AsymmetricLossOptimized()
-        loss = torch.nn.BCELoss()
+
 
         self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
         self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
-        self.trainer.set_session(self.model, loss, optimizer, self.tr_dl, self.val_dl, BATCH_SIZE)
+        self.trainer.loss_fct = self.loss_calculator.calc_loss
+        self.trainer.set_session(self.model, optimizer, self.tr_dl, self.val_dl, BATCH_SIZE)
 
     def initialize_model_state(self):
 

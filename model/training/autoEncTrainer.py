@@ -65,7 +65,6 @@ class AutoEncTrainer:
 
     def __init__(self):
         self._model = None
-        self._crit = None
         self._optim = None
         self._train_dl = None
         self._val_test_dl = None
@@ -74,15 +73,16 @@ class AutoEncTrainer:
 
         self.abort_fit = False
 
+        self.loss_fct = self.calc_loss
+
         self.metric_calculator = None
         self.batch_callback = None
         self.epoch_callback = None
         self.epoch = 0
 
-    def set_session(self, model, crit, optim, tr_dl, val_dl, batch_size):
+    def set_session(self, model, optim, tr_dl, val_dl, batch_size):
         self.epoch = 0
         self._model = model
-        self._crit = crit
 
         self._optim = optim
         self._train_dl = tr_dl
@@ -90,7 +90,6 @@ class AutoEncTrainer:
         self._val_sample_cnt = len(val_dl) * batch_size
         self._batch_size = batch_size
 
-        self._crit.cuda()
         self._model.cuda()
 
         self.abort_fit = False
@@ -119,7 +118,7 @@ class AutoEncTrainer:
 
             self._optim.zero_grad()
             prediction = self._model(x)
-            loss = self.calc_loss(x, prediction, y)
+            loss = self.loss_fct(x, prediction, y)
             loss.backward()
             self._optim.step()
             total_loss += loss

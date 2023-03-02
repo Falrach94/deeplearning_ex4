@@ -211,6 +211,7 @@ class Controller:
     def export(self, state):
         print('staring export')
 
+        self.model.cpu()
         self.model.eval()
 
         x = torch.randn(1, 3, 300, 300, requires_grad=True)

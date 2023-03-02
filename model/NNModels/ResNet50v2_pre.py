@@ -16,11 +16,19 @@ class ResNet50v2_Pretrained(torch.nn.Module):
         for param in self.model.layer4.parameters():
             param.requires_grad = True
 
-        self.model.fc = torch.nn.Linear(2048, 2)
 
-        self.sigmoid = torch.nn.Sigmoid()
+
+        self.classifier = torch.nn.Sequential(
+            torch.nn.Dropout(p=0.5),
+            torch.nn.ReLU(inplace=True),
+            torch.nn.Linear(512, 2),
+            torch.nn.Sigmoid()
+        )
+        self.model.fc = torch.nn.Linear(2048, 512)
+
+ #       self.sigmoid = torch.nn.Sigmoid()
 
     def forward(self, x):
         x = self.model(x)
-        x = self.sigmoid(x)
+        x = self.classifier(x)
         return x

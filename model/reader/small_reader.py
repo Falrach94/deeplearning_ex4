@@ -16,7 +16,7 @@ class SmallDataReader:
         self._data = pd.read_csv('assets/data.csv', sep=';')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',')
 
-        aug = aug.drop(aug[(aug.crack == 0) & (aug.inactive == 0)].index)
+        #aug = aug.drop(aug[(aug.crack == 0) & (aug.inactive == 0)].index)
 
         self._data = pd.concat((self._data, aug))
 

@@ -166,8 +166,8 @@ class Controller:
               '(tr', round(tr_loss, 5),
               '| val', round(val_loss, 5), ')')
         print(f'epoch {self.trainer.epoch} - f1: ',
-              '(crack', round(metrics['crack', 'f1'], 2),
-              '| val', round(metrics['inactive', 'f1'], 2),
+              '(crack', round(metrics['crack']['f1'], 2),
+              '| val', round(metrics['inactive']['f1'], 2),
               '| mean', round(metrics['mean'], 2), ')')
         print(f'epoch {self.trainer.epoch} - time:'
               '(total', round(time['total'], 2), 's',

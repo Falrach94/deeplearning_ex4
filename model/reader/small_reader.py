@@ -12,17 +12,24 @@ from utils.stat_tools import fully_categorize_data
 
 class SmallDataReader:
 
-    def __init__(self):
-        self._data = pd.read_csv('assets/data.csv', sep=';')
+    def __init__(self, prune=True, split=0.2):
+        data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',')
 
-        #aug = aug.drop(aug[(aug.crack == 0) & (aug.inactive == 0)].index)
+        self.tr_data, self.val_data = train_test_split(data,
+                                                       test_size=split)
 
-        self._data = pd.concat((self._data, aug))
+        val_ix = self.val_data.set_index('nbr').index
+        aug_ix = aug.set_index('nbr').index
+        selection = ~aug_ix.isin(val_ix)
+        aug = aug[selection]
 
-        #self._data = self._data.sample(int(self._data.shape[0] * 0.05))
+        if prune:
+            aug = aug.drop(aug[(aug.crack == 0) & (aug.inactive == 0)].index)
+
+        self.tr_data = pd.concat((self.tr_data, aug))
+
 
     def get_csv_data(self, data_descriptor):
-        return train_test_split(self._data,
-                                test_size=data_descriptor.get('ValSplit').get_value())
+        return self.tr_data, self.val_data
 

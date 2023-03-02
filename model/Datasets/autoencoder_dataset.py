@@ -17,10 +17,10 @@ class AutoencoderDataset(Dataset):
     def label(self):
         self._autoencode = False
 
-    def __init__(self, data, mode, transform_mode, autoencode=True, normalize=False):
+    def __init__(self, data, mode, transform_mode, normalize=False):
         super().__init__()
 
-        self._autoencode = autoencode
+        self._autoencode = False
 
         self.train = (mode == "train")
         self._data = data

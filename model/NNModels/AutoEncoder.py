@@ -91,7 +91,7 @@ class Bottleneck(nn.Module):
 
         self.bottleneck = nn.Sequential(
             nn.Linear(512, sparse_cnt),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
         )
         self.expander = nn.Sequential(
             nn.Linear(sparse_cnt, 512),
@@ -113,7 +113,7 @@ class Bottleneck(nn.Module):
 
         if not self._sparse_output:
             x = self.expander(x)
-        return x
+        return x, self.last_activation
 
 
 class Decoder(nn.Module):
@@ -133,30 +133,6 @@ class Decoder(nn.Module):
         self.conv4 = nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2, padding=1, output_padding=1)
 
         self.bn1 = nn.BatchNorm2d(256)
-
-#self.bn1 = nn.BatchNorm2d(512)
-#        self.deconv1 = nn.ConvTranspose2d(in_channels=512, out_channels=512,
-#                                          stride=1, kernel_size=9, dilation=1,
-#                                          padding=0, output_padding=0)
-#        self.bn2 = nn.BatchNorm2d(256)
-#        self.deconv2 = nn.ConvTranspose2d(in_channels=512, out_channels=256,
-#                                          stride=2, kernel_size=3, dilation=1,
-#                                          padding=1, output_padding=1)
-#        self.bn3 = nn.BatchNorm2d(128)
-#        self.deconv3 = nn.ConvTranspose2d(in_channels=256, out_channels=128,
-#                                          stride=2, kernel_size=3, dilation=1,
-#                                          padding=0, output_padding=0)
-#        self.bn4 = nn.BatchNorm2d(64)
-#        self.deconv4 = nn.ConvTranspose2d(in_channels=128, out_channels=64,
-#                                          stride=2, kernel_size=3, dilation=1,
-#                                          padding=0, output_padding=0)
-#        self.bn5 = nn.BatchNorm2d(64)
-#        self.deconv5 = nn.ConvTranspose2d(in_channels=64, out_channels=64,
-#                                          stride=2, kernel_size=3, dilation=1,
-#                                          padding=1, output_padding=1)
-#        self.deconv6 = nn.ConvTranspose2d(in_channels=64, out_channels=3,
-#                                          stride=2, kernel_size=3, dilation=1,
-#                                          padding=1, output_padding=1)
 
         self.sig = nn.Sigmoid()
 
@@ -307,12 +283,14 @@ class SimpleDecoder(nn.Module):
 
 class ResNetAutoEncoder(torch.nn.Module):
 
-    def __init__(self):
+    def __init__(self, sparse_cnt=128):
         super().__init__()
 
-        self.encoder = Encoder(128)
-        self.bottleneck = Bottleneck(128)
+        self.encoder = Encoder(sparse_cnt)
+        self.bottleneck = Bottleneck(sparse_cnt)
         self.decoder = TestDecoder()
+        self.classifier = nn.Sequential(nn.Linear(sparse_cnt, 2),
+                                        nn.Sigmoid())
         self._sparse_output = False
 
     def sparse(self):
@@ -325,7 +303,10 @@ class ResNetAutoEncoder(torch.nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
-        x = self.bottleneck(x)
-        if not self._sparse_output:
-            x = self.decoder(x)
-        return x
+        x, x_s = self.bottleneck(x)
+#        if not self._sparse_output:
+
+        x = self.decoder(x)
+        x_s = self.classifier(x_s)
+
+        return x, x_s

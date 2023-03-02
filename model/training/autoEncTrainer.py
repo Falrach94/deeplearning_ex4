@@ -28,7 +28,6 @@ class AutoEncTrainer:
                {'total': total_time, 'train': train_time, 'val': val_time}, \
             metrics
 
-
     def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None):
         best_crit_val = -1
         best_epoch = None
@@ -98,6 +97,9 @@ class AutoEncTrainer:
 
     # --- training primitives ----
 
+    def calc_loss(self, input, pred, label):
+        return self._crit(pred, label)
+
     def train_epoch(self):
         self.epoch += 1
         if hasattr(self._model, 'set_epoch'):
@@ -117,7 +119,7 @@ class AutoEncTrainer:
 
             self._optim.zero_grad()
             prediction = self._model(x)
-            loss = self._crit(prediction, y)
+            loss = self.calc_loss(x, prediction, y)
             loss.backward()
             self._optim.step()
             total_loss += loss
@@ -159,10 +161,13 @@ class AutoEncTrainer:
 
                 # perform a validation step
                 step_prediction = self._model(x)
-                loss += self._crit(step_prediction, y)
+                loss += self.calc_loss(x, step_prediction, y)
 
                 j = i*self._batch_size
-                predictions[j:j+y.shape[0]] = step_prediction
+                if type(step_prediction) is tuple:
+                    predictions[j:j+y.shape[0]] = step_prediction[1]
+                else:
+                    predictions[j:j+y.shape[0]] = step_prediction
                 labels[j:j+y.shape[0]] = y
 
                 if self.batch_callback is not None:

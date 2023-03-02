@@ -85,7 +85,8 @@ class Controller:
         optimizer = torch.optim.Adam(self.model.parameters(),
                                      lr=lr,
                                      weight_decay=decay)
-        loss = AsymmetricLossOptimized()
+#        loss = AsymmetricLossOptimized()
+        loss = torch.nn.BCELoss()
 
         self.trainer = AutoEncTrainer()
         self.trainer.metric_calculator = calc_multi_f1

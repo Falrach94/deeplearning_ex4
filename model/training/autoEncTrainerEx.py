@@ -21,5 +21,5 @@ class AutoEncTrainerEx(AutoEncTrainer):
         self.ld = ld
 
     def calc_loss(self, input, pred, label):
-        return self.a * self.image_loss(pred[0], input) + self.b * self.classifier_loss(pred[1], label) + self.ld*self.sparse_loss(pred[2])
+        return self.a * self.image_loss(pred[0], input) + self.b * self.classifier_loss(pred[1], label) + self.ld*np.sum(np.abs(pred[2]))
 

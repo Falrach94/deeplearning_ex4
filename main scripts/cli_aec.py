@@ -70,7 +70,7 @@ class Controller:
             val_data = pd.read_csv('assets/val_data.csv', sep=';')
             print('successfully loaded old data set')
         else:
-            data_reader = SmallDataReader()
+            data_reader = SmallDataReader(False)
             tr_data, val_data = data_reader.get_csv_data(Descriptor('', [HyperParameter('ValSplit', 'float', 0.2)]))
             tr_data.to_csv('assets/tr_data.csv', sep=';', index=False)
             val_data.to_csv('assets/val_data.csv', sep=';', index=False)

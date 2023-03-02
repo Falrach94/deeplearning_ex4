@@ -3,6 +3,7 @@ import numpy as np
 import torch as t
 import torch.cuda
 
+
 class AutoEncTrainer:
     # --- interface --------------
 
@@ -15,7 +16,7 @@ class AutoEncTrainer:
             return None
 
         # validate
-        eval_loss, val_time = self.val_test()
+        eval_loss, val_time, metrics = self.val_test()
 
         # calculate combined time
         total_time = (time.time_ns() - old_time) / 10 ** 9
@@ -24,7 +25,9 @@ class AutoEncTrainer:
             return None
 
         return {'train': train_loss.item(), 'val': eval_loss.item()}, \
-               {'total': total_time, 'train': train_time, 'val': val_time}
+               {'total': total_time, 'train': train_time, 'val': val_time}, \
+            metrics
+
 
     def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None):
         best_crit_val = -1

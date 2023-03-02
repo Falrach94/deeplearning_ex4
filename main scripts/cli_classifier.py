@@ -68,6 +68,9 @@ class Controller:
         self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, False)
         self.val_dataset = AutoencoderDataset(val_data, 'val', 0, False)
 
+        print('training sample cnt:', len(self.tr_dataset))
+        print('validation sample cnt:', len(self.val_dataset))
+
         self.tr_dl = DataLoader(self.tr_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
         self.val_dl = DataLoader(self.val_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS)
 
@@ -202,5 +205,12 @@ class Controller:
     def epoch_callback(self, epoch, loss, time, metrics):
         print(f'epoch {epoch} finished', end='\r', flush=True)
         self.metric_update(loss, time, metrics)
+
+
+print('training classifier on pretrained autoencoder-enocder stage')
+print('batch size:', BATCH_SIZE)
+print('learning rate', lr)
+print('weight decay', decay)
+print('worker threads', WORKER_THREADS)
 
 controller = Controller()

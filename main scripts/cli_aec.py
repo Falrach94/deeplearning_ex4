@@ -191,7 +191,7 @@ class Controller:
         self.model_state['val_loss'].append(val_loss)
         self.model_state['label_metrics'].append({'crack': metrics['crack'], 'inactive': metrics['inactive']})
 
-        total_time_s = int((time.time_ns - self.start_time)/10**9)
+        total_time_s = int((time.time_ns() - self.start_time)/10**9)
         total_time_min = int(total_time_s / 60)
         total_time_s %= 60
 

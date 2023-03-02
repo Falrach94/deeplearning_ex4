@@ -212,13 +212,12 @@ class Controller:
 
     def export(self, state):
         print('staring export')
-        model = ResNet34AutoEnc()
-        model.load_state_dict(state)
-        model.eval()
+
+        self.model.eval()
 
         x = torch.randn(1, 3, 300, 300, requires_grad=True)
-        y = model(x)
-        torch.onnx.export(model,  # model being run
+        y = self.model(x)
+        torch.onnx.export(self.model,  # model being run
                           x,  # model input (or a tuple for multiple inputs)
                           export_path + '.zip',  # where to save the model (can be a file or file-like object)
                           export_params=True,  # store the trained parameter weights inside the model file

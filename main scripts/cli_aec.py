@@ -123,7 +123,6 @@ class Controller:
                                      lr=lr,
                                      weight_decay=decay)
 
-
         self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
         self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
@@ -194,7 +193,6 @@ class Controller:
                              f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()
-
 
     def metric_update(self, loss, epoch_time, metrics, best):
         tr_loss = loss['train']

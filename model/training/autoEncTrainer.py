@@ -160,7 +160,7 @@ class AutoEncTrainer:
 
                 # perform a validation step
                 step_prediction = self._model(x)
-                loss += self.calc_loss(x, step_prediction, y)
+                loss += self.loss_fct(x, step_prediction, y)
 
                 j = i*self._batch_size
                 if type(step_prediction) is tuple:

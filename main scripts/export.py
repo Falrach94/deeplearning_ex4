@@ -9,7 +9,7 @@ print('loading state dict')
 state_dict = torch.load(best_classifier_path)
 
 print('creating model')
-model = ResNet34AutoEnc()
+model = ResNet34AutoEnc(128)
 model.load_state_dict(state_dict)
 model.eval()
 

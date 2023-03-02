@@ -1,5 +1,6 @@
 import os
 import threading
+import time
 
 import cv2
 import numpy as np
@@ -17,6 +18,7 @@ from model.reader.small_reader import SmallDataReader
 from model.training.autoEncTrainer import AutoEncTrainer
 from model.training.autoEncTrainerEx import AutoEncTrainerEx
 from model.training.losses.asl_loss import AsymmetricLossOptimized
+from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
 from utils.stat_tools import calc_multi_f1
 
@@ -56,8 +58,10 @@ class Controller:
         # --- setup training -----
         self.initialize_training_data()
         self.initialize_model_state()
-        self.start_training()
 
+        self.start_time = 0
+
+        self.start_training()
     def initialize_training_data(self):
 
         if os.path.exists('assets/tr_data.csv'):
@@ -118,12 +122,66 @@ class Controller:
     # --- internal methods --------------
 
     def train(self):
+        self.start_time = time.time_ns()
+
         print(f'start training with early stopping (max epoch: 100, patience: 10, window: 5)')
         model = self.trainer.train_with_early_stopping(100, 10, 5)
         torch.save(model, best_classifier_path)
         self.save_progress()
         self.export(model)
         self.train_thread = None
+
+    @staticmethod
+    def print_line():
+        print(f'-------------------------------------------')
+    def print_metrics(self, loss, time, metrics, best, total_time):
+
+        builder = TableBuilder()
+        builder.add_line(f'epoch: {self.trainer.epoch}',
+                         f'runtime: {total_time[0]} min {total_time[1]} sec',
+                         '')
+        builder.add_line(f'epoch time: {round(time["total"], 1)} s',
+                         f'tr time: {round(time["tr"], 1)} s',
+                         f'val time: {round(time["val"], 1)} s')
+        builder.new_block()
+        builder.add_line(f'loss',
+                         f'tr {round(loss["tr"], 5)}',
+                         f'val {round(loss["val"], 5)}',
+                         '')
+        builder.add_line(f'f1',
+                         f'crack {round(metrics["crack"], 4)}',
+                         f'inactive {round(metrics["inactive"], 4)}',
+                         f'mean {round(metrics["mean"], 4)}')
+
+        if best['epoch'] is not None:
+            builder.new_block()
+            builder.add_line(f'best epoch {best["epoch"] + 1}',
+                             f'loss: {round(best["loss"], 5)}',
+                             '',
+                             '')
+            builder.add_line(f'f1',
+                             f'crack {round(best["metric"]["crack"], 4)}',
+                             f'inactive {round(best["metric"]["inactive"], 4)}',
+                             f'mean {round(best["metric"]["mean"], 4)}')
+
+        builder.print()
+
+        '''
+        self.print_line()
+        print(f'| epoch: {self.trainer.epoch},\t runtime: {total_time[0]} min {total_time[1]} sec\t|')
+        print(f'| epoch time: {round(time["total"],1)} s\ttr time: {round(time["tr"],1)} s\tval time: {round(time["val"], 1)} s |')
+        self.print_line()
+        print(f'| loss    | tr {round(loss["tr"], 5)} | val {round(loss["val"], 5)} |')
+        print(f'| metrics | crack {round(metrics["crack"], 4)} | inactive {round(metrics["inactive"], 4)} | mean {round(metrics["mean"], 4)} |')
+        self.print_line()
+        if best['epoch'] is not None:
+
+            print(f'| best epoch {best["epoch"]+1} | loss: {round(best["loss"], 5)} |')
+            print(
+                f'| metrics | crack {round(best["metric"]["crack"], 4)} | inactive {round(best["metric"]["inactive"], 4)} | mean {round(best["metric"]["mean"], 4)} |')
+            self.print_line()
+        '''
+
 
     def metric_update(self, loss, time, metrics, best):
         tr_loss = loss['train']
@@ -133,24 +191,11 @@ class Controller:
         self.model_state['val_loss'].append(val_loss)
         self.model_state['label_metrics'].append({'crack': metrics['crack'], 'inactive': metrics['inactive']})
 
-        print(f'epoch {self.trainer.epoch} - loss:',
-              '(tr', round(tr_loss, 5),
-              '| val', round(val_loss, 5), ')')
-        print(f'epoch {self.trainer.epoch} - f1: ',
-              '(crack', round(metrics['crack']['f1'], 4),
-              '| val', round(metrics['inactive'][r'f1'], 4),
-              '| mean', round(metrics['mean'], 4), ')')
-        if best['epoch'] is not None:
-            print(f'best epoch {best["epoch"]+1} - loss: {best["loss"]}')
-            print(f'best epoch {best["epoch"]+1} - f1: ',
-                  '(crack', round(best['metric']['crack']['f1'], 4),
-                  '| inactive', round(best['metric']['inactive']['f1'], 4),
-                  '| mean', round(best['metric']['mean'], 4), ')')
+        total_time_s = int((time.time_ns - self.start_time)/10**9)
+        total_time_min = int(total_time_s / 60)
+        total_time_s %= 60
 
-        print(f'epoch {self.trainer.epoch} - time:'
-              '(total', round(time['total'], 2), 's',
-              ' | tr ', round(time['train'], 2), 's',
-              ' | val ', round(time['val'], 2), 's)')
+        self.print_metrics(loss, time, metrics, best, (total_time_min, total_time_s))
 
     def export(self, state):
         print('staring export')

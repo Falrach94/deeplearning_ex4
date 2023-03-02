@@ -307,6 +307,6 @@ class ResNetAutoEncoder(torch.nn.Module):
 #        if not self._sparse_output:
 
         x = self.decoder(x)
-        x_s = self.classifier(x_s)
+        y_s = self.classifier(x_s)
 
-        return x, x_s
+        return x, y_s, x_s

@@ -30,8 +30,9 @@ best_autoenc_path = 'assets/best_model.ckp'
 best_classifier_path = 'assets/best_classifier_model.ckp'
 export_path = 'assets/export'
 
-AUTO_FCT = 1
-CLASS_FCT = 1
+AUTO_FCT = 0.3
+CLASS_FCT = 0.8
+SPARSE_FCT = 0.5
 
 
 class Controller:
@@ -84,9 +85,6 @@ class Controller:
         self.tr_dl = DataLoader(self.tr_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
         self.val_dl = DataLoader(self.val_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS)
 
-        #autoencoder = ResNetAutoEncoder()
-        #best_model = torch.load(best_autoenc_path)
-        #autoencoder.load_state_dict(best_model)
         self.model = ResNetAutoEncoder()
         self.model.cuda()
 
@@ -96,7 +94,7 @@ class Controller:
 #        loss = AsymmetricLossOptimized()
         loss = torch.nn.BCELoss()
 
-        self.trainer = AutoEncTrainerEx(CLASS_FCT, AUTO_FCT)
+        self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
         self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
@@ -165,22 +163,6 @@ class Controller:
                              f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()
-
-        '''
-        self.print_line()
-        print(f'| epoch: {self.trainer.epoch},\t runtime: {total_time[0]} min {total_time[1]} sec\t|')
-        print(f'| epoch time: {round(time["total"],1)} s\ttr time: {round(time["tr"],1)} s\tval time: {round(time["val"], 1)} s |')
-        self.print_line()
-        print(f'| loss    | tr {round(loss["tr"], 5)} | val {round(loss["val"], 5)} |')
-        print(f'| metrics | crack {round(metrics["crack"], 4)} | inactive {round(metrics["inactive"], 4)} | mean {round(metrics["mean"], 4)} |')
-        self.print_line()
-        if best['epoch'] is not None:
-
-            print(f'| best epoch {best["epoch"]+1} | loss: {round(best["loss"], 5)} |')
-            print(
-                f'| metrics | crack {round(best["metric"]["crack"], 4)} | inactive {round(best["metric"]["inactive"], 4)} | mean {round(best["metric"]["mean"], 4)} |')
-            self.print_line()
-        '''
 
 
     def metric_update(self, loss, epoch_time, metrics, best):

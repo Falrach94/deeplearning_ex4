@@ -141,11 +141,11 @@ class Controller:
                          f'runtime: {total_time[0]} min {total_time[1]} sec',
                          '')
         builder.add_line(f'epoch time: {round(time["total"], 1)} s',
-                         f'tr time: {round(time["tr"], 1)} s',
+                         f'tr time: {round(time["train"], 1)} s',
                          f'val time: {round(time["val"], 1)} s')
         builder.new_block()
         builder.add_line(f'loss',
-                         f'tr {round(loss["tr"], 5)}',
+                         f'tr {round(loss["train"], 5)}',
                          f'val {round(loss["val"], 5)}',
                          '')
         builder.add_line(f'f1',

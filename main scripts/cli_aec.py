@@ -149,8 +149,8 @@ class Controller:
                          f'val {round(loss["val"], 5)}',
                          '')
         builder.add_line(f'f1',
-                         f'crack {round(metrics["crack"], 4)}',
-                         f'inactive {round(metrics["inactive"], 4)}',
+                         f'crack {round(metrics["crack"]["f1"], 4)}',
+                         f'inactive {round(metrics["inactive"]["f1"], 4)}',
                          f'mean {round(metrics["mean"], 4)}')
 
         if best['epoch'] is not None:
@@ -160,8 +160,8 @@ class Controller:
                              '',
                              '')
             builder.add_line(f'f1',
-                             f'crack {round(best["metric"]["crack"], 4)}',
-                             f'inactive {round(best["metric"]["inactive"], 4)}',
+                             f'crack {round(best["metric"]["crack"]["f1"], 4)}',
+                             f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
                              f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()

@@ -4,6 +4,7 @@ import torch as t
 import torch.cuda
 
 from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.losses.asl_loss import AsymmetricLossOptimized
 
 
 class AutoEncTrainerEx(AutoEncTrainer):
@@ -11,7 +12,8 @@ class AutoEncTrainerEx(AutoEncTrainer):
         super().__init__()
 
         self.image_loss = torch.nn.MSELoss()
-        self.classifier_loss = torch.nn.BCELoss()
+        self.classifier_loss = AsymmetricLossOptimized(3)
+        #self.classifier_loss = torch.nn.BCELoss()
 
         self.a = a
         self.b = b

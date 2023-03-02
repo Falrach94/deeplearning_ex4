@@ -170,10 +170,10 @@ class Controller:
               '| val', round(metrics['inactive'][r'f1'], 4),
               '| mean', round(metrics['mean'], 4), ')')
         if best['epoch'] is not None:
-            print(f'best epoch {self.trainer.epoch} - loss: {best["loss"]}')
-            print(f'best epoch {self.trainer.epoch} - f1: ',
+            print(f'best epoch {best["epoch"]} - loss: {best["loss"]}')
+            print(f'best epoch {best["epoch"]} - f1: ',
                   '(crack', round(best['metric']['crack']['f1'], 4),
-                  '| val', round(best['metric']['inactive']['f1'], 4),
+                  '| inactive', round(best['metric']['inactive']['f1'], 4),
                   '| mean', round(best['metric']['mean'], 4), ')')
 
         print(f'epoch {self.trainer.epoch} - time:'

@@ -38,10 +38,6 @@ class AutoEncTrainer:
 
         for i in range(max_epoch):
             loss, time, metrics = self.single_epoch_with_eval()
-            if self.epoch_callback is not None:
-                self.epoch_callback(i, loss, time, metrics,
-                                    {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
-
             if early_stop_criterion is None:
                 crit = loss['val']
                 update = crit < best_crit_val
@@ -54,6 +50,11 @@ class AutoEncTrainer:
                 best_epoch = i
                 best_crit_val = crit
                 best_model = self._model.state_dict()
+
+            if self.epoch_callback is not None:
+                self.epoch_callback(i, loss, time, metrics,
+                                    {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
+
             if i >= patience:
                 if i - best_epoch > window:
                     break

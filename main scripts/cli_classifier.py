@@ -154,7 +154,7 @@ class Controller:
         self.save_progress()
         self.train_thread = None
 
-    def metric_update(self, loss, time, metrics):
+    def metric_update(self, loss, time, metrics, best):
         tr_loss = loss['train']
         val_loss = loss['val']
 
@@ -166,9 +166,16 @@ class Controller:
               '(tr', round(tr_loss, 5),
               '| val', round(val_loss, 5), ')')
         print(f'epoch {self.trainer.epoch} - f1: ',
-              '(crack', round(metrics['crack']['f1'], 2),
-              '| val', round(metrics['inactive']['f1'], 2),
-              '| mean', round(metrics['mean'], 2), ')')
+              '(crack', round(metrics['crack']['f1'], 4),
+              '| val', round(metrics['inactive'][r'f1'], 4),
+              '| mean', round(metrics['mean'], 4), ')')
+        if best['epoch'] is not None:
+            print(f'best epoch {self.trainer.epoch} - loss: {best["loss"]}')
+            print(f'best epoch {self.trainer.epoch} - f1: ',
+                  '(crack', round(best['metric']['crack']['f1'], 4),
+                  '| val', round(best['metric']['inactive']['f1'], 4),
+                  '| mean', round(best['metric']['mean'], 4), ')')
+
         print(f'epoch {self.trainer.epoch} - time:'
               '(total', round(time['total'], 2), 's',
               ' | tr ', round(time['train'], 2), 's',
@@ -202,9 +209,9 @@ class Controller:
                            batch_ix+1, batch_cnt,
                            f'~{int(approx_rem)} s remaining (~{round(tpb,2)} s/batch)')
 
-    def epoch_callback(self, epoch, loss, time, metrics):
+    def epoch_callback(self, epoch, loss, time, metrics, best):
         print(f'epoch {epoch} finished', end='\r', flush=True)
-        self.metric_update(loss, time, metrics)
+        self.metric_update(loss, time, metrics, best)
 
 
 print('training classifier on pretrained autoencoder-enocder stage')

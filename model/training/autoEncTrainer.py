@@ -31,13 +31,16 @@ class AutoEncTrainer:
 
     def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None):
         best_crit_val = -1
-        best_epoch = 0
+        best_epoch = None
         best_model = None
+        best_metric = None
+        best_loss = None
 
         for i in range(max_epoch):
             loss, time, metrics = self.single_epoch_with_eval()
             if self.epoch_callback is not None:
-                self.epoch_callback(i, loss, time, metrics)
+                self.epoch_callback(i, loss, time, metrics,
+                                    {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
 
             if early_stop_criterion is None:
                 crit = loss['val']
@@ -46,6 +49,8 @@ class AutoEncTrainer:
                 crit, update = early_stop_criterion(loss, metrics, best_crit_val)
 
             if update or i == 0:
+                best_loss = loss['val']
+                best_metric = metrics
                 best_epoch = i
                 best_crit_val = crit
                 best_model = self._model.state_dict()

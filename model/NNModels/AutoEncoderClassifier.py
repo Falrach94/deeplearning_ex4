@@ -1,11 +1,16 @@
 from torch import nn
 
+from model.NNModels.AutoEncoder import Encoder
+
 
 class ResNet34AutoEnc(nn.Module):
 
-    def __init__(self, autoencoder):
+    def __init__(self, autoencoder=None):
         super().__init__()
-        self.encoder = autoencoder.encoder
+        if autoencoder is not None:
+            self.encoder = autoencoder.encoder
+        else:
+            self.encoder = Encoder()
         self.classifier = nn.Sequential(
             nn.Linear(512, 2),
             nn.Sigmoid()

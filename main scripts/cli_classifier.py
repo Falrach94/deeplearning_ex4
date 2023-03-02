@@ -25,6 +25,8 @@ decay = 0.00003
 save_path = 'assets/classifier_save.aes'
 best_autoenc_path = 'assets/best_model.ckp'
 best_classifier_path = 'assets/best_classifier_model.ckp'
+export_path = 'assets/export'
+
 
 class Controller:
 
@@ -65,8 +67,8 @@ class Controller:
             val_data.to_csv('assets/val_data.csv', sep=';', index=False)
             print('no data set found; new split created')
 
-        self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, False)
-        self.val_dataset = AutoencoderDataset(val_data, 'val', 0, False)
+        self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, False, True)
+        self.val_dataset = AutoencoderDataset(val_data, 'val', 0, False, True)
 
         print('training sample cnt:', len(self.tr_dataset))
         print('validation sample cnt:', len(self.val_dataset))
@@ -110,6 +112,7 @@ class Controller:
 
     # --- internal methods --------------
 
+
     def create_sparse_representation(self):
 
         print('start converting data...')
@@ -152,6 +155,7 @@ class Controller:
         model = self.trainer.train_with_early_stopping(100, 10, 5)
         torch.save(model, best_classifier_path)
         self.save_progress()
+        self.export(model)
         self.train_thread = None
 
     def metric_update(self, loss, time, metrics, best):
@@ -180,6 +184,27 @@ class Controller:
               '(total', round(time['total'], 2), 's',
               ' | tr ', round(time['train'], 2), 's',
               ' | val ', round(time['val'], 2), 's)')
+
+    def export(self, state):
+        print('staring export')
+        model = ResNet34AutoEnc()
+        model.load_state_dict(state)
+        model.eval()
+
+        x = torch.randn(1, 3, 300, 300, requires_grad=True)
+        y = model(x)
+        torch.onnx.export(model,  # model being run
+                          x,  # model input (or a tuple for multiple inputs)
+                          export_path + '.zip',  # where to save the model (can be a file or file-like object)
+                          export_params=True,  # store the trained parameter weights inside the model file
+                          opset_version=10,  # the ONNX version to export the model to
+                          do_constant_folding=True,  # whether to execute constant folding for optimization
+                          input_names=['input'],  # the model's input names
+                          output_names=['output'],  # the model's output names
+                          dynamic_axes={'input': {0: 'batch_size'},  # variable lenght axes
+                                        'output': {0: 'batch_size'}})
+
+        print('export finished')
 
     def save_progress(self):
         self.model_state['state_dict'] = dict(self.model.state_dict())

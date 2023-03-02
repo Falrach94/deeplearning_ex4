@@ -17,7 +17,7 @@ class AutoencoderDataset(Dataset):
     def label(self):
         self._autoencode = False
 
-    def __init__(self, data, mode, transform_mode, autoencode=True):
+    def __init__(self, data, mode, transform_mode, autoencode=True, normalize=False):
         super().__init__()
 
         self._autoencode = autoencode
@@ -28,14 +28,22 @@ class AutoencoderDataset(Dataset):
         if transform_mode != 0:
             transform_mode = 1
 
-        transforms = [tv.transforms.Compose([tv.transforms.ToPILImage(),
-                                             tv.transforms.ToTensor(),]),
-#                                             tv.transforms.Normalize(train_mean, train_std)]),
-                      tv.transforms.Compose([tv.transforms.ToPILImage(),
-                                             tv.transforms.ToTensor(),
-#                                             tv.transforms.Normalize(train_mean, train_std),
-                                             tv.transforms.GaussianBlur(7),
-                                             tv.transforms.RandomAutocontrast()])]
+        if normalize:
+            transforms = [tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                 tv.transforms.ToTensor(),
+                                                 tv.transforms.Normalize(train_mean, train_std)]),
+                          tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                 tv.transforms.ToTensor(),
+                                                 tv.transforms.Normalize(train_mean, train_std),
+                                                 tv.transforms.GaussianBlur(7),
+                                                 tv.transforms.RandomAutocontrast()])]
+        else:
+            transforms = [tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                 tv.transforms.ToTensor()]),
+                          tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                 tv.transforms.ToTensor(),
+                                                 tv.transforms.GaussianBlur(7),
+                                                 tv.transforms.RandomAutocontrast()])]
 
         if self.train:
             self._transform = transforms[transform_mode]
@@ -66,4 +74,4 @@ class AutoencoderDataset(Dataset):
         else:
             cracked = self._data.loc[idx, "crack"]
             inactive = self._data.loc[idx, "inactive"]
-            return image, torch.tensor([cracked, inactive])
+            return image, torch.tensor([float(cracked), float(inactive)])

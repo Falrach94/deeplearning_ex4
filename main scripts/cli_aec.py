@@ -183,7 +183,7 @@ class Controller:
         '''
 
 
-    def metric_update(self, loss, time, metrics, best):
+    def metric_update(self, loss, epoch_time, metrics, best):
         tr_loss = loss['train']
         val_loss = loss['val']
 
@@ -195,7 +195,7 @@ class Controller:
         total_time_min = int(total_time_s / 60)
         total_time_s %= 60
 
-        self.print_metrics(loss, time, metrics, best, (total_time_min, total_time_s))
+        self.print_metrics(loss, epoch_time, metrics, best, (total_time_min, total_time_s))
 
     def export(self, state):
         print('staring export')

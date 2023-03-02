@@ -10,7 +10,7 @@ class ResNet34AutoEnc(nn.Module):
         if autoencoder is not None:
             self.encoder = autoencoder.encoder
         else:
-            self.encoder = Encoder()
+            self.encoder = Encoder(128)
         self.classifier = nn.Sequential(
             nn.Linear(512, 2),
             nn.Sigmoid()

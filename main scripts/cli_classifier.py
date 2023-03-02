@@ -188,7 +188,7 @@ class Controller:
 
     def export(self, state):
         print('staring export')
-        model = ResNet34AutoEnc(128)
+        model = ResNet34AutoEnc()
         model.load_state_dict(state)
         model.eval()
 

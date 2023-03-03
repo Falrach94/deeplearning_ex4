@@ -63,7 +63,7 @@ class Encoder(nn.Module):
             self._make_layer(64, 64, 3),  # 71x71 -> 71x71
             self._make_layer(64, 128, 4),  # 71x71 -> 35x35
             self._make_layer(128, 256, 6),  # 35x35 -> 17x17
-            self._make_layer(256, 512, 3)  # 17x17 -> 8x8
+            self._make_layer(256, 512, 3)  # 17x17 -> 10x10
         ]
         self.feature_extraction = nn.Sequential(*layers)
 

@@ -247,8 +247,10 @@ class Controller:
 
         self.print_metrics(loss, epoch_time, metrics, best, (total_time_min, total_time_s))
 
-    def export(self, state):
-        print('staring export')
+    def export(self, state, path):
+        print('starting export')
+
+        self.model.load_state_dict(state)
 
         self.model.cpu()
         self.model.eval()
@@ -257,7 +259,7 @@ class Controller:
         y = self.model(x)
         torch.onnx.export(self.model,  # model being run
                           x,  # model input (or a tuple for multiple inputs)
-                          export_path + '.zip',  # where to save the model (can be a file or file-like object)
+                          path + '.zip',  # where to save the model (can be a file or file-like object)
                           export_params=True,  # store the trained parameter weights inside the model file
                           opset_version=10,  # the ONNX version to export the model to
                           do_constant_folding=True,  # whether to execute constant folding for optimization

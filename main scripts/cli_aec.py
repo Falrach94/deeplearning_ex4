@@ -193,7 +193,7 @@ class Controller:
         self.start_time = time.time_ns()
 
         print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
-        model, metric_model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW, best_metric=self.select_best_metric)
+        model, metric_model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW, best_metric_sel=self.select_best_metric)
         torch.save(model, best_classifier_path)
         self.save_progress()
         self.export(model, export_path+'_loss')

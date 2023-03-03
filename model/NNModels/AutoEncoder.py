@@ -48,10 +48,14 @@ class Encoder(nn.Module):
     def __init__(self, sparse_cnt):
         super().__init__()
 
-        self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),
+        # w/s-(k-1)
+        # x x x x x x x x x x x x x x
+        # - - - - - - -
+
+        self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 294x294->147x147
                                           nn.BatchNorm2d(64),
                                           nn.ReLU(inplace=True),
-                                          nn.MaxPool2d(kernel_size=3, stride=2))
+                                          nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147 -> 143x143 -> 71x71
 
         # ResNet34
         layers = [
@@ -114,53 +118,6 @@ class Bottleneck(nn.Module):
         if not self._sparse_output:
             x = self.expander(x)
         return x, self.last_activation
-
-
-class Decoder(nn.Module):
-
-    def __init__(self, sparse_cnt):
-        super().__init__()
-
-        self.relu = nn.ReLU(inplace=True)
-
-        self.dropout = nn.Dropout(p=0.5)
-        self.fc = nn.Linear(sparse_cnt, 512)
-
-
-        self.conv1 = nn.ConvTranspose2d(256, 128, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.conv3 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=1, padding=1)
-        self.conv4 = nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2, padding=1, output_padding=1)
-
-        self.bn1 = nn.BatchNorm2d(256)
-
-        self.sig = nn.Sigmoid()
-
-    def forward(self, x):
-        x = self.fc(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-        x = x[:, :, None, None]
-        x = self.deconv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.deconv2(x)
-        x = self.bn2(x)
-        x = self.relu(x)
-        x = self.deconv3(x)
-        x = self.bn3(x)
-        x = self.relu(x)
-        x = self.deconv4(x)
-        x = self.bn4(x)
-        x = self.relu(x)
-        x = self.deconv5(x)
-        x = self.bn5(x)
-        x = self.relu(x)
-        x = self.deconv6(x)
-        x = self.sig(x)
-
-        return x
-
 
 class TestDecoder(torch.nn.Module):
     def __init__(self):

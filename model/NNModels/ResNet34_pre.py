@@ -2,6 +2,8 @@ import numpy as np
 import torch.nn
 
 import torchvision as tv
+from torch.nn import init
+
 
 class ResNet34_Pretrained(torch.nn.Module):
 
@@ -15,6 +17,7 @@ class ResNet34_Pretrained(torch.nn.Module):
         #    param.requires_grad = False
 
         self.model.fc = torch.nn.Linear(512, 2)
+        init.xavier_uniform_(self.model.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()
 

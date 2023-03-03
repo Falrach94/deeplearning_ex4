@@ -1,3 +1,4 @@
+import copy
 import time
 import numpy as np
 import torch as t
@@ -44,7 +45,7 @@ class AutoEncTrainer:
                 val, update = best_metric_sel(metrics, best_metric_val)
                 if update:
                     best_metric_val = val
-                    best_metric_model = self._model.state_dict()
+                    best_metric_model = copy.deepcopy(self._model.state_dict())
 
             if early_stop_criterion is None:
                 crit = loss['val']
@@ -57,7 +58,7 @@ class AutoEncTrainer:
                 best_metric = metrics
                 best_epoch = i
                 best_crit_val = crit
-                best_model = self._model.state_dict()
+                best_model = copy.deepcopy(self._model.state_dict())
 
             if self.epoch_callback is not None:
                 self.epoch_callback(i, loss, time, metrics,

@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
+from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
@@ -31,7 +32,7 @@ best_autoenc_path = 'assets/best_model.ckp'
 best_classifier_path = 'assets/best_classifier_model.ckp'
 export_path = 'assets/export'
 
-main_model = ResNet50v2_Pretrained()
+main_model = ResNet34_Pretrained()
 
 AUTO_FCT = 0.3
 CLASS_FCT = 0.8

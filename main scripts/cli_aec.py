@@ -24,29 +24,6 @@ from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
 from utils.stat_tools import calc_multi_f1
 
-BATCH_SIZE = 16
-lr = 0.0001
-decay = 0.00003
-save_path = 'assets/classifier_save.aes'
-best_autoenc_path = 'assets/best_model.ckp'
-best_classifier_path = 'assets/best_classifier_model.ckp'
-export_path = 'assets/export'
-
-gamma_neg = 4
-gamma_pos = 1
-clip = 0.15
-
-PATIENCE = 20
-WINDOW = 10
-
-main_model = ResNet34_Pretrained()
-
-AUTO_FCT = 0.3
-CLASS_FCT = 0.8
-SPARSE_FCT = 0.5
-
-NORMALIZE = True
-
 
 class AECLoss:
     def __init__(self, cf, aef, ld):
@@ -62,18 +39,14 @@ class AECLoss:
             + self.b * self.classifier_loss(pred[1], label) \
             + self.ld * torch.sum(torch.abs(pred[2]))
 
-
+    def simple_loss(self, input, pred, label, metrics):
+        return self.image_loss(pred, input)
 
 
 class SimpleLoss:
     def __init__(self):
         #self.loss = AsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
         self.loss = WeightedAsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
-
-
-        self.mse = torch.nn.MSELoss().cuda()
-
-
 
     def calc_loss(self, input, pred, label, metrics):
         if metrics is None:
@@ -90,9 +63,39 @@ class SimpleLoss:
 
         return self.loss(pred, label, weights)
 
+def calc_MSE_loss(input, pred, label, metrics):
+    return torch.nn.functional.mse_loss(pred, label)
 
-    def calc_MSE_loss(self, input, pred, label, metrics):
-        return self.mse(pred, label)
+
+save_path = 'assets/classifier_save.aes'
+best_autoenc_path = 'assets/best_model.ckp'
+best_classifier_path = 'assets/best_classifier_model.ckp'
+export_path = 'assets/export'
+
+BATCH_SIZE = 16
+lr = 0.0001
+decay = 0.00003
+
+gamma_neg = 4
+gamma_pos = 1
+clip = 0.15
+
+PATIENCE = 20
+WINDOW = 10
+
+AUTO_FCT = 0.3
+CLASS_FCT = 0.8
+SPARSE_FCT = 0.5
+
+main_model = ResNetAutoEncoder()
+
+
+NORMALIZE = True
+
+#loss_calculator = SimpleLoss()
+TRAINING_LOSS = calc_MSE_loss
+VALIDATION_LOSS = calc_MSE_loss
+
 
 class Controller:
 
@@ -114,8 +117,6 @@ class Controller:
         self.val_dataset = None
 
         self.model_state = None
-
-        self.loss_calculator = SimpleLoss()
 
         # --- setup training -----
         self.initialize_training_data()
@@ -158,8 +159,8 @@ class Controller:
         self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
-        self.trainer.loss_fct = self.loss_calculator.calc_loss
-        self.trainer.val_loss_fct = self.loss_calculator.calc_MSE_loss
+        self.trainer.loss_fct = TRAINING_LOSS
+        self.trainer.val_loss_fct = VALIDATION_LOSS
         self.trainer.set_session(self.model, optimizer, self.tr_dl, self.val_dl, BATCH_SIZE)
 
     def initialize_model_state(self):
@@ -191,9 +192,6 @@ class Controller:
         self.export(model)
         self.train_thread = None
 
-    @staticmethod
-    def print_line():
-        print(f'-------------------------------------------')
     def print_metrics(self, loss, time, metrics, best, total_time):
 
         builder = TableBuilder()

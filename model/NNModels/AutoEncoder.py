@@ -49,20 +49,27 @@ class Encoder(nn.Module):
         super().__init__()
 
         # w/s-(k-1)
-        # x x x x x x x x x x x x x x
-        # - - - - - - -
+        # x x x x x x x x x x x x x x x0
+        # - - -
+
+
 
         self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 294x294->147x147
                                           nn.BatchNorm2d(64),
                                           nn.ReLU(inplace=True),
-                                          nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147 -> 143x143 -> 71x71
+                                          nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147 -> 145x145 -> 72x72
+
+        self.l1 = self._make_layer(64, 64, 3),  # 71x71 -> 71x71
+        self.l2 = self._make_layer(64, 128, 4),  # 71x71 -> 35x35
+        self.l3 = self._make_layer(128, 256, 6),  # 35x35 -> 17x17
+        self.l4 = self._make_layer(256, 512, 3)  # 17x17 -> 8x8
 
         # ResNet34
         layers = [
-            self._make_layer(64, 64, 3),
-            self._make_layer(64, 128, 4),
-            self._make_layer(128, 256, 6),
-            self._make_layer(256, 512, 3)
+            self._make_layer(64, 64, 3),  # 71x71 -> 71x71
+            self._make_layer(64, 128, 4),  # 71x71 -> 35x35
+            self._make_layer(128, 256, 6),  # 35x35 -> 17x17
+            self._make_layer(256, 512, 3)  # 17x17 -> 8x8
         ]
         self.feature_extraction = nn.Sequential(*layers)
 
@@ -74,6 +81,10 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         x = self.initial_conv(x)
+        x = self.l1(x)
+        x = self.l2(x)
+        x = self.l3(x)
+        x = self.l4(x)
         x = self.feature_extraction(x)
         x = self.output_layer(x)
         return x
@@ -264,6 +275,6 @@ class ResNetAutoEncoder(torch.nn.Module):
 #        if not self._sparse_output:
 
         x = self.decoder(x)
-        y_s = self.classifier(x_s)
+       # y_s = self.classifier(x_s)
 
-        return x, y_s, x_s
+        return x#, y_s, x_s

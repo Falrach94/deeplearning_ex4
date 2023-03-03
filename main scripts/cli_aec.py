@@ -69,9 +69,6 @@ class SimpleLoss:
         self.loss = WeightedAsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
 
     def calc_loss(self, input, pred, label, metrics):
-
-        metrics = {'crack': {'f1':0.5}, 'inactive': {'f1':0.1}}
-
         if metrics is None:
             weights = torch.ones(pred.size(0), 2).cuda()
         else:

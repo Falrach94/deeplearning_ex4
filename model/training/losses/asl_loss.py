@@ -109,7 +109,7 @@ class WeightedAsymmetricLossOptimized(nn.Module):
     favors inplace operations'''
 
     def __init__(self, gamma_neg=4, gamma_pos=1, clip=0.05, eps=1e-8, disable_torch_grad_focal_loss=False):
-        super(AsymmetricLossOptimized, self).__init__()
+        super().__init__()
 
         self.gamma_neg = gamma_neg
         self.gamma_pos = gamma_pos

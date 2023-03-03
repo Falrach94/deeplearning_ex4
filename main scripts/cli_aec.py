@@ -71,13 +71,14 @@ class SimpleLoss:
     def calc_loss(self, input, pred, label, metrics):
 
         if metrics is None:
-            weights = torch.ones(pred.size(0), 2)
+            weights = torch.ones(pred.size(0), 2).cuda()
         else:
             f1_c = metrics['crack']['f1']
             f1_i = metrics['inactive']['f1']
             weights = torch.concat((1/f1_c, 1/f1_i))
             weights = weights[None, :]
             weights = weights.repeat(pred.size(0), 1)
+            weights = weights.cuda()
 
         return self.loss(pred, label, weights)
 

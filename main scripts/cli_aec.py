@@ -70,14 +70,16 @@ class SimpleLoss:
 
     def calc_loss(self, input, pred, label, metrics):
 
+        metrics = {'crack': {'f1':0.5}, 'inactive': {'f1':0.1}}
+
         if metrics is None:
             weights = torch.ones(pred.size(0), 2).cuda()
         else:
             f1_c = metrics['crack']['f1']
             f1_i = metrics['inactive']['f1']
-            fc = max(1/f1_c if f1_c != 0 else 3, 3)
-            fi = max(1/f1_i if f1_i != 0 else 3, 3)
-            weights = torch.tensor(fc, fi)
+            fc = min(1/f1_c if f1_c != 0 else 3, 3)
+            fi = min(1/f1_i if f1_i != 0 else 3, 3)
+            weights = torch.tensor([fc, fi])
             weights = weights[None, :]
             weights = weights.repeat(pred.size(0), 1)
             weights = weights.cuda()

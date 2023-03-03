@@ -76,6 +76,7 @@ class AutoEncTrainer:
         self.abort_fit = False
 
         self.loss_fct = self.calc_loss
+        self.val_loss_fct = self.calc_loss
 
         self.metric_calculator = None
         self.batch_callback = None
@@ -162,7 +163,7 @@ class AutoEncTrainer:
 
                 # perform a validation step
                 step_prediction = self._model(x)
-                loss += self.loss_fct(x, step_prediction, y, self.last_metric)
+                loss += self.val_loss_fct(x, step_prediction, y, self.last_metric)
 
                 j = i*self._batch_size
                 if type(step_prediction) is tuple:

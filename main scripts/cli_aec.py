@@ -63,10 +63,17 @@ class AECLoss:
             + self.ld * torch.sum(torch.abs(pred[2]))
 
 
+
+
 class SimpleLoss:
     def __init__(self):
         #self.loss = AsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
         self.loss = WeightedAsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
+
+
+        self.mse = torch.nn.MSELoss().cuda()
+
+
 
     def calc_loss(self, input, pred, label, metrics):
         if metrics is None:
@@ -83,6 +90,9 @@ class SimpleLoss:
 
         return self.loss(pred, label, weights)
 
+
+    def calc_MSE_loss(self, input, pred, label, metrics):
+        return self.mse(pred, label)
 
 class Controller:
 
@@ -149,6 +159,7 @@ class Controller:
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
         self.trainer.loss_fct = self.loss_calculator.calc_loss
+        self.trainer.val_loss_fct = self.loss_calculator.calc_MSE_loss
         self.trainer.set_session(self.model, optimizer, self.tr_dl, self.val_dl, BATCH_SIZE)
 
     def initialize_model_state(self):

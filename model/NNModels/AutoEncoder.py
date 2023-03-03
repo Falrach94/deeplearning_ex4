@@ -48,21 +48,17 @@ class Encoder(nn.Module):
     def __init__(self, sparse_cnt):
         super().__init__()
 
-        # w/s-(k-1)
-        # x x x x x x x x x x x x x x x0
-        # - - -
 
 
-
-        self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 294x294->147x147
+        self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 293x293 ->146x146 -> 147x147
                                           nn.BatchNorm2d(64),
                                           nn.ReLU(inplace=True),
-                                          nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147 -> 145x145 -> 72x72
+                                          nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147->144x144 -> 72x72 -> 73x73
 
-        self.l1 = self._make_layer(64, 64, 3),  # 71x71 -> 71x71
-        self.l2 = self._make_layer(64, 128, 4),  # 71x71 -> 35x35
-        self.l3 = self._make_layer(128, 256, 6),  # 35x35 -> 17x17
-        self.l4 = self._make_layer(256, 512, 3)  # 17x17 -> 8x8
+        self.l1 = self._make_layer(64, 64, 3)  # 73x73 -> 73x73
+        self.l2 = self._make_layer(64, 128, 4)  # 73x73 -> 37x37
+        self.l3 = self._make_layer(128, 256, 6)  # 37x37 -> 19x19
+        self.l4 = self._make_layer(256, 512, 3)  # 19x19 -> 10x10
 
         # ResNet34
         layers = [

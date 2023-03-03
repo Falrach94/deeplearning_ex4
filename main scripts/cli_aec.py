@@ -87,13 +87,13 @@ AUTO_FCT = 0.3
 CLASS_FCT = 0.8
 SPARSE_FCT = 0.5
 
-main_model = ResNetAutoEncoder()
-
+#main_model = ResNetAutoEncoder()
+main_model = ResNet34_Pretrained()
 
 NORMALIZE = True
 
-#loss_calculator = SimpleLoss()
-TRAINING_LOSS = calc_MSE_loss
+loss_calculator = SimpleLoss()
+TRAINING_LOSS = loss_calculator.calc_loss
 VALIDATION_LOSS = calc_MSE_loss
 
 
@@ -182,14 +182,23 @@ class Controller:
 
     # --- internal methods --------------
 
+    def select_best_metric(self, new_metric, old_metric):
+        if old_metric is None or old_metric < new_metric['mean']:
+            return new_metric['mean'], True
+        else:
+            return old_metric, False
+
+
     def train(self):
         self.start_time = time.time_ns()
 
         print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
-        model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW)
+        model, metric_model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW, best_metric=self.select_best_metric)
         torch.save(model, best_classifier_path)
         self.save_progress()
-        self.export(model)
+        self.export(model, export_path+'_loss')
+        if metric_model is not None:
+            self.export(metric_model, export_path+'_metric')
         self.train_thread = None
 
     def print_metrics(self, loss, time, metrics, best, total_time):

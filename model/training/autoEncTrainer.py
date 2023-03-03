@@ -28,15 +28,24 @@ class AutoEncTrainer:
                {'total': total_time, 'train': train_time, 'val': val_time}, \
             metrics
 
-    def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None):
+    def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None, best_metric=None):
         best_crit_val = -1
         best_epoch = None
         best_model = None
         best_metric = None
         best_loss = None
 
+        best_metric_val = None
+        best_metric_model = None
+
         for i in range(max_epoch):
             loss, time, metrics = self.single_epoch_with_eval()
+            if best_metric is not None:
+                val, update = best_metric(metrics, best_metric_val)
+                if update:
+                    best_metric_val = val
+                    best_metric_model = self._model.state_dict()
+
             if early_stop_criterion is None:
                 crit = loss['val']
                 update = crit < best_crit_val
@@ -58,7 +67,7 @@ class AutoEncTrainer:
                 if i - best_epoch > window:
                     break
 
-        return best_model
+        return best_model, best_metric_model
 
 
     # --- setup ------------------

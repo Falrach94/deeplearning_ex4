@@ -13,8 +13,8 @@ class ResNet34_Pretrained(torch.nn.Module):
         self.model = tv.models.resnet34(
             weights=tv.models.ResNet34_Weights.DEFAULT)
 
-        for param in self.model.parameters():
-            param.requires_grad = False
+#        for param in self.model.parameters():
+#            param.requires_grad = False
 
         self.model.fc = torch.nn.Linear(512, 2)
         init.xavier_uniform_(self.model.fc.weight)

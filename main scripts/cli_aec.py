@@ -39,7 +39,7 @@ clip = 0.15
 PATIENCE = 20
 WINDOW = 10
 
-main_model = ResNet50v2_Pretrained()
+main_model = ResNet34_Pretrained()
 
 AUTO_FCT = 0.3
 CLASS_FCT = 0.8

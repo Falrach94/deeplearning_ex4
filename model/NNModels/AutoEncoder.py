@@ -48,8 +48,6 @@ class Encoder(nn.Module):
     def __init__(self, sparse_cnt):
         super().__init__()
 
-
-
         self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 293x293 ->146x146 -> 147x147
                                           nn.BatchNorm2d(64),
                                           nn.ReLU(inplace=True),

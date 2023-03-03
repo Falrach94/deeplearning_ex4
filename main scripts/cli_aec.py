@@ -19,7 +19,7 @@ from model.profiles.builder.hyper_parameter import HyperParameter
 from model.reader.small_reader import SmallDataReader
 from model.training.autoEncTrainer import AutoEncTrainer
 from model.training.autoEncTrainerEx import AutoEncTrainerEx
-from model.training.losses.asl_loss import AsymmetricLossOptimized
+from model.training.losses.asl_loss import AsymmetricLossOptimized, WeightedAsymmetricLossOptimized
 from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
 from utils.stat_tools import calc_multi_f1
@@ -31,6 +31,13 @@ save_path = 'assets/classifier_save.aes'
 best_autoenc_path = 'assets/best_model.ckp'
 best_classifier_path = 'assets/best_classifier_model.ckp'
 export_path = 'assets/export'
+
+gamma_neg = 4
+gamma_pos = 1
+clip = 0.15
+
+PATIENCE = 20
+WINDOW = 10
 
 main_model = ResNet34_Pretrained()
 
@@ -50,7 +57,7 @@ class AECLoss:
         self.b = cf
         self.ld = ld
 
-    def calc_loss(self, input, pred, label):
+    def calc_loss(self, input, pred, label, metrics):
         return self.a * self.image_loss(pred[0], input) \
             + self.b * self.classifier_loss(pred[1], label) \
             + self.ld * torch.sum(torch.abs(pred[2]))
@@ -58,10 +65,21 @@ class AECLoss:
 
 class SimpleLoss:
     def __init__(self):
-        self.loss = AsymmetricLossOptimized(3).cuda()
+        #self.loss = AsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
+        self.loss = WeightedAsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
 
-    def calc_loss(self, input, pred, label):
-        return self.loss(pred, label)
+    def calc_loss(self, input, pred, label, metrics):
+
+        if metrics is None:
+            weights = torch.ones(pred.size(0), 2)
+        else:
+            f1_c = metrics['crack']['f1']
+            f1_i = metrics['inactive']['f1']
+            weights = torch.concat((1/f1_c, 1/f1_i))
+            weights = weights[None, :]
+            weights = weights.repeat(pred.size(0), 1)
+
+        return self.loss(pred, label, weights)
 
 
 class Controller:
@@ -153,8 +171,8 @@ class Controller:
     def train(self):
         self.start_time = time.time_ns()
 
-        print(f'start training with early stopping (max epoch: 100, patience: 10, window: 5)')
-        model = self.trainer.train_with_early_stopping(100, 10, 5)
+        print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
+        model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW)
         torch.save(model, best_classifier_path)
         self.save_progress()
         self.export(model)

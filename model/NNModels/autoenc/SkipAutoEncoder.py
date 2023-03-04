@@ -10,7 +10,7 @@ class SkipAutoEncoder(nn.Module):
         super().__init__()
         self.encoder = SkipEncoder()
         self.decoder = SkipDecoder(512)
-        self.bottleneck = Bottleneck(bottleneck_size, bottleneck_activation)
+        #self.bottleneck = Bottleneck(bottleneck_size, bottleneck_activation)
 
     def forward(self, x):
         x, skip = self.encoder(x)

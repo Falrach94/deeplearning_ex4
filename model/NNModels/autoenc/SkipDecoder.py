@@ -22,7 +22,7 @@ class UpsampleBlock(torch.nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
 
-        self.drop = nn.Dropout(p=0.8)
+        self.drop = nn.Dropout(p=0.99)
 
     def forward(self, x, skip):
 
@@ -34,6 +34,7 @@ class UpsampleBlock(torch.nn.Module):
         skip = self.bn2(skip)
         skip = self.relu(skip)
         skip = self.drop(skip)
+#        skip = nn.functional.dropout(skip, p=0.99)
 
         if skip is not None:
             x = torch.concat((x, skip), dim=1)

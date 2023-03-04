@@ -14,7 +14,7 @@ class ScrambledAutoEncoder(SkipAutoEncoder):
     def forward(self, x):
         x, skip = self.encoder(x)
         #x = self.bottleneck(x)
-        x = torch.rand((1, 512, 10, 10))
+        #x = torch.rand((1, 512, 10, 10))
 
         x = self.decoder(x, skip)
         return x

@@ -17,6 +17,7 @@ from gui.autoencoder_gui import AEWindow
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels import AutoEncoder
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
+from model.NNModels.autoenc.ScrambledAutoEncoder import ScrambledAutoEncoder
 from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
@@ -29,6 +30,8 @@ BATCH_SIZE = 32
 lr = 0.0001
 decay = 0.00003
 save_path = 'assets/auto_encoder_save.aes'
+
+load_path = 'assets/best_model.ckp'
 
 class Presenter(QObject):
     signal_update_loss = pyqtSignal(object, object)
@@ -85,20 +88,27 @@ class Presenter(QObject):
 
         # --- setup training -----
         self.initialize_display_model()
-        self.model = SkipAutoEncoder()
+        self.model = ScrambledAutoEncoder()
 
         #self.initialize_training_data()
         self.initialize_model_state()
         self.start_image_update()
+
+        #self.export('assets/test')
+
        # self.start_training()
         #self.create_sparse_representation()
 
     def initialize_display_model(self):
-        reader = SmallDataReader(memorize_all=True)
-        self.display_data = reader.all
-        self.display_model = SkipAutoEncoder()
+#        reader = SmallDataReader(memorize_all=True)
+ #       self.display_data = reader.all
+        self.display_data = pd.read_csv('assets/val_data.csv', sep=';')
+        self.display_model = ScrambledAutoEncoder()
 
-        train_mean = [0.59685254, 0.59685254, 0.59685254]
+        state_dict = torch.load(load_path)
+        self.display_model.load_state_dict(state_dict)
+
+        train_mean = [0.59685254, 0.59685, 0.59685254]
         train_std = [0.16043035, 0.16043035, 0.16043035]
         self.display_transform = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                                         tv.transforms.ToTensor(),
@@ -151,7 +161,7 @@ class Presenter(QObject):
         if os.path.exists(save_path):
             self.model_state = torch.load(save_path)
             #self.trainer.epoch = len(self.model_state['tr_loss'])
-            self.model.load_state_dict(self.model_state['state_dict'])
+            #self.model.load_state_dict(self.model_state['state_dict'])
             self.signal_update_loss.emit(self.model_state['tr_loss'], self.model_state['val_loss'])
         else:
             self.model_state = {
@@ -184,7 +194,7 @@ class Presenter(QObject):
         return image
 
     def refresh_image(self):
-        self.display_model.load_state_dict(self.model_state['state_dict'])
+      #  self.display_model.load_state_dict(self.model_state['state_dict'])
         self.display_model.eval()
         image = self.load_display_image()
         prediction = self.display_model(image)[0]
@@ -284,6 +294,29 @@ class Presenter(QObject):
         print_progress_bar(f'epoch {self.trainer.epoch} - {"training" if training else "validation"}',
                            batch_ix+1, batch_cnt,
                            f'~{int(approx_rem)} s remaining (~{round(tpb,2)} s/batch)')
+
+    def export(self, state, path):
+        print('starting export')
+
+        self.model.load_state_dict(state)
+
+        self.model.cpu()
+        self.model.eval()
+
+        x = torch.randn(1, 3, 300, 300, requires_grad=True)
+        y = self.model(x)
+        torch.onnx.export(self.model,  # model being run
+                          x,  # model input (or a tuple for multiple inputs)
+                          path + '.zip',  # where to save the model (can be a file or file-like object)
+                          export_params=True,  # store the trained parameter weights inside the model file
+                          opset_version=10,  # the ONNX version to export the model to
+                          do_constant_folding=True,  # whether to execute constant folding for optimization
+                          input_names=['input'],  # the model's input names
+                          output_names=['output'],  # the model's output names
+                          dynamic_axes={'input': {0: 'batch_size'},  # variable lenght axes
+                                        'output': {0: 'batch_size'}})
+
+        print('export finished')
 
 
 if __name__ == '__main__':

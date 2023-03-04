@@ -31,7 +31,8 @@ class DecoderBlock(torch.nn.Module):
         x = self.bn3(x)
         x = self.relu(x)
 
-        x = torch.concat((x, skip), dim=1)
+        if skip is not None:
+            x = torch.concat((x, skip), dim=1)
 
         x = self.conv1(x)
         x = self.bn1(x)
@@ -58,7 +59,7 @@ class SkipDecoder(nn.Module):
         self.dec2 = DecoderBlock(256, 128, 128, padding=1, out_padding=1)  # 19x19 -> 38x38
         self.dec3 = DecoderBlock(128, 64, 64, padding=1)  # 38x38 -> 75x75
         self.dec4 = DecoderBlock(64, 64, 64, padding=1, stride=1)  # 75x75 -> 75x73
-        self.dec5 = DecoderBlock(64, 64, 32, padding=1, out_padding=1)  # 75x75 -> 150x150
+        self.dec5 = DecoderBlock(64, 0, 32, padding=1, out_padding=1)  # 75x75 -> 150x150
         self.upsample = nn.Sequential(
             nn.Upsample((300, 300)),
             nn.Conv2d(32, 3, kernel_size=3, padding=1),
@@ -69,11 +70,11 @@ class SkipDecoder(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x, skip):
-        x = self.dec1(x, skip[4])
-        x = self.dec2(x, skip[3])
-        x = self.dec3(x, skip[2])
-        x = self.dec4(x, skip[1])
-        x = self.dec5(x, skip[0])
+        x = self.dec1(x, skip[3])
+        x = self.dec2(x, skip[2])
+        x = self.dec3(x, skip[1])
+        x = self.dec4(x, skip[0])
+        x = self.dec5(x, None)
         x = self.upsample(x)
         x = self.sigmoid(x)
         x = (x-train_mean)/train_std

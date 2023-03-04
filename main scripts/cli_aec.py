@@ -13,6 +13,7 @@ from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
+from model.NNModels.autoenc.ScrambledAutoEncoder import ScrambledAutoEncoder
 from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
@@ -64,13 +65,13 @@ class SimpleLoss:
 
         return self.loss(pred, label, weights)
 
+
 def calc_MSE_loss(input, pred, label, metrics):
     return torch.nn.functional.mse_loss(pred, label)
 
 
-save_path = 'assets/classifier_save.aes'
-best_autoenc_path = 'assets/best_model.ckp'
-best_classifier_path = 'assets/best_classifier_model.ckp'
+save_path = 'assets/last_state.aes'
+best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
 
 BATCH_SIZE = 16
@@ -87,6 +88,9 @@ WINDOW = 10
 AUTO_FCT = 0.3
 CLASS_FCT = 0.8
 SPARSE_FCT = 0.5
+
+EXPORT = False
+SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
 #main_model = ResNet34_Pretrained()
@@ -204,11 +208,16 @@ class Controller:
                                                                      PATIENCE,
                                                                      WINDOW)#,
                                                                      #best_metric_sel=self.select_best_metric)
-        torch.save(model, best_classifier_path)
+
+        if SAVE_MODEL:
+            torch.save(model, best_model_path)
+
         self.save_progress()
-        self.export(model, export_path+'_loss')
-        if metric_model is not None:
-            self.export(metric_model, export_path+'_metric')
+
+        if EXPORT:
+            self.export(model, export_path+'_loss')
+            if metric_model is not None:
+                self.export(metric_model, export_path+'_metric')
         self.train_thread = None
 
     def print_metrics(self, loss, time, metrics, best, total_time):

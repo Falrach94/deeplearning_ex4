@@ -13,6 +13,7 @@ from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
+from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
@@ -88,13 +89,19 @@ CLASS_FCT = 0.8
 SPARSE_FCT = 0.5
 
 #main_model = ResNetAutoEncoder()
-main_model = ResNet34_Pretrained()
+#main_model = ResNet34_Pretrained()
+main_model = SkipAutoEncoder()
 
 NORMALIZE = True
 
+ae_calc = AECLoss(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
 loss_calculator = SimpleLoss()
-TRAINING_LOSS = loss_calculator.calc_loss
-VALIDATION_LOSS = calc_MSE_loss
+
+TRAINING_LOSS = ae_calc.simple_loss
+VALIDATION_LOSS = ae_calc.simple_loss
+
+#TRAINING_LOSS = loss_calculator.calc_loss
+#VALIDATION_LOSS = calc_MSE_loss
 
 
 class Controller:

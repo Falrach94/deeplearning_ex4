@@ -17,6 +17,7 @@ from gui.autoencoder_gui import AEWindow
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels import AutoEncoder
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
+from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
@@ -83,11 +84,25 @@ class Presenter(QObject):
         self.window.show()
 
         # --- setup training -----
-        self.initialize_training_data()
+        self.initialize_display_model()
+        self.model = SkipAutoEncoder()
+
+        #self.initialize_training_data()
         self.initialize_model_state()
         self.start_image_update()
        # self.start_training()
         #self.create_sparse_representation()
+
+    def initialize_display_model(self):
+        reader = SmallDataReader(memorize_all=True)
+        self.display_data = reader.all
+        self.display_model = SkipAutoEncoder()
+
+        train_mean = [0.59685254, 0.59685254, 0.59685254]
+        train_std = [0.16043035, 0.16043035, 0.16043035]
+        self.display_transform = tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                        tv.transforms.ToTensor(),
+                                                        tv.transforms.Normalize(train_mean, train_std)])
 
     def initialize_training_data(self):
 
@@ -105,9 +120,13 @@ class Presenter(QObject):
         self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1)
         self.val_dataset = AutoencoderDataset(val_data, 'val', 0)
 
+        train_mean = [0.59685254, 0.59685254, 0.59685254]
+        train_std = [0.16043035, 0.16043035, 0.16043035]
+
         self.display_data = val_data.copy()
         self.display_transform = tv.transforms.Compose([tv.transforms.ToPILImage(),
-                                                        tv.transforms.ToTensor()])
+                                                        tv.transforms.ToTensor(),
+                                                        tv.transforms.Normalize(train_mean, train_std)])
         rel_path = f'assets/{self.display_data.loc[self.selected_image_idx, "filename"]}'
         image = torch.tensor(cv2.imread(rel_path).transpose((2, 0, 1)))
         #        image = gray2rgb(image)
@@ -131,7 +150,7 @@ class Presenter(QObject):
     def initialize_model_state(self):
         if os.path.exists(save_path):
             self.model_state = torch.load(save_path)
-            self.trainer.epoch = len(self.model_state['tr_loss'])
+            #self.trainer.epoch = len(self.model_state['tr_loss'])
             self.model.load_state_dict(self.model_state['state_dict'])
             self.signal_update_loss.emit(self.model_state['tr_loss'], self.model_state['val_loss'])
         else:
@@ -157,13 +176,15 @@ class Presenter(QObject):
     # --- internal methods --------------
     def load_display_image(self):
         rel_path = f'assets/{self.display_data.loc[self.selected_image_idx, "filename"]}'
-        image = torch.tensor(cv2.imread(rel_path).transpose((2, 0, 1)))
+        image = cv2.imread(rel_path)
+        image = image.transpose((2, 0, 1))
+        image = torch.tensor(image)
         #        image = gray2rgb(image)
         image = self.display_transform(image)[None, :]
         return image
 
     def refresh_image(self):
-        self.display_model.load_state_dict(dict(self.model_state['state_dict']))
+        self.display_model.load_state_dict(self.model_state['state_dict'])
         self.display_model.eval()
         image = self.load_display_image()
         prediction = self.display_model(image)[0]

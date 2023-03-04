@@ -278,7 +278,7 @@ class Controller:
         print('export finished')
 
     def save_progress(self):
-        self.model_state['state_dict'] = dict(self.model.state_dict())
+        self.model_state['state_dict'] = self.model.state_dict()
         torch.save(self.model_state, save_path)
 
     # --- handler ------------------------

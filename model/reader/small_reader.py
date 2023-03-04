@@ -12,9 +12,13 @@ from utils.stat_tools import fully_categorize_data
 
 class SmallDataReader:
 
-    def __init__(self, prune=True, split=0.2):
+    def __init__(self, prune=True, split=0.2, memorize_all=False):
         data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',')
+
+        if memorize_all:
+            self.all = pd.concat((data, aug))
+            self.all = self.all.reset_index()
 
         self.tr_data, self.val_data = train_test_split(data,
                                                        test_size=split)

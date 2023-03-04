@@ -116,7 +116,7 @@ TRAINING_LOSS = loss_calculator.calc_loss
 VALIDATION_LOSS = calc_MSE_loss
 
 SELECT_BEST_METRIC = select_best_metric
-
+METRIC_CALC = calc_multi_f1
 
 class Controller:
 
@@ -177,7 +177,7 @@ class Controller:
                                      weight_decay=decay)
 
         self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
-#        self.trainer.metric_calculator = calc_multi_f1
+        self.trainer.metric_calculator = METRIC_CALC
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
         self.trainer.loss_fct = TRAINING_LOSS

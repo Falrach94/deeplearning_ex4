@@ -12,6 +12,7 @@ from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
+from model.NNModels.ResNet34_pre2 import ResNet34_Pretrained2
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 from model.NNModels.autoenc.ScrambledAutoEncoder import ScrambledAutoEncoder
 from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
@@ -81,8 +82,8 @@ save_path = 'assets/last_state.aes'
 best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
 
-BATCH_SIZE = 4
-lr = 0.00001
+BATCH_SIZE = 8
+lr = 0.00005
 decay = 0.00003
 
 gamma_neg = 4
@@ -100,7 +101,7 @@ EXPORT = True
 SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
-main_model = ResNet34_Pretrained()
+main_model = ResNet34_Pretrained2()
 #main_model = SkipAutoEncoder()
 #main_model = SkipAutoEncoder()
 

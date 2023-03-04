@@ -163,7 +163,7 @@ class Controller:
                                      weight_decay=decay)
 
         self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
-        self.trainer.metric_calculator = calc_multi_f1
+#        self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
         self.trainer.loss_fct = TRAINING_LOSS
@@ -200,7 +200,10 @@ class Controller:
         self.start_time = time.time_ns()
 
         print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
-        model, metric_model = self.trainer.train_with_early_stopping(100, PATIENCE, WINDOW, best_metric_sel=self.select_best_metric)
+        model, metric_model = self.trainer.train_with_early_stopping(100,
+                                                                     PATIENCE,
+                                                                     WINDOW)#,
+                                                                     #best_metric_sel=self.select_best_metric)
         torch.save(model, best_classifier_path)
         self.save_progress()
         self.export(model, export_path+'_loss')
@@ -222,10 +225,11 @@ class Controller:
                          f'tr {round(loss["train"], 5)}',
                          f'val {round(loss["val"], 5)}',
                          '')
-        builder.add_line(f'f1',
-                         f'crack {round(metrics["crack"]["f1"], 4)}',
-                         f'inactive {round(metrics["inactive"]["f1"], 4)}',
-                         f'mean {round(metrics["mean"], 4)}')
+        if metrics is not None:
+            builder.add_line(f'f1',
+                             f'crack {round(metrics["crack"]["f1"], 4)}',
+                             f'inactive {round(metrics["inactive"]["f1"], 4)}',
+                             f'mean {round(metrics["mean"], 4)}')
 
         if best['epoch'] is not None:
             builder.new_block()
@@ -233,10 +237,11 @@ class Controller:
                              f'loss: {round(best["loss"], 5)}',
                              '',
                              '')
-            builder.add_line(f'f1',
-                             f'crack {round(best["metric"]["crack"]["f1"], 4)}',
-                             f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
-                             f'mean {round(best["metric"]["mean"], 4)}')
+            if metrics is not None:
+                builder.add_line(f'f1',
+                                 f'crack {round(best["metric"]["crack"]["f1"], 4)}',
+                                 f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
+                                 f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()
 
@@ -246,7 +251,9 @@ class Controller:
 
         self.model_state['tr_loss'].append(tr_loss)
         self.model_state['val_loss'].append(val_loss)
-        self.model_state['label_metrics'].append({'crack': metrics['crack'], 'inactive': metrics['inactive']})
+        if metrics is not None:
+            self.model_state['label_metrics'].append({'crack': metrics['crack'],
+                                                      'inactive': metrics['inactive']})
 
         total_time_s = int((time.time_ns() - self.start_time)/10**9)
         total_time_min = int(total_time_s / 60)

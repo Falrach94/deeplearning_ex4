@@ -22,7 +22,7 @@ class UpsampleBlock(torch.nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
 
-        self.drop = nn.Dropout(p=0.5)
+        self.drop = nn.Dropout(p=0.8)
 
     def forward(self, x, skip):
 

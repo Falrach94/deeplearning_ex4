@@ -94,7 +94,8 @@ SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
 #main_model = ResNet34_Pretrained()
-main_model = SkipAutoEncoder()
+#main_model = SkipAutoEncoder()
+main_model = ScrambledAutoEncoder()
 
 NORMALIZE = True
 

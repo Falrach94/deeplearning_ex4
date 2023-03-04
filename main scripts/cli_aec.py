@@ -70,6 +70,13 @@ def calc_MSE_loss(input, pred, label, metrics):
     return torch.nn.functional.mse_loss(pred, label)
 
 
+def select_best_metric(new_metric, old_metric):
+    if old_metric is None or old_metric < new_metric['mean']:
+        return new_metric['mean'], True
+    else:
+        return old_metric, False
+
+
 save_path = 'assets/last_state.aes'
 best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
@@ -93,20 +100,22 @@ EXPORT = False
 SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
-#main_model = ResNet34_Pretrained()
+main_model = ResNet34_Pretrained()
 #main_model = SkipAutoEncoder()
-main_model = SkipAutoEncoder()
+#main_model = SkipAutoEncoder()
 
 NORMALIZE = True
 
 ae_calc = AECLoss(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
 loss_calculator = SimpleLoss()
 
-TRAINING_LOSS = ae_calc.simple_loss
-VALIDATION_LOSS = ae_calc.simple_loss
+#TRAINING_LOSS = ae_calc.simple_loss
+#VALIDATION_LOSS = ae_calc.simple_loss
 
-#TRAINING_LOSS = loss_calculator.calc_loss
-#VALIDATION_LOSS = calc_MSE_loss
+TRAINING_LOSS = loss_calculator.calc_loss
+VALIDATION_LOSS = calc_MSE_loss
+
+SELECT_BEST_METRIC = select_best_metric
 
 
 class Controller:
@@ -194,12 +203,6 @@ class Controller:
 
     # --- internal methods --------------
 
-    def select_best_metric(self, new_metric, old_metric):
-        if old_metric is None or old_metric < new_metric['mean']:
-            return new_metric['mean'], True
-        else:
-            return old_metric, False
-
 
     def train(self):
         self.start_time = time.time_ns()
@@ -207,8 +210,8 @@ class Controller:
         print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
         model, metric_model = self.trainer.train_with_early_stopping(100,
                                                                      PATIENCE,
-                                                                     WINDOW)#,
-                                                                     #best_metric_sel=self.select_best_metric)
+                                                                     WINDOW,
+                                                                     best_metric_sel=SELECT_BEST_METRIC)
 
         if SAVE_MODEL:
             torch.save(model, best_model_path)

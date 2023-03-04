@@ -34,7 +34,7 @@ class UpsampleBlock(torch.nn.Module):
         skip = self.bn2(skip)
         skip = self.relu(skip)
         skip = self.drop(skip)
-#        skip = nn.functional.dropout(skip, p=0.99)
+        skip = nn.functional.dropout(skip, p=0.99)
 
         if skip is not None:
             x = torch.concat((x, skip), dim=1)

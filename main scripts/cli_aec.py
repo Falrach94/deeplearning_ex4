@@ -81,7 +81,7 @@ save_path = 'assets/last_state.aes'
 best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
 
-BATCH_SIZE = 16
+BATCH_SIZE = 4  
 lr = 0.0001
 decay = 0.00003
 
@@ -96,7 +96,7 @@ AUTO_FCT = 0.3
 CLASS_FCT = 0.8
 SPARSE_FCT = 0.5
 
-EXPORT = False
+EXPORT = True
 SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()

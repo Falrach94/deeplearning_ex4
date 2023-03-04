@@ -6,22 +6,31 @@ train_mean = 0.59685254
 train_std = 0.16043035
 
 class UpsampleBlock(torch.nn.Module):
-    def __init__(self, in_channels, out_channels,
+    def __init__(self, in_channels, skip_cnt, out_channels,
                  padding=0, out_padding=0, stride=2):
         super().__init__()
+
+        self.skip_con = nn.Conv2d(skip_cnt, out_channels, kernel_size=1)
 
         self.trans_conv = nn.ConvTranspose2d(in_channels, out_channels,
                                              kernel_size=3, stride=stride,
                                              padding=padding, output_padding=out_padding)
 
-        self.bn = nn.BatchNorm2d(out_channels)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+
+        self.bn2 = nn.BatchNorm2d(out_channels)
 
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x, skip):
+
         x = self.trans_conv(x)
-        x = self.bn(x)
+        x = self.bn1(x)
         x = self.relu(x)
+
+        skip = self.skip_con(skip)
+        skip = self.bn2(skip)
+        skip = self.relu(skip)
 
         if skip is not None:
             x = torch.concat((x, skip), dim=1)
@@ -77,14 +86,24 @@ class SkipDecoder(nn.Module):
 
         skip_sizes = [256, 128, 64, 64]
 
-        self.upsample1 = UpsampleBlock(in_channel, 256, padding=1)  # (512+0)x10x10 -> 256x19x19
+        self.upsample1 = UpsampleBlock(in_channels=in_channel, skip_cnt=skip_sizes[0],
+                                       out_channels=256, padding=1)  # (512+0)x10x10 -> 256x19x19
         self.res1 = ResBlock(skip_sizes[0]+256, 256)
-        self.upsample2 = UpsampleBlock(256, 128, padding=1, out_padding=1)  # (256+)x19x19 -> 38x38
+
+        self.upsample2 = UpsampleBlock(in_channels=256, skip_cnt=skip_sizes[1],
+                                       out_channels=128,
+                                       padding=1, out_padding=1)  # (256+)x19x19 -> 38x38
         self.res2 = ResBlock(skip_sizes[1]+128, 128)
-        self.upsample3 = UpsampleBlock(128, 64, padding=1) # 10x10 -> 75x75
+
+        self.upsample3 = UpsampleBlock(in_channels=128, skip_cnt=skip_sizes[2],
+                                       out_channels=64,
+                                       padding=1)  # 10x10 -> 75x75
         self.res3 = ResBlock(skip_sizes[2]+64, 64)
-        self.upsample4 = UpsampleBlock(64, 32, padding=1, out_padding=1) # 10x10 -> 150x150
-        self.res4 = ResBlock(skip_sizes[3]+32, 32)
+
+        self.upsample4 = UpsampleBlock(in_channels=64, skip_cnt=skip_sizes[3],
+                                       out_channels=64,
+                                       padding=1, out_padding=1)  # 10x10 -> 150x150
+        self.res4 = ResBlock(skip_sizes[3]+64, 32)
 
         self.upsample = nn.Sequential(
             nn.Upsample((300, 300)),

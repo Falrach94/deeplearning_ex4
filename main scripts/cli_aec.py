@@ -81,8 +81,8 @@ save_path = 'assets/last_state.aes'
 best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
 
-BATCH_SIZE = 4  
-lr = 0.0001
+BATCH_SIZE = 4
+lr = 0.00001
 decay = 0.00003
 
 gamma_neg = 4

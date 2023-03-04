@@ -88,7 +88,8 @@ class Presenter(QObject):
 
         # --- setup training -----
         self.initialize_display_model()
-        self.model = ScrambledAutoEncoder()
+        self.model = SkipAutoEncoder()
+        #self.model = ScrambledAutoEncoder()
 
         #self.initialize_training_data()
         self.initialize_model_state()

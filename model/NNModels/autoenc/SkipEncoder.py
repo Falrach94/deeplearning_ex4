@@ -16,17 +16,17 @@ class SkipEncoder(ResNet):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-#        skip1 = x  # 300x300 -> 150x150
+        skip1 = x  # 3x300x300 -> 64x150x150
         x = self.maxpool(x)
 
-        skip2 = x  # -> 75x75
+        skip2 = x  # -> 64x75x75
         x = self.layer1(x)
-        skip3 = x  # -> 75x75
+        skip3 = x  # -> 64x75x75
         x = self.layer2(x)
-        skip4 = x  # -> 38x38
+        skip4 = x  # -> 128x38x38
         x = self.layer3(x)
-        skip5 = x  # -> 19x19
+        skip5 = x  # -> 256x19x19
         x = self.layer4(x)
         # -> 512x10x10
 
-        return x, (skip2, skip3, skip4, skip5)
+        return x, (skip1, skip3, skip4, skip5)

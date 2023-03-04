@@ -324,6 +324,7 @@ class Controller:
     def epoch_callback(self, epoch, loss, time, metrics, best):
         print(f'epoch {epoch} finished', end='\r', flush=True)
         self.metric_update(loss, time, metrics, best)
+        torch.save(self.model.state_dict(), 'assets/tmp_model.ckp')
 
 
 print('training classifier on pretrained autoencoder-enocder stage')

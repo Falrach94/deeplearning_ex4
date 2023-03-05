@@ -154,7 +154,7 @@ class Controller:
             )
 
             torch.save(model, best_model_path + f'{i}.ckp')
-            self.export(model, export_path+f'{i}')
+            self.export(None, export_path+f'{i}')
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 
@@ -209,7 +209,8 @@ class Controller:
     def export(self, state, path):
         print('starting export')
 
-        self.model.load_state_dict(state)
+        if state is not None:
+            self.model.load_state_dict(state)
 
         self.model.cpu()
         self.model.eval()

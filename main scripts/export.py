@@ -1,6 +1,7 @@
 import torch
 
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
+from model.NNModels.MultipathResnet import MultipathResNet34
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 
 best_classifier_path = 'assets/best_model0.ckp'
@@ -10,7 +11,7 @@ print('loading state dict')
 state_dict = torch.load(best_classifier_path)
 
 print('creating model')
-model = ResNet34_Pretrained()
+model = MultipathResNet()
 model.load_state_dict(state_dict)
 model.eval()
 

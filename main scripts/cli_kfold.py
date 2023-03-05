@@ -37,7 +37,7 @@ best_model_path = 'assets/best_model'
 export_path = 'assets/export'
 
 # model
-MODEL = MultipathResNet34()
+MODEL = ResNet34_Pretrained()
 
 # training
 FOLDS = 5
@@ -146,15 +146,15 @@ class Controller:
                                      tr_dl, val_dl,
                                      BATCH_SIZE)
 
-            model, metric_model = self.trainer.train_with_early_stopping(
+            model_state, metric_model_state = self.trainer.train_with_early_stopping(
                 max_epoch=100,
                 patience=PATIENCE,
                 window=WINDOW,
                 best_metric_sel=SELECT_BEST_METRIC
             )
 
-            torch.save(model, best_model_path + f'{i}.ckp')
-            self.export(None, export_path+f'{i}')
+            torch.save(model_state, best_model_path + f'{i}.ckp')
+            self.export(model_state, export_path+f'{i}')
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 
@@ -209,15 +209,16 @@ class Controller:
     def export(self, state, path):
         print('starting export')
 
-        if state is not None:
-            self.model.load_state_dict(state)
+        model = MODEL
 
-        self.model.cpu()
-        self.model.eval()
+        model.load_state_dict(state)
+
+        model.cpu()
+        model.eval()
 
         x = torch.randn(1, 3, 300, 300, requires_grad=True)
-        y = self.model(x)
-        torch.onnx.export(self.model,  # model being run
+        y = model(x)
+        torch.onnx.export(model,  # model being run
                           x,  # model input (or a tuple for multiple inputs)
                           path + '.zip',  # where to save the model (can be a file or file-like object)
                           export_params=True,  # store the trained parameter weights inside the model file

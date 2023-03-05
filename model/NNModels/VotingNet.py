@@ -32,9 +32,12 @@ class VotingNet(torch.nn.Module):
 
         return net
 
+        self.sig = nn.Sigmoid()
+
     def forward(self, x):
 
         y = [net(x)[:, None, :] for net in self.voters]
         x = torch.cat(y, dim=1)
         x = torch.mean(x, dim=1)
+        x = self.sig(x)
         return x

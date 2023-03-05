@@ -59,6 +59,7 @@ gamma_neg = 3
 gamma_pos = 1
 clip = 0.05
 
+loss_calc =
 TRAINING_LOSS = calc_BCE_loss
 VALIDATION_LOSS = calc_MSE_loss
 

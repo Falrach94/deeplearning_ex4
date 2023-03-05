@@ -14,7 +14,7 @@ class VotingNet(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.voters = [ResNet34_Pretrained() for _ in range(5)]
+        self.voters = [ResNet34_Pretrained() for _ in range(2)]
 
         self.voter1 = self.voters[0]
         self.voter2 = self.voters[1]
@@ -32,11 +32,6 @@ class VotingNet(torch.nn.Module):
         for n, s in zip(net.voters, state):
             n.load_state_dict(s)
 
-        net.voters[0] = net.voters[0].cuda()
-        net.voters[1] = net.voters[1].cuda()
-
-        net.voter1 = net.voters[0]
-        net.voter2 = net.voters[1]
 
         return net
 

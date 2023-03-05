@@ -68,6 +68,7 @@ VALIDATION_LOSS = calc_MSE_loss
 
 # data
 NORMALIZE = True
+REMOVE_UNLABLED_AUGS = False
 
 # behaviour configuration
 EXPORT = True
@@ -109,7 +110,7 @@ class Controller:
 
         # create k fold data split
         print(f'split data into {FOLDS} folds')
-        reader = KFoldReader(k=FOLDS)
+        reader = KFoldReader(k=FOLDS, REMOVE_UNLABLED_AUGS)
         folds = reader.folds
         tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in folds]
         val_dataset = [AutoencoderDataset(fold[1], 'val', 0, NORMALIZE) for fold in folds]

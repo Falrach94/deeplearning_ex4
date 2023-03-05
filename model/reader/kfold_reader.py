@@ -15,12 +15,13 @@ from utils.stat_tools import fully_categorize_data
 # augments of labeled elements are added to th  training data sets
 class KFoldReader:
 
-    def __init__(self, k=5):
+    def __init__(self, k=5, remove_unlabled_augs=True):
         data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',').set_index('nbr')
 
         # remove augmentations of images without labels
-        aug = aug[(aug.inactive != 0) | (aug.crack != 0)]
+        if remove_unlabled_augs:
+            aug = aug[(aug.inactive != 0) | (aug.crack != 0)]
 
         # split not augmented data into k folds (tr, val)
         ix = np.arange(len(data))

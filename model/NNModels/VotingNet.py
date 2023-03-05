@@ -39,8 +39,11 @@ class VotingNet(torch.nn.Module):
         y = [net(x)[:, None, :] for net in self.voters]
         x = torch.cat(y, dim=1)
         conf = torch.maximum(x, 1-x)
-        max_conf, ix = torch.max(conf, dim=1, keepdim=True)
 
-        x = x[conf == max_conf].view(-1, 2)
+        max_conf, ix = torch.max(conf, dim=1, keepdim=True)
+        max_conf = max_conf.repeat(1, VOTER_CNT, 1)
+        conf = conf.view(-1)
+        max_conf = max_conf.view(-1)
+        x = x.view(-1)[conf == max_conf].view(-1, 2)
 
         return x

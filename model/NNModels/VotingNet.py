@@ -18,9 +18,9 @@ class VotingNet(torch.nn.Module):
 
         self.voter1 = self.voters[0]
         self.voter2 = self.voters[1]
-        self.voter3 = self.voters[2]
-        self.voter4 = self.voters[3]
-        self.voter5 = self.voters[4]
+        #self.voter3 = self.voters[2]
+        #self.voter4 = self.voters[3]
+        #self.voter5 = self.voters[4]
 
         self.sig = nn.Sigmoid()
 

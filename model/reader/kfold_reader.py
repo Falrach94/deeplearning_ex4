@@ -26,7 +26,7 @@ class KFoldReader:
         kf = sklearn.model_selection.KFold(5, shuffle=True)
         ix = data.index
         sp = kf.split(ix)
-        folds_ix = list(sp)
+        folds_ix = next(sp)
         folds = [(data.iloc[ix[0]], data.iloc[ix[1]]) for ix in folds_ix]
 
         # for each fold select only augmentations of images not in the validation set

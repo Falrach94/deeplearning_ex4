@@ -16,18 +16,20 @@ from utils.stat_tools import fully_categorize_data
 class KFoldReader:
 
     def __init__(self, k=5):
-        data = pd.read_csv('assets/data.csv', sep=',').set_index('nbr')
+        data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',').set_index('nbr')
 
         # remove augmentations of images without labels
         aug = aug[(aug.inactive != 0) | (aug.crack != 0)]
 
         # split not augmented data into k folds (tr, val)
-        kf = sklearn.model_selection.KFold(5, shuffle=True)
-        ix = data.index
-        sp = kf.split(ix)
-        folds_ix = next(sp)
-        folds = [(data.iloc[ix[0]], data.iloc[ix[1]]) for ix in folds_ix]
+        ix = np.arange(len(data))
+        np.random.shuffle(ix)
+        data = data.iloc[ix].reset_index()
+        splits = [(int(len(data)*i/k),
+                   int(len(data)*(i+1)/k)) for i in range(k)]
+        folds = [(pd.concat((data[:i], data[j:])),
+                  data[i:j]) for i, j in splits]
 
         # for each fold select only augmentations of images not in the validation set
         val_ix = [fold[1].index for fold in folds]

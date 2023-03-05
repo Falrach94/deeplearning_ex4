@@ -4,6 +4,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
+from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.VotingNet import VotingNet
 from model.reader.small_reader import SmallDataReader
 from model.training.autoEncTrainer import AutoEncTrainer
@@ -33,7 +34,9 @@ def batch_callback(batch_ix, batch_cnt, time, training):
 
 
 print('loading model')
-model = VotingNet.create().cuda()
+model = ResNet34_Pretrained()
+model.load_state_dict(torch.load('assets/best_model1.ckp'))
+#VotingNet.create().cuda()
 
 print('preparing data')
 reader = SmallDataReader(prune=False)

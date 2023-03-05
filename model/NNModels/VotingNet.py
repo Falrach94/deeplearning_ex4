@@ -44,7 +44,7 @@ class VotingNet(torch.nn.Module):
         max_ix = torch.argmax(conf, dim=1)
         print('max_ix', max_ix.shape)
         mask = torch.nn.functional.one_hot(max_ix)
-        mask = torch.transpose(max_ix, 1, 2)
+        mask = torch.transpose(mask, 1, 2)
         print('mask', mask.shape)
         mask = mask > 0.5
         x = x[mask]

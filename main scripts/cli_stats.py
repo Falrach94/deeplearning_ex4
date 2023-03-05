@@ -36,8 +36,8 @@ def batch_callback(batch_ix, batch_cnt, time, training):
 print('loading model')
 #model = ResNet34_Pretrained()
 #model.load_state_dict(torch.load('assets/best_model.ckp'))
-#model = VotingNet.create()
-model = VotingNet()
+model = VotingNet.create()
+#model = VotingNet()
 model = model.cuda()
 
 

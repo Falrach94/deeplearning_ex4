@@ -55,17 +55,15 @@ def batch_callback(batch_ix, batch_cnt, time, training):
 
 
 print('loading model')
-model = VotingNet.create().cuda()
+#model = VotingNet.create().cuda()
+model = VotingNet()
+model.cuda()
 
 print('preparing data')
 reader = SmallDataReader(prune=False)
 tr_data, val_data = reader.get_csv_data(None)
 val_set = AutoencoderDataset(val_data, 'val', 0, True)
 val_dl = DataLoader(val_set, 16, False)
-
-
-export(model, 'assets/export')
-
 
 print('preparing evaluation')
 trainer = AutoEncTrainer(True)

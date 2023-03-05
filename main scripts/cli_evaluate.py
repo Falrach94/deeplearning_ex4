@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from torch.utils.data import DataLoader
 
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
@@ -8,6 +9,29 @@ from model.training.autoEncTrainer import AutoEncTrainer
 from utils.console_util import print_progress_bar
 from utils.loss_utils import calc_BCE_loss
 from utils.stat_tools import calc_multi_f1
+
+
+def export(model, path):
+    print('starting export')
+
+    model.cpu()
+    model.eval()
+
+    x = torch.randn(1, 3, 300, 300, requires_grad=True)
+    y = model(x)
+    torch.onnx.export(model,  # model being run
+                      x,  # model input (or a tuple for multiple inputs)
+                      path + '.zip',  # where to save the model (can be a file or file-like object)
+                      export_params=True,  # store the trained parameter weights inside the model file
+                      opset_version=10,  # the ONNX version to export the model to
+                      do_constant_folding=True,  # whether to execute constant folding for optimization
+                      input_names=['input'],  # the model's input names
+                      output_names=['output'],  # the model's output names
+                      dynamic_axes={'input': {0: 'batch_size'},  # variable lenght axes
+                                    'output': {0: 'batch_size'}})
+
+    print('export finished')
+
 
 val_time_per_batch = [1]
 
@@ -50,4 +74,6 @@ print('evaluating...')
 loss, time, metric = trainer.val_test()
 print('finished')
 print(metric)
+
+export(model, 'assets/export')
 

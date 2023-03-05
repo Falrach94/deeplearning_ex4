@@ -1,6 +1,5 @@
 import torch
 
-from model.NNModels.ResNet50v2 import ResNet50v2
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 
 model = ResNet50v2_Pretrained()

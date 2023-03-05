@@ -2,16 +2,11 @@ import json
 import os
 import threading
 
-import numpy as np
-import pandas as pd
 import torch
 from PyQt6.QtCore import pyqtSlot, QObject, pyqtSignal
-from skimage.io import imread
 
 from gui.MainWindow import MainWindow, ConfigChangedArgs
-from gui.PreProcessingWindow import PreProcessingWindow
-from model.NNModels.Fusion import FusionNet
-from model.preprocessing.preprocessor import Preprocessor
+from model.NNModels.depr.Fusion import FusionNet
 from model.profiles.builder.data_readers import DataReaders
 from model.profiles.builder.losses import Losses
 from model.profiles.builder.models import Models
@@ -19,7 +14,6 @@ from model.profiles.builder.optimizers import Optimizers
 from model.profiles.training_configuration import TrainingConfiguration
 from model.profiles.training_profile import TrainingProfile
 from model.profiles.training_session import Session
-from model.reader.data_reader import DataReader
 from model.training.trainer import Trainer
 from utils.ListChangedArgs import ListChangedArgs
 

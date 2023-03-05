@@ -2,27 +2,18 @@ import os
 import threading
 import time
 
-import cv2
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
-from model.NNModels.AutoEncoder import ResNetAutoEncoder
-from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
 from model.NNModels.MultipathResnet import MultipathResNet34
-from model.NNModels.ResNet34_pre import ResNet34_Pretrained
-from model.NNModels.ResNet34_pre2 import ResNet34_Pretrained2
-from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
-from model.NNModels.autoenc.ScrambledAutoEncoder import ScrambledAutoEncoder
-from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
 from model.reader.kfold_reader import KFoldReader
 from model.reader.small_reader import SmallDataReader
-from model.training.autoEncTrainer import AutoEncTrainer
 from model.training.autoEncTrainerEx import AutoEncTrainerEx
 from model.training.losses.asl_loss import AsymmetricLossOptimized, WeightedAsymmetricLossOptimized
 from utils.cli_table_builder import TableBuilder

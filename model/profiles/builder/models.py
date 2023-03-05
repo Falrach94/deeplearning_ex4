@@ -1,26 +1,22 @@
-import torch
-import torchvision.models.vgg
-
-from model.NNModels.Fusion import FusionNet
+from model.NNModels.depr.Fusion import FusionNet
 from model.NNModels.ResNet import ResNet
 from model.NNModels.ResNet34 import ResNet34
-from model.NNModels.ResNet34Ex import ResNet34Ex
+from model.NNModels.depr.ResNet34Ex import ResNet34Ex
 from model.NNModels.ResNet50_pre import ResNet50_Pretrained
-from model.NNModels.ResNet50v2 import ResNet50v2
+from model.NNModels.depr.ResNet50v2 import ResNet50v2
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
-from model.NNModels.ResNetBigPool import ResNetBigPool
-from model.NNModels.ResNetDropout import ResNetDropout
-from model.NNModels.ResNetEx import ResNetEx
-from model.NNModels.ResNetExtern import ResNet18Ex, ResNet152Ex, ResNet101Ex, ResNet50Ex
-from model.NNModels.ResNetMulti import ResNetMulti
-from model.NNModels.ResNet_Crack import ResNetCrack
-from model.NNModels.VGG19 import VGG19
-from model.NNModels.VGG19_pre import VGG19_Pretrained
+from model.NNModels.depr.ResNetBigPool import ResNetBigPool
+from model.NNModels.depr.ResNetDropout import ResNetDropout
+from model.NNModels.depr.ResNetEx import ResNetEx
+from model.NNModels.depr.ResNetExtern import ResNet18Ex, ResNet152Ex, ResNet101Ex, ResNet50Ex
+from model.NNModels.depr.ResNetMulti import ResNetMulti
+from model.NNModels.depr.ResNet_Crack import ResNetCrack
+from model.NNModels.depr.VGG19 import VGG19
+from model.NNModels.depr.VGG19_pre import VGG19_Pretrained
 from model.NNModels.VotingNet import VotingNet
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
 
-import numpy as np
 
 class Models:
 

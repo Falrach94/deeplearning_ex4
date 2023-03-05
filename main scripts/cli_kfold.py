@@ -1,34 +1,18 @@
 import copy
-import os
-import threading
 import time
 
-import cv2
 import numpy as np
-import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
-from model.NNModels.AutoEncoder import ResNetAutoEncoder
-from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
-from model.NNModels.MultipathResnet import MultipathResNet34
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
-from model.NNModels.ResNet34_pre2 import ResNet34_Pretrained2
-from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
-from model.NNModels.autoenc.ScrambledAutoEncoder import ScrambledAutoEncoder
-from model.NNModels.autoenc.SkipAutoEncoder import SkipAutoEncoder
 from model.config import WORKER_THREADS
-from model.profiles.builder.descriptor import Descriptor
-from model.profiles.builder.hyper_parameter import HyperParameter
 from model.reader.kfold_reader import KFoldReader
-from model.reader.small_reader import SmallDataReader
 from model.training.autoEncTrainer import AutoEncTrainer
-from model.training.autoEncTrainerEx import AutoEncTrainerEx
-from model.training.losses.asl_loss import AsymmetricLossOptimized, WeightedAsymmetricLossOptimized
 from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
-from utils.loss_utils import calc_BCE_loss, calc_MSE_loss, select_best_metric, AdamFactory, ASLCalculator
+from utils.loss_utils import calc_MSE_loss, select_best_metric, AdamFactory, ASLCalculator
 from utils.stat_tools import calc_multi_f1
 
 # path consts
@@ -40,7 +24,7 @@ export_path = 'assets/export'
 MODEL = ResNet34_Pretrained()
 
 # training
-FOLDS = 5
+FOLDS = 1
 BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5

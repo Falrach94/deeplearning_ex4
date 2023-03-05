@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from model.NNModels.ResNet import ResNet
 from model.NNModels.ResNet50_pre import ResNet50_Pretrained
-from model.NNModels.ResNetExtern import ResNet18Ex, ResNet152Ex, ResNet101Ex, ResNet50Ex, ResNet34Ex
+from model.NNModels.depr.ResNetExtern import ResNet18Ex, ResNet152Ex, ResNet101Ex, ResNet50Ex, ResNet34Ex
 
 
 class ResNetMulti(torch.nn.Module):

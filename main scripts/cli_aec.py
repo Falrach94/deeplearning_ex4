@@ -82,8 +82,8 @@ save_path = 'assets/last_state.aes'
 best_model_path = 'assets/best_model.ckp'
 export_path = 'assets/export'
 
-BATCH_SIZE = 8
-lr = 0.00005
+BATCH_SIZE = 16
+lr = 0.0001
 decay = 0.00003
 
 gamma_neg = 3
@@ -119,6 +119,13 @@ VALIDATION_LOSS = calc_MSE_loss
 SELECT_BEST_METRIC = select_best_metric
 METRIC_CALC = calc_multi_f1
 
+OPTIMIZER = torch.optim.SGD(main_model.parameters(),
+                                     lr=lr,
+                                     weight_decay=decay)
+
+#OPTIMIZER = torch.optim.Adam(main_model.parameters(),
+#                                     lr=lr,
+#                                     weight_decay=decay)
 class Controller:
 
     # --- initialization ----------------
@@ -173,17 +180,13 @@ class Controller:
         self.model = main_model
         self.model.cuda()
 
-        optimizer = torch.optim.Adam(self.model.parameters(),
-                                     lr=lr,
-                                     weight_decay=decay)
-
         self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
         self.trainer.metric_calculator = METRIC_CALC
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
         self.trainer.loss_fct = TRAINING_LOSS
         self.trainer.val_loss_fct = VALIDATION_LOSS
-        self.trainer.set_session(self.model, optimizer, self.tr_dl, self.val_dl, BATCH_SIZE)
+        self.trainer.set_session(self.model, OPTIMIZER, self.tr_dl, self.val_dl, BATCH_SIZE)
 
     def initialize_model_state(self):
 

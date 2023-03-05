@@ -69,6 +69,15 @@ def calc_data_stats(session):
            [len(tr_cat[3]), len(val_cat[3])]]
     return res
 
+def calc_multi_f1_conf(prediction, label):
+
+    f1 = calc_multi_f1(prediction, label)
+    conf = calc_multi_conf(prediction, label)
+
+    f1['crack'].update(conf['crack'])
+    f1['inactive'].update(conf['inactive'])
+    return f1
+
 
 def calc_multi_f1(prediction, label):
 
@@ -77,6 +86,13 @@ def calc_multi_f1(prediction, label):
     f1 = (stat_c['f1'] + stat_i['f1'])/2
 
     return {'crack': stat_c, 'inactive': stat_i, 'mean': f1}
+
+def calc_multi_conf(pred, label):
+    stat_c = calc_conf(pred[:, 0], label[:, 0])
+    stat_i = calc_conf(pred[:, 1], label[:, 1])
+
+    return {'crack': stat_c, 'inactive': stat_i}
+
 
 def calc_f1(pred, label):
     pred = pred > 0.5
@@ -108,3 +124,17 @@ def calc_f1(pred, label):
 
     return {'f1': 2*precision*recall/(precision+recall),
             'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
+
+
+def calc_conf(pred, label, threshold=0.25):
+
+    pred_bin = pred > 0.5
+    label_bin = label > 0.5
+
+    fp = np.logical_and(pred_bin, np.invert(label_bin))
+    fn = np.logical_and(np.invert(pred_bin), label_bin)
+
+    hc_fp = np.logical_and(fp, (pred > 1-threshold))
+    hc_fn = np.logical_and(fp, (pred < threshold))
+
+    return {'hc_fp': hc_fp, 'hc_fn': hc_fn}

@@ -96,14 +96,13 @@ class AutoEncTrainer:
     def set_session(self, model, optim, tr_dl, val_dl, batch_size):
         self.epoch = 0
         self._model = model
-
         self._optim = optim
         self._train_dl = tr_dl
         self._val_test_dl = val_dl
         self._val_sample_cnt = len(val_dl) * batch_size
         self._batch_size = batch_size
 
-        self._model.cuda()
+        self.last_metric = None
 
         self.abort_fit = False
 

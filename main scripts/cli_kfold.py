@@ -1,3 +1,4 @@
+import copy
 import os
 import threading
 import time
@@ -27,106 +28,48 @@ from model.training.autoEncTrainerEx import AutoEncTrainerEx
 from model.training.losses.asl_loss import AsymmetricLossOptimized, WeightedAsymmetricLossOptimized
 from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
+from utils.loss_utils import calc_BCE_loss, calc_MSE_loss, select_best_metric, AdamFactory
 from utils.stat_tools import calc_multi_f1
 
-
-class AECLoss:
-    def __init__(self, cf, aef, ld):
-        self.image_loss = torch.nn.MSELoss().cuda()
-        self.classifier_loss = AsymmetricLossOptimized(3).cuda()
-
-        self.a = aef
-        self.b = cf
-        self.ld = ld
-
-    def calc_loss(self, input, pred, label, metrics):
-        return self.a * self.image_loss(pred[0], input) \
-            + self.b * self.classifier_loss(pred[1], label) \
-            + self.ld * torch.sum(torch.abs(pred[2]))
-
-    def simple_loss(self, input, pred, label, metrics):
-        return self.image_loss(pred, input)
-
-
-class SimpleLoss:
-    def __init__(self):
-        #self.loss = AsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
-        self.loss = WeightedAsymmetricLossOptimized(gamma_neg, gamma_pos, clip).cuda()
-
-    def calc_loss(self, input, pred, label, metrics):
-        if metrics is None:
-            weights = torch.ones(pred.size(0), 2).cuda()
-        else:
-            f1_c = metrics['crack']['f1']
-            f1_i = metrics['inactive']['f1']
-            fc = min(1/f1_c if f1_c != 0 else 3, 3)
-            fi = min(1/f1_i if f1_i != 0 else 3, 3)
-            weights = torch.tensor([fc, fi])
-            weights = weights[None, :]
-            weights = weights.repeat(pred.size(0), 1)
-            weights = weights.cuda()
-
-        return self.loss(pred, label, weights)
-
-
-def calc_MSE_loss(input, pred, label, metrics):
-    return torch.nn.functional.mse_loss(pred, label)
-
-
-def select_best_metric(new_metric, old_metric):
-    if old_metric is None or old_metric < new_metric['mean']:
-        return new_metric['mean'], True
-    else:
-        return old_metric, False
-
-
+# path consts
 save_path = 'assets/last_state.aes'
-best_model_path = 'assets/best_model.ckp'
+best_model_path = 'assets/best_model'
 export_path = 'assets/export'
 
+# model
+MODEL = MultipathResNet34()
+
+# training
+FOLDS = 5
 BATCH_SIZE = 16
+PATIENCE = 20
+WINDOW = 10
+
+# metric calculation
+METRIC_CALC = calc_multi_f1
+SELECT_BEST_METRIC = select_best_metric
+
+# optimizer
 lr = 0.0001
 decay = 0.00003
+OPTIMIZER_FACTORY = AdamFactory(decay, lr)
 
+# loss fct
 gamma_neg = 3
 gamma_pos = 1
 clip = 0.05
 
-PATIENCE = 20
-WINDOW = 10
+TRAINING_LOSS = calc_BCE_loss
+VALIDATION_LOSS = calc_MSE_loss
 
-AUTO_FCT = 0.3
-CLASS_FCT = 0.8
-SPARSE_FCT = 0.5
+# data
+NORMALIZE = True
 
+# behaviour configuration
 EXPORT = True
 SAVE_MODEL = True
 
-main_model = MultipathResNet34()
 
-NORMALIZE = True
-
-ae_calc = AECLoss(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
-loss_calculator = SimpleLoss()
-
-test = KFoldReader()
-
-#TRAINING_LOSS = ae_calc.simple_loss
-#VALIDATION_LOSS = ae_calc.simple_loss
-
-TRAINING_LOSS = loss_calculator.calc_loss
-VALIDATION_LOSS = calc_MSE_loss
-
-SELECT_BEST_METRIC = select_best_metric
-METRIC_CALC = calc_multi_f1
-
-#OPTIMIZER = torch.optim.SGD(main_model.parameters(),
-#                                     lr=lr,
-#                                     weight_decay=decay)
-
-OPTIMIZER = torch.optim.Adam(main_model.parameters(),
-                             lr=lr,
-                             weight_decay=decay)
 class Controller:
 
     # --- initialization ----------------
@@ -154,80 +97,64 @@ class Controller:
 
         self.start_time = 0
 
-        self.start_training()
+        self.train()
 
     def initialize_training_data(self):
 
-        if os.path.exists('assets/tr_data.csv'):
-            tr_data = pd.read_csv('assets/tr_data.csv', sep=';')
-            val_data = pd.read_csv('assets/val_data.csv', sep=';')
-            print('successfully loaded old data set')
-        else:
-            data_reader = SmallDataReader(False)
-            tr_data, val_data = data_reader.get_csv_data(Descriptor('', [HyperParameter('ValSplit', 'float', 0.2)]))
-            tr_data.to_csv('assets/tr_data.csv', sep=';', index=False)
-            val_data.to_csv('assets/val_data.csv', sep=';', index=False)
-            print('no data set found; new split created')
+        # create k fold data split
+        print(f'split data into {FOLDS} folds')
+        reader = KFoldReader(k=FOLDS)
+        folds = reader.folds
+        tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in folds]
+        val_dataset = [AutoencoderDataset(fold[1], 'val', 0, NORMALIZE) for fold in folds]
+        self.tr_dl = [DataLoader(data, batch_size=BATCH_SIZE,
+                                 num_workers=WORKER_THREADS, shuffle=True) for data in tr_dataset]
+        self.val_dl = [DataLoader(data, batch_size=BATCH_SIZE,
+                                  num_workers=WORKER_THREADS, shuffle=False) for data in val_dataset]
+        print('training sample cnt:', [len(tr) for tr in tr_dataset])
+        print('validation sample cnt:', [len(val) for val in val_dataset])
 
-        self.tr_dataset = AutoencoderDataset(tr_data, 'train', 1, NORMALIZE)
-        self.val_dataset = AutoencoderDataset(val_data, 'val', 0, NORMALIZE)
+        # create k models and optimizers
+        self.models = [copy.deepcopy(MODEL).cuda() for _ in range(FOLDS)]
+        self.optimizer = [OPTIMIZER_FACTORY.create(model.parameters()) for model in self.models]
 
-        print('training sample cnt:', len(self.tr_dataset))
-        print('validation sample cnt:', len(self.val_dataset))
-
-        self.tr_dl = DataLoader(self.tr_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
-        self.val_dl = DataLoader(self.val_dataset, batch_size=BATCH_SIZE, num_workers=WORKER_THREADS)
-
-        self.model = main_model
-        self.model.cuda()
-
-        self.trainer = AutoEncTrainerEx(cf=CLASS_FCT, aef=AUTO_FCT, ld=SPARSE_FCT)
+        self.trainer = AutoEncTrainer()
         self.trainer.metric_calculator = METRIC_CALC
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback
         self.trainer.loss_fct = TRAINING_LOSS
         self.trainer.val_loss_fct = VALIDATION_LOSS
-        self.trainer.set_session(self.model, OPTIMIZER, self.tr_dl, self.val_dl, BATCH_SIZE)
 
     def initialize_model_state(self):
 
         self.model_state = {
-            'state_dict': dict(self.model.state_dict()),
+            'state_dict': None,
             'val_loss': [],
             'tr_loss': [],
             'label_metrics': []
         }
 
-    # --- interface methods -------------
-
-    def start_training(self):
-        if self.train_thread is not None:
-            return
-        self.train_thread = threading.Thread(target=self.train)
-        self.train_thread.start()
-
     # --- internal methods --------------
-
 
     def train(self):
         self.start_time = time.time_ns()
 
-        print(f'start training with early stopping (max epoch: 100, patience: {PATIENCE}, window: {WINDOW})')
-        model, metric_model = self.trainer.train_with_early_stopping(100,
-                                                                     PATIENCE,
-                                                                     WINDOW,
-                                                                     best_metric_sel=SELECT_BEST_METRIC)
+        print('k-fold training')
+        for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
+            print(f'starting fold {i+1} / {FOLDS}')
+            self.trainer.set_session(self.models[i], self.optimizer[i],
+                                     tr_dl, val_dl,
+                                     BATCH_SIZE)
 
-        if SAVE_MODEL:
-            torch.save(model, best_model_path)
+            model, metric_model = self.trainer.train_with_early_stopping(
+                max_epoch=100,
+                patience=PATIENCE,
+                window=WINDOW,
+                best_metric_sel=SELECT_BEST_METRIC
+            )
 
-        self.save_progress()
-
-        if EXPORT:
-            self.export(model, export_path+'_loss')
-            if metric_model is not None:
-                self.export(metric_model, export_path+'_metric')
-        self.train_thread = None
+            torch.save(model, best_model_path + f'{i}.ckp')
+            self.export(model, export_path+f'{i}')
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 
@@ -336,7 +263,6 @@ class Controller:
         torch.save(self.model.state_dict(), 'assets/tmp_model.ckp')
 
 
-print('training classifier on pretrained autoencoder-enocder stage')
 print('batch size:', BATCH_SIZE)
 print('learning rate', lr)
 print('weight decay', decay)

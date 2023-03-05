@@ -24,6 +24,11 @@ class MultipathResNet34(ResNet):
         self.fc2 = nn.Linear(512, 16)
 
         self.fc3 = nn.Linear(32, 2)
+
+        init.xavier_uniform_(self.fc.weight)
+        init.xavier_uniform_(self.fc2.weight)
+        init.xavier_uniform_(self.fc3.weight)
+
         self.relu = nn.ReLU(inplace=True)
         self.drop = nn.Dropout(p=0.5)
         self.sig = nn.Sigmoid()

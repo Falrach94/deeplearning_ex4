@@ -38,10 +38,13 @@ class VotingNet(torch.nn.Module):
     def forward(self, x):
 
         y = [net(x)[:, None, :] for net in self.voters]
-        x = torch.transpose(torch.cat(y, dim=1), 1, 2)
+        x = torch.cat(y, dim=1)
+        print('after cat', x.shape)
         conf = torch.maximum(x, 1-x)
-        max_ix = torch.argmax(conf, dim=2)
+        max_ix = torch.argmax(conf, dim=1)
+        print('max_ix', max_ix.shape)
         mask = torch.nn.functional.one_hot(max_ix)
+        print('mask', mask.shape)
         mask = mask > 0.5
         x = x[mask]
         x = x.view(mask.size(0), mask.size(1))

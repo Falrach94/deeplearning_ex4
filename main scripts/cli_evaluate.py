@@ -63,6 +63,10 @@ tr_data, val_data = reader.get_csv_data(None)
 val_set = AutoencoderDataset(val_data, 'val', 0, True)
 val_dl = DataLoader(val_set, 16, False)
 
+
+export(model, 'assets/export')
+
+
 print('preparing evaluation')
 trainer = AutoEncTrainer(True)
 trainer.metric_calculator = calc_multi_f1

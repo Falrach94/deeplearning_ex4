@@ -2,7 +2,7 @@ import torch
 
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
 
-best_classifier_path = 'assets/best_classifier_model.ckp'
+best_classifier_path = 'assets/best_model0.ckp'
 output_path = 'assets/export'
 
 print('loading state dict')

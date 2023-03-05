@@ -51,7 +51,7 @@ SELECT_BEST_METRIC = select_best_metric
 
 # optimizer
 lr = 0.0001
-decay = 0.00003
+decay = 0.0001
 OPTIMIZER_FACTORY = AdamFactory(decay, lr)
 
 # loss fct

@@ -28,7 +28,7 @@ from model.training.autoEncTrainerEx import AutoEncTrainerEx
 from model.training.losses.asl_loss import AsymmetricLossOptimized, WeightedAsymmetricLossOptimized
 from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
-from utils.loss_utils import calc_BCE_loss, calc_MSE_loss, select_best_metric, AdamFactory
+from utils.loss_utils import calc_BCE_loss, calc_MSE_loss, select_best_metric, AdamFactory, ASLCalculator
 from utils.stat_tools import calc_multi_f1
 
 # path consts
@@ -56,11 +56,15 @@ OPTIMIZER_FACTORY = AdamFactory(decay, lr)
 
 # loss fct
 gamma_neg = 3
-gamma_pos = 1
+gamma_pos = 3
 clip = 0.05
 
-TRAINING_LOSS = calc_BCE_loss
+loss_calculator = ASLCalculator(gamma_neg, gamma_pos, clip)
+
+TRAINING_LOSS = loss_calculator.calc
 VALIDATION_LOSS = calc_MSE_loss
+
+
 
 # data
 NORMALIZE = True
@@ -69,6 +73,8 @@ NORMALIZE = True
 EXPORT = True
 SAVE_MODEL = True
 
+EXPORT_BEST_METRIC = True
+EXPORT_BEST_LOSS = False
 
 class Controller:
 
@@ -153,8 +159,12 @@ class Controller:
                 best_metric_sel=SELECT_BEST_METRIC
             )
 
-            torch.save(model_state, best_model_path + f'{i}.ckp')
-            self.export(model_state, export_path+f'{i}')
+            if EXPORT_BEST_LOSS:
+                torch.save(model_state, best_model_path + f'{i}.ckp')
+                self.export(model_state, export_path+f'{i}')
+            if EXPORT_BEST_METRIC:
+                torch.save(metric_model_state, best_model_path + f'{i}.ckp')
+                self.export(metric_model_state, export_path+f'{i}')
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 

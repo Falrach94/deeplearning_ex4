@@ -1,6 +1,7 @@
 import torch
 
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
+from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 
 best_classifier_path = 'assets/best_model0.ckp'
 output_path = 'assets/export'
@@ -9,7 +10,7 @@ print('loading state dict')
 state_dict = torch.load(best_classifier_path)
 
 print('creating model')
-model = ResNet34AutoEnc()
+model = ResNet34_Pretrained()
 model.load_state_dict(state_dict)
 model.eval()
 

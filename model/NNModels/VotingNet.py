@@ -32,6 +32,10 @@ class VotingNet(torch.nn.Module):
         for n, s in zip(net.voters, state):
             n.load_state_dict(s)
 
+
+        net.voter1 = net.voters[0].cuda()
+        net.voter2 = net.voters[1].cuda()
+
         return net
 
     def forward(self, x):

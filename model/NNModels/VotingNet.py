@@ -28,7 +28,7 @@ class VotingNet(torch.nn.Module):
     def create():
         net = VotingNet()
 
-        state = [torch.load(f'assets/best_model{i}.ckp') for i in range(5)]
+        state = [torch.load(f'assets/best_model{i}.ckp') for i in range(2)]
         for n, s in zip(net.voters, state):
             n.load_state_dict(s)
 

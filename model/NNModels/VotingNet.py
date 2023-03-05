@@ -22,6 +22,8 @@ class VotingNet(torch.nn.Module):
         self.voter4 = self.voters[3]
         self.voter5 = self.voters[4]
 
+        self.sig = nn.Sigmoid()
+
     @staticmethod
     def create():
         net = VotingNet()
@@ -31,8 +33,6 @@ class VotingNet(torch.nn.Module):
             n.load_state_dict(s)
 
         return net
-
-        self.sig = nn.Sigmoid()
 
     def forward(self, x):
 

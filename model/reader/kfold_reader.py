@@ -15,7 +15,7 @@ from utils.stat_tools import fully_categorize_data
 # augments of labeled elements are added to th  training data sets
 class KFoldReader:
 
-    def __init__(self, k=5, remove_unlabled_augs=True):
+    def __init__(self, k=5, remove_unlabled_augs=True, split=0.2):
         data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',').set_index('nbr')
 
@@ -27,13 +27,17 @@ class KFoldReader:
         ix = np.arange(len(data))
         np.random.shuffle(ix)
         data = data.iloc[ix].reset_index()
-        splits = [(int(len(data)*i/k),
-                   int(len(data)*(i+1)/k)) for i in range(k)]
+        if k == 1:
+            splits = [(0, int(split*len(data)))]
+        else:
+            splits = [(int(len(data)*i/k),
+                       int(len(data)*(i+1)/k)) for i in range(k)]
+
         folds = [(pd.concat((data[:i], data[j:])),
                   data[i:j]) for i, j in splits]
 
         # for each fold select only augmentations of images not in the validation set
-        val_ix = [fold[1].index for fold in folds]
+        val_ix = [fold[1].set_index('nbr').index for fold in folds]
         selection = [~aug.index.isin(ix) for ix in val_ix]
         fold_augs = [aug[sel] for sel in selection]
 

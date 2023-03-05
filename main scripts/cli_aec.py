@@ -86,9 +86,9 @@ BATCH_SIZE = 8
 lr = 0.00005
 decay = 0.00003
 
-gamma_neg = 4
-gamma_pos = 1
-clip = 0.15
+gamma_neg = 3
+gamma_pos = 2
+clip = 0.05
 
 PATIENCE = 20
 WINDOW = 10
@@ -101,7 +101,7 @@ EXPORT = True
 SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
-main_model = ResNet34_Pretrained2()
+main_model = ResNet34_Pretrained()
 #main_model = SkipAutoEncoder()
 #main_model = SkipAutoEncoder()
 

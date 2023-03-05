@@ -38,12 +38,23 @@ class VotingNet(torch.nn.Module):
     def forward(self, x):
         y = [net(x)[:, None, :] for net in self.voters]
         x = torch.cat(y, dim=1)
-        conf = torch.maximum(x, 1-x)
 
+        # highest confidence
+        '''
+        conf = torch.maximum(x, 1-x)
         max_conf, ix = torch.max(conf, dim=1, keepdim=True)
         max_conf = max_conf.repeat(1, VOTER_CNT, 1)
         conf = conf.view(-1)
         max_conf = max_conf.view(-1)
         x = x.view(-1)[conf == max_conf].view(-1, 2)
+        '''
+
+        # weighted vote
+#        x = torch.mean(x, dim=1)
+
+        # one vote each
+        x = x > 0.5
+        x = torch.sum(x, dim=1)
+        x = (x > 2).type(torch.float)
 
         return x

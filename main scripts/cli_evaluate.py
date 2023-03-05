@@ -55,8 +55,8 @@ def batch_callback(batch_ix, batch_cnt, time, training):
 
 
 print('loading model')
-#model = VotingNet.create().cuda()
-model = VotingNet()
+model = VotingNet.create()
+#model = VotingNet()
 model.cuda()
 
 print('preparing data')

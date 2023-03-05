@@ -39,5 +39,5 @@ class VotingNet(torch.nn.Module):
         y = [net(x)[:, None, :] for net in self.voters]
         x = torch.cat(y, dim=1)
         x = torch.mean(x, dim=1)
-        x = self.sig(x)
+        x = self.sig((x-0.5)*2)
         return x

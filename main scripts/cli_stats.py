@@ -37,6 +37,8 @@ print('loading model')
 model = ResNet34_Pretrained()
 model.load_state_dict(torch.load('assets/best_model1.ckp'))
 #VotingNet.create().cuda()
+model = model.cuda()
+
 
 print('preparing data')
 reader = SmallDataReader(prune=False)

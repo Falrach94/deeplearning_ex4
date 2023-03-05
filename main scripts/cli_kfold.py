@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
+from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 from model.config import WORKER_THREADS
 from model.reader.kfold_reader import KFoldReader
 from model.training.autoEncTrainer import AutoEncTrainer
@@ -21,7 +22,7 @@ best_model_path = 'assets/best_model'
 export_path = 'assets/export'
 
 # model
-MODEL = ResNet34_Pretrained()
+MODEL = ResNet50v2_Pretrained()
 
 # training
 FOLDS = 1

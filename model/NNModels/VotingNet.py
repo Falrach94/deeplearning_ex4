@@ -32,9 +32,11 @@ class VotingNet(torch.nn.Module):
         for n, s in zip(net.voters, state):
             n.load_state_dict(s)
 
+        net.voters[0] = net.voters[0].cuda()
+        net.voters[1] = net.voters[1].cuda()
 
-        net.voter1 = net.voters[0].cuda()
-        net.voter2 = net.voters[1].cuda()
+        net.voter1 = net.voters[0]
+        net.voter2 = net.voters[1]
 
         return net
 

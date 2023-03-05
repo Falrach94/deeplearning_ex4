@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.AutoEncoderClassifier import ResNet34AutoEnc
+from model.NNModels.MultipathResnet import MultipathResNet34
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.ResNet34_pre2 import ResNet34_Pretrained2
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
@@ -87,7 +88,7 @@ lr = 0.0001
 decay = 0.00003
 
 gamma_neg = 3
-gamma_pos = 2
+gamma_pos = 1
 clip = 0.05
 
 PATIENCE = 20
@@ -101,7 +102,7 @@ EXPORT = True
 SAVE_MODEL = True
 
 #main_model = ResNetAutoEncoder()
-main_model = ResNet34_Pretrained()
+main_model = MultipathResNet34()
 #main_model = SkipAutoEncoder()
 #main_model = SkipAutoEncoder()
 

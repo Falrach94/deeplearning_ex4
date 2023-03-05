@@ -134,7 +134,7 @@ def calc_conf(pred, label, threshold=0.25):
     fp = np.logical_and(pred_bin, np.invert(label_bin))
     fn = np.logical_and(np.invert(pred_bin), label_bin)
 
-    hc_fp = np.sum(np.logical_and(fp, (pred > 1-threshold)))
-    hc_fn = np.sum(np.logical_and(fn, (pred < threshold)))
+    hc_fp = np.logical_and(fp, (pred > 1-threshold)).sum().item()
+    hc_fn = np.logical_and(fn, (pred < threshold)).sum().item()
 
     return {'hc_fp': hc_fp, 'hc_fn': hc_fn}

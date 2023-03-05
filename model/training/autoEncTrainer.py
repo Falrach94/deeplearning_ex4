@@ -175,6 +175,7 @@ class AutoEncTrainer:
 
                 # perform a validation step
                 step_prediction = self._model(x)
+                '''
                 loss += self.val_loss_fct(x, step_prediction, y, self.last_metric)
 
                 if step_prediction.size(1) == 2:
@@ -184,7 +185,7 @@ class AutoEncTrainer:
                     else:
                         predictions[j:j+y.shape[0]] = step_prediction
                     labels[j:j+y.shape[0]] = y
-
+                '''
                 if self.batch_callback is not None:
                     self.batch_callback(i,
                                         len(self._val_test_dl),

@@ -73,13 +73,15 @@ class AutoEncTrainer:
 
     # --- setup ------------------
 
-    def __init__(self):
+    def __init__(self, cuda=True):
         self._model = None
         self._optim = None
         self._train_dl = None
         self._val_test_dl = None
         self._val_sample_cnt = 0
         self._batch_size = 0
+
+        self.use_cuda = cuda
 
         self.last_metric = None
 
@@ -167,8 +169,9 @@ class AutoEncTrainer:
                 if start_time is None:
                     start_time = time.time_ns()
 
-                x = x.cuda()
-                y = y.cuda()
+                if self.use_cuda:
+                    x = x.cuda()
+                    y = y.cuda()
 
                 # perform a validation step
                 step_prediction = self._model(x)

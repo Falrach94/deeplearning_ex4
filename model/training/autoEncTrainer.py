@@ -185,7 +185,7 @@ class AutoEncTrainer:
                     else:
                         predictions[j:j+y.shape[0]] = step_prediction
                     labels[j:j+y.shape[0]] = y
-                
+
                 if self.batch_callback is not None:
                     self.batch_callback(i,
                                         len(self._val_test_dl),

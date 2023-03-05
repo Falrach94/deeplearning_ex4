@@ -42,8 +42,8 @@ MODEL = ResNet34_Pretrained()
 # training
 FOLDS = 5
 BATCH_SIZE = 16
-PATIENCE = 20
-WINDOW = 10
+PATIENCE = 10
+WINDOW = 5
 
 # metric calculation
 METRIC_CALC = calc_multi_f1
@@ -59,7 +59,6 @@ gamma_neg = 3
 gamma_pos = 1
 clip = 0.05
 
-loss_calc =
 TRAINING_LOSS = calc_BCE_loss
 VALIDATION_LOSS = calc_MSE_loss
 

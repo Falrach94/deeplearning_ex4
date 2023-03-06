@@ -69,9 +69,9 @@ class MultipathResNet34(ResNet):
             param.requires_grad = False
 
         if path is None:
-            for path_layer in self.extraction_paths:
-                for param in path_layer.parameters():
-                    param.requires_grad = True
+#            for path_layer in self.extraction_paths:
+#                for param in path_layer.parameters():
+#                    param.requires_grad = False
 
             for param in self.fc.parameters():
                 param.requires_grad = True

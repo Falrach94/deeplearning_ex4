@@ -1,22 +1,25 @@
+import sys
 import time
 
 from utils.cli_table_builder import TableBuilder
 
-#from colorama import *
+from colorama import *
+
+init(strip=False)
 
 def set_cursor_pos_txt(x, y):
-    return f'\x1b[{str(x)};{str(y)}H'
+    sys.stdout.write(f'\033[{str(x)};{str(y)}H')
+
+#print('test')
+#print('test2')
+#print('test3')
 
 
-print('abc')
+t = "test\ntest2\ntest3\x1B[2A tester"
+sys.stdout.write(t)
+#print(t, end='', flush=True)
 
-print()
-
-print(set_cursor_pos_txt(0, 0) + 'bcd')
-print("abc" + set_cursor_pos_txt(10, 10) + 'def')
-
-while True:
-    pass
+exit()
 
 for i in range(5):
     builder = TableBuilder()

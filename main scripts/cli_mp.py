@@ -150,6 +150,7 @@ class Controller:
         self.start_time = time.time_ns()
 
         sb.print_line('k-fold training')
+        self.validate_ensemble()
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
             self.model.set_path(None, True)
 

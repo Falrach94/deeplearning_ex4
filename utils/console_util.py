@@ -26,9 +26,15 @@ class ScreenBuilder:
         sys.stdout.write(f'\r\x1B[{line_cnt}A')
         self.current_line -= line_cnt
 
+    def go_down(self, line_cnt):
+        sys.stdout.write(f'\r\x1B[{line_cnt}B')
+        self.current_line += line_cnt
+
     def goto_line(self, y):
-        if y != self.current_line:
+        if y < self.current_line:
             self.go_up(self.current_line - y)
+        elif y > self.current_line:
+            self.go_down(y - self.current_line )
 
     def mark_line(self, name):
         self.marks[name] = self.current_line

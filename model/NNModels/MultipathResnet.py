@@ -17,8 +17,8 @@ class MultipathResNet34(ResNet):
     def __init__(self, path_cnt):
         super().__init__(BasicBlock, [3, 4, 6, 3])
 
-        #weights = tv.models.ResNet34_Weights.DEFAULT
-        #self.load_state_dict(weights.get_state_dict(True))
+        weights = tv.models.ResNet34_Weights.DEFAULT
+        self.load_state_dict(weights.get_state_dict(True))
 
         path = nn.Sequential(
             copy.deepcopy(self.layer3),
@@ -43,6 +43,7 @@ class MultipathResNet34(ResNet):
         ]
 
         self.extraction_paths = [copy.deepcopy(path) for _ in range(path_cnt)]
+        self.fc_single = [nn.Linear(self.inter_cnt, 2) for _ in range(path_cnt)]
 
         self.path1 = self.extraction_paths[0]
         self.path2 = self.extraction_paths[1]
@@ -50,8 +51,13 @@ class MultipathResNet34(ResNet):
         self.path4 = self.extraction_paths[3]
         self.path5 = self.extraction_paths[4]
 
+        self.fc_single1 = self.fc_single[0]
+        self.fc_single2 = self.fc_single[1]
+        self.fc_single3 = self.fc_single[2]
+        self.fc_single4 = self.fc_single[3]
+        self.fc_single5 = self.fc_single[4]
+
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
-        self.fc_single = nn.Linear(self.inter_cnt, 2)
 
         state = torch.load(self.base_path)
         self.load_state_dict(state)
@@ -76,12 +82,12 @@ class MultipathResNet34(ResNet):
                 param.requires_grad = True
 
             if train:
-                init.xavier_uniform_(self.fc_single.weight)
+                init.xavier_uniform_(self.fc_single[path].weight)
                 for m in self.extraction_paths[path]():
                     if isinstance(m, nn.Linear):
                         init.xavier_uniform_(m.weight)
 
-            for param in self.fc_single.parameters():
+            for param in self.fc_single[path].parameters():
                 param.requires_grad = True
 
         self.use_path = path
@@ -103,7 +109,7 @@ class MultipathResNet34(ResNet):
             x = self.fc(x)
         else:
             x = self.extraction_paths[self.use_path](x)
-            x = self.fc_single(x)
+            x = self.fc_single[self.use_path](x)
 
         x = self.sig(x)
 

@@ -19,17 +19,17 @@ from utils.stat_tools import calc_multi_f1
 
 # path consts
 save_path = 'assets/last_state.aes'
-best_model_path = 'assets/best_model'
+best_model_path = 'assets/base_model'
 export_path = 'assets/export'
 
 # training
-FOLDS = 1
+FOLDS = 5
 BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5
 
 # model
-MODEL = MultipathResNet34(5)
+MODEL = MultipathResNet34(FOLDS)
 
 # metric calculation
 METRIC_CALC = calc_multi_f1
@@ -84,8 +84,14 @@ class Controller:
         self.tr_dataset = None
         self.val_dataset = None
 
+        self.holdout_tr_dl = None
+        self.holdout_val_dl = None
+
         self.model_state = None
         self.optimizer = None
+
+        self.net_eval = [None] * FOLDS
+        self.ensemble_eval = None
 
         # --- setup training -----
         self.initialize_training_data()
@@ -107,20 +113,27 @@ class Controller:
                            f'',
                            sb=sb, name='val_prog')
 
+        self.print_ensemble_metrics()
+
     def initialize_training_data(self):
 
         # create k fold data split
         sb.print_line(f'split data into {FOLDS} folds')
         reader = KFoldReader(k=FOLDS, remove_unlabled_augs=REMOVE_UNLABLED_AUGS)
-        folds = reader.folds
-        tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in folds]
-        val_dataset = [AutoencoderDataset(fold[1], 'val', 0, NORMALIZE) for fold in folds]
+
+        tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in reader.folds]
+        val_dataset = [AutoencoderDataset(fold[1], 'val', 0, NORMALIZE) for fold in reader.folds]
         self.tr_dl = [DataLoader(data, batch_size=BATCH_SIZE,
                                  num_workers=WORKER_THREADS, shuffle=True) for data in tr_dataset]
         self.val_dl = [DataLoader(data, batch_size=BATCH_SIZE,
                                   num_workers=WORKER_THREADS, shuffle=False) for data in val_dataset]
         sb.print_line('training sample cnt:', [len(tr) for tr in tr_dataset])
         sb.print_line('validation sample cnt:', [len(val) for val in val_dataset])
+
+        self.holdout_tr_dl = DataLoader(AutoencoderDataset(reader.training_data, 'train', 1, NORMALIZE),
+                                        batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
+        self.holdout_val_dl = DataLoader(AutoencoderDataset(reader.holdout_set, 'val', 0, NORMALIZE),
+                                         batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
 
         # create k models and optimizers
         self.model = MODEL.cuda()
@@ -145,49 +158,93 @@ class Controller:
 
     # --- internal methods --------------
 
-    def validate_ensemble(self):
+    def print_ensemble_metrics(self):
 
         table = TableBuilderEx(sb, 'val')
         table.add_line('nbr', 'loss', 'f1-c', 'f1-i', 'f1-m')
-
-        self.trainer.set_session(self.model, self.optimizer[0],
-                                 self.tr_dl[0], self.val_dl[0],
-                                 BATCH_SIZE)
-        for i in range(5):
-            self.model.set_path(i, train=False)
-            loss, time, metric = self.trainer.val_test()
-            table.add_line(f'{i+1}',
-                           loss,
-                           metric['crack']['f1'],
-                           metric['inactive']['f1'],
-                           metric['mean'])
+        for i, info in enumerate(self.net_eval):
+            if info is None:
+                table.add_line(i+1, '?', '?', '?', '?')
+            else:
+                table.add_line(i+1, info[0], info[1], info[2], info[3])
+        table.add_line('ensemble', *self.ensemble_eval)
         table.print()
+
+    def eval_ensemble_net(self, i):
+        self.trainer.set_session(self.model, None,
+                                 self.holdout_tr_dl, self.holdout_val_dl,
+                                 BATCH_SIZE)
+        self.model.set_path(i, train=False)
+        loss, time, metric = self.trainer.val_test()
+        self.net_eval[i] = [loss,
+                            metric['crack']['f1'],
+                            metric['inactive']['f1'],
+                            metric['mean']]
+        self.print_ensemble_metrics()
+
+    def eval_ensemble(self):
+        self.trainer.set_session(self.model, None,
+                                 self.holdout_tr_dl, self.holdout_val_dl,
+                                 BATCH_SIZE)
+        self.model.set_path(None, train=False)
+        loss, time, metric = self.trainer.val_test()
+        self.ensemble_eval = [loss,
+                            metric['crack']['f1'],
+                            metric['inactive']['f1'],
+                            metric['mean']]
+        self.print_ensemble_metrics()
+
+    def train_ensemble_net(self, i, tr_dl, val_dl):
+
+        self.model.set_path(i, True)
+
+        sb.print_line(f'starting fold {i + 1} / {FOLDS}')
+        self.trainer.set_session(self.model, self.optimizer[i],
+                                 tr_dl, val_dl,
+                                 BATCH_SIZE)
+
+        model_state, metric_model_state = self.trainer.train_with_early_stopping(
+            max_epoch=100,
+            patience=PATIENCE,
+            window=WINDOW,
+            best_metric_sel=SELECT_BEST_METRIC
+        )
+        torch.save(model_state, best_model_path+'.ckp')
+        return model_state
+
+    def train_ensemble(self):
+
+        self.model.set_path(None, True)
+        optimizer = OPTIMIZER_FACTORY.create(self.model.parameters())
+        self.trainer.set_session(self.model, optimizer,
+                                 self.holdout_tr_dl, self.holdout_val_dl,
+                                 BATCH_SIZE)
+
+        model_state, metric_model_state = self.trainer.train_with_early_stopping(
+            max_epoch=100,
+            patience=PATIENCE,
+            window=WINDOW,
+            best_metric_sel=SELECT_BEST_METRIC
+        )
+        torch.save(model_state, best_model_path+'.ckp')
+        return model_state
+
     def train(self):
         self.start_time = time.time_ns()
 
-        sb.print_line('k-fold training')
-        self.validate_ensemble()
+        # train separate ensemble nets
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
-            self.model.set_path(None, True)
+            state = self.train_ensemble_net(i, tr_dl, val_dl)
+            self.model.load_state_dict(state)
+            self.validate_ensemble_net(i)
 
-            sb.print_line(f'starting fold {i+1} / {FOLDS}')
-            self.trainer.set_session(self.model, self.optimizer[i],
-                                     tr_dl, val_dl,
-                                     BATCH_SIZE)
+        # train ensemble
+        state = self.train_ensemble()
+        self.model.load_state_dict(state)
+        self.eval_ensemble()
 
-            model_state, metric_model_state = self.trainer.train_with_early_stopping(
-                max_epoch=100,
-                patience=PATIENCE,
-                window=WINDOW,
-                best_metric_sel=SELECT_BEST_METRIC
-            )
+        self.export(state, export_path)
 
-            if EXPORT_BEST_LOSS:
-                torch.save(model_state, best_model_path + f'{i}.ckp')
-                self.export(model_state, export_path+f'{i}')
-            if EXPORT_BEST_METRIC:
-                torch.save(metric_model_state, best_model_path + f'{i}.ckp')
-                self.export(metric_model_state, export_path+f'{i}')
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 
@@ -273,7 +330,6 @@ class Controller:
     # --- handler ------------------------
     def batch_callback(self, batch_ix, batch_cnt, time, training):
         if batch_ix == batch_cnt:
-            #print()
             return
 
         tpb = time/(batch_ix+1)

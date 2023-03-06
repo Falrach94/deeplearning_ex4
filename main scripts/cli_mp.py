@@ -91,7 +91,7 @@ class Controller:
         self.optimizer = None
 
         self.net_eval = [None] * FOLDS
-        self.ensemble_eval = None
+        self.ensemble_eval = ['?']*4
 
         # --- setup training -----
         self.initialize_training_data()

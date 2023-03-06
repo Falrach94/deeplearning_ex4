@@ -5,8 +5,9 @@ from utils.cli_table_builder import TableBuilder
 
 from colorama import *
 
-#init(strip=False)
+from utils.console_util import ScreenBuilder, TableBuilderEx
 
+'''
 def set_cursor_pos_txt(x, y):
     sys.stdout.write(f'\033[{str(x)};{str(y)}H')
 
@@ -18,11 +19,11 @@ def set_cursor_pos_txt(x, y):
 t = "test\ntest2\ntest3\x1B[2A tester"
 sys.stdout.write(t)
 #print(t, end='', flush=True)
-
-exit()
+'''
+sb = ScreenBuilder()
 
 for i in range(5):
-    builder = TableBuilder()
+    builder = TableBuilderEx(sb, 'table')
 
     builder.add_line(f'{i}', f'{i}', f'{i}')
     builder.new_block()

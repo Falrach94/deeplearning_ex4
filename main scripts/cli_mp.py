@@ -156,7 +156,7 @@ class Controller:
         for i in range(5):
             self.model.set_path(i, train=False)
             loss, time, metric = self.trainer.val_test()
-            table.add_line(str(i+1),
+            table.add_line(f'{i+1}',
                            loss,
                            metric['crack']['f1'],
                            metric['inactive']['f1'],

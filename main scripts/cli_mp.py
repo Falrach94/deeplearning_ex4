@@ -232,14 +232,17 @@ class Controller:
     def train(self):
         self.start_time = time.time_ns()
 
-        # train separate ensemble nets
-        for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
-            state = self.train_ensemble_net(i, tr_dl, val_dl)
-            self.model.load_state_dict(state)
+        for i in range(FOLDS):
             self.eval_ensemble_net(i)
 
+        # train separate ensemble nets
+#        for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
+#            state = self.train_ensemble_net(i, tr_dl, val_dl)
+#            self.model.load_state_dict(state)
+#            self.eval_ensemble_net(i)
+
         # train ensemble
-        state = self.train_ensemble()   
+        state = self.train_ensemble()
         self.model.load_state_dict(state)
         self.eval_ensemble()
 

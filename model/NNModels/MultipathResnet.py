@@ -83,26 +83,31 @@ class MultipathResNet34(ResNet):
             if train:
                 init.xavier_uniform_(self.fc.weight)
 
-            for param in self.fc.parameters():
-                param.requires_grad = True
+                for param in self.fc.parameters():
+                    param.requires_grad = True
 
         else:
-            for param in self.extraction_paths[path].parameters():
-                param.requires_grad = True
-
-            if self.train_ll:
-                for l in self.init_stage:
-                    for param in l.parameters():
-                        param.requires_grad = True
 
             if train:
+                # init fc layers
                 init.xavier_uniform_(self.fc_single[path].weight)
                 for m in self.extraction_paths[path]:
                     if isinstance(m, nn.Linear):
                         init.xavier_uniform_(m.weight)
 
-            for param in self.fc_single[path].parameters():
-                param.requires_grad = True
+                # train low level feature extraction
+                if self.train_ll:
+                    for l in self.init_stage:
+                        for param in l.parameters():
+                            param.requires_grad = True
+
+                # train high level feature extraction
+                for param in self.extraction_paths[path].parameters():
+                    param.requires_grad = True
+
+                # train classifier
+                for param in self.fc_single[path].parameters():
+                    param.requires_grad = True
 
         self.use_path = path
 

@@ -8,13 +8,13 @@ best_classifier_path = 'assets/best_model0.ckp'
 output_path = 'assets/export'
 
 print('loading state dict')
-state_dict = torch.load(best_classifier_path)
+#state_dict = torch.load(best_classifier_path)
 
 print('creating model')
 model = MultipathResNet34()
-model.load_state_dict(state_dict)
+#model.load_state_dict(state_dict)
 model.eval()
-
+model.set_path(4, False)
 print('starting export')
 x = torch.randn(1, 3, 300, 300, requires_grad=True)
 y = model(x)

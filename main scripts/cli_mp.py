@@ -119,7 +119,7 @@ class Controller:
 
         # create k fold data split
         sb.print_line(f'split data into {FOLDS} folds')
-        reader = KFoldReader(k=FOLDS, remove_unlabled_augs=REMOVE_UNLABLED_AUGS)
+        reader = KFoldReader(k=FOLDS, remove_unlabled_augs=REMOVE_UNLABLED_AUGS, holdout=0.2)
 
         tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in reader.folds]
         val_dataset = [AutoencoderDataset(fold[1], 'val', 0, NORMALIZE) for fold in reader.folds]

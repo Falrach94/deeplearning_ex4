@@ -28,16 +28,18 @@ class ScreenBuilder:
         sys.stdout.write('\x1B[0;0H')
         self.current_line = 0
 
-    def go_up(self, y):
-        sys.stdout.write(f'\x1B[0;{self.current_line-y}H')
-        self.current_line -= y
+    def go_up(self, line_cnt):
+        sys.stdout.write(f'\x1B[0;{line_cnt}A')
+        self.current_line -= line_cnt
+
+    def goto_line(self, y):
+        self.go_up(self.current_line - y)
 
     def mark_line(self, name):
         self.marks[name] = self.current_line
 
     def goto_mark(self, name):
-        sys.stdout.write(f'\x1B[0;{self.marks[name]}H')
-        self.current_line = self.marks[name]
+        self.goto_line(self.marks[name])
 
     def has_mark(self, name):
         return name in self.marks

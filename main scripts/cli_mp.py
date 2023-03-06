@@ -93,7 +93,19 @@ class Controller:
 
         self.start_time = 0
 
+        self.prepare_ui()
         self.train()
+
+    def prepare_ui(self):
+
+        print_progress_bar(f'epoch ? - training',
+                           0, 1,
+                           f'',
+                           sb=sb, name='tr_prog')
+        print_progress_bar(f'epoch ? - validation',
+                           0, 1,
+                           f'',
+                           sb=sb, name='val_prog')
 
     def initialize_training_data(self):
 
@@ -137,6 +149,10 @@ class Controller:
 
         table = TableBuilderEx(sb, 'val')
         table.add_line('nbr', 'loss', 'f1-c', 'f1-i', 'f1-m')
+
+        self.trainer.set_session(self.model, self.optimizer[0],
+                                 self.tr_dl[0], self.val_dl[0],
+                                 BATCH_SIZE)
         for i in range(5):
             self.model.set_path(i, train=False)
             loss, time, metric = self.trainer.val_test()

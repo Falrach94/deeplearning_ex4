@@ -230,6 +230,8 @@ class Controller:
                           dynamic_axes={'input': {0: 'batch_size'},  # variable lenght axes
                                         'output': {0: 'batch_size'}})
 
+        model.cuda()
+
         print('export finished')
 
     def save_progress(self):

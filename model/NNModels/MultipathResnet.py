@@ -11,14 +11,14 @@ from torchvision.models.resnet import BasicBlock, ResNet
 
 class MultipathResNet34(ResNet):
 
-#    base_path = 'assets/base_model.ckp'
+    base_path = 'assets/base_model.ckp'
     inter_cnt = 32
 
     def __init__(self, path_cnt):
         super().__init__(BasicBlock, [3, 4, 6, 3])
 
-        weights = tv.models.ResNet34_Weights.DEFAULT
-        self.load_state_dict(weights.get_state_dict(True))
+        #weights = tv.models.ResNet34_Weights.DEFAULT
+        #self.load_state_dict(weights.get_state_dict(True))
 
         path = nn.Sequential(
             copy.deepcopy(self.layer3),
@@ -53,6 +53,9 @@ class MultipathResNet34(ResNet):
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
         self.fc_single = nn.Linear(self.inter_cnt, 2)
 
+        state = torch.load(self.base_path)
+        self.load_state_dict(state)
+
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 init.xavier_uniform_(m.weight)
@@ -77,10 +80,10 @@ class MultipathResNet34(ResNet):
                 init.xavier_uniform_(self.fc.weight)
 
         else:
-            if path == 0:
-                for l in self.init_stage:
-                    for param in l.parameters():
-                        param.requires_grad = True
+            #if path == 0:
+            #    for l in self.init_stage:
+            #        for param in l.parameters():
+            #            param.requires_grad = True
 
             for param in self.extraction_paths[path].parameters():
                 param.requires_grad = True

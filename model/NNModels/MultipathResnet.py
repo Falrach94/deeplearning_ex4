@@ -56,10 +56,6 @@ class MultipathResNet34(ResNet):
         state = torch.load(self.base_path)
         self.load_state_dict(state)
 
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                init.xavier_uniform_(m.weight)
-
         self.sig = nn.Sigmoid()
 
         self.use_path = None
@@ -81,6 +77,9 @@ class MultipathResNet34(ResNet):
 
             if train:
                 init.xavier_uniform_(self.fc_single.weight)
+                for m in self.extraction_paths[path]():
+                    if isinstance(m, nn.Linear):
+                        init.xavier_uniform_(m.weight)
 
             for param in self.fc_single.parameters():
                 param.requires_grad = True

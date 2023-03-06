@@ -236,10 +236,10 @@ class Controller:
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
             state = self.train_ensemble_net(i, tr_dl, val_dl)
             self.model.load_state_dict(state)
-            self.validate_ensemble_net(i)
+            self.eval_ensemble_net(i)
 
         # train ensemble
-        state = self.train_ensemble()
+        state = self.train_ensemble()   
         self.model.load_state_dict(state)
         self.eval_ensemble()
 

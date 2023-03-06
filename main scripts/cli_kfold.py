@@ -22,10 +22,10 @@ best_model_path = 'assets/best_model'
 export_path = 'assets/export'
 
 # model
-MODEL = ResNet50v2_Pretrained()
+MODEL = ResNet34_Pretrained()
 
 # training
-FOLDS = 1
+FOLDS = 5
 BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5

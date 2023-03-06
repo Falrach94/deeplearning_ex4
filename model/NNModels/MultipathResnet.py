@@ -96,6 +96,8 @@ class MultipathResNet34(ResNet):
                         param.requires_grad = True
 
                 print('ll')
+            else:
+                print('nl')
 
             if train:
                 init.xavier_uniform_(self.fc_single[path].weight)

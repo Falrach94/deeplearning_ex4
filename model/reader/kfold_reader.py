@@ -11,6 +11,8 @@ from sklearn.model_selection import train_test_split
 from utils.stat_tools import fully_categorize_data
 
 
+TINY = True
+
 # creates k fold cross validation sets from data.csv
 # augments of labeled elements are added to th  training data sets
 class KFoldReader:
@@ -20,6 +22,8 @@ class KFoldReader:
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',').set_index('nbr')
         self.holdout_set = None
 
+        if TINY:
+            data = data[:len(0.1 * len(data))]
         # remove augmentations of images without labels
         if remove_unlabled_augs:
             aug = aug[(aug.inactive != 0) | (aug.crack != 0)]

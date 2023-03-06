@@ -9,16 +9,12 @@ from sklearn.model_selection import train_test_split
 
 from utils.stat_tools import fully_categorize_data
 
-TINY = True
-
 class SmallDataReader:
 
     def __init__(self, prune=True, split=0.2, memorize_all=False):
         data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',')
 
-        if TINY:
-            data = data[:len(0.1*len(data))]
 
         if memorize_all:
             self.all = pd.concat((data, aug))

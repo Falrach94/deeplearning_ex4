@@ -24,6 +24,7 @@ class KFoldReader:
 
         if TINY:
             data = data[:int(0.1 * len(data))]
+            aug = aug[:int(0.1 * len(aug))]
         # remove augmentations of images without labels
         if remove_unlabled_augs:
             aug = aug[(aug.inactive != 0) | (aug.crack != 0)]

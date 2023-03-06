@@ -59,14 +59,23 @@ class MultipathResNet34(ResNet):
 
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
 
-        state = torch.load(self.base_path)
-        self.load_state_dict(state)
+        self.train_ll = True
+
+        try:
+            state = torch.load(self.base_path)
+            self.load_state_dict(state)
+            self.train_ll = False
+        except:
+            print('failed to load base model')
 
         self.sig = nn.Sigmoid()
 
         self.use_path = None
 
     def set_path(self, path, train):
+        if path != 0:
+            self.train_ll = False
+
         for param in self.parameters():
             param.requires_grad = False
 
@@ -80,6 +89,11 @@ class MultipathResNet34(ResNet):
         else:
             for param in self.extraction_paths[path].parameters():
                 param.requires_grad = True
+
+            if self.train_ll:
+                for l in self.init_stage:
+                    for param in l.parameters():
+                        param.requires_grad = True
 
             if train:
                 init.xavier_uniform_(self.fc_single[path].weight)

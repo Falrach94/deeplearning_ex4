@@ -29,7 +29,7 @@ PATIENCE = 10
 WINDOW = 5
 
 # model
-MODEL = MultipathResNet34(FOLDS)
+MODEL = MultipathResNet34(5)
 
 # metric calculation
 METRIC_CALC = calc_multi_f1

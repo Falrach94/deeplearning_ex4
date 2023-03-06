@@ -97,7 +97,7 @@ class MultipathResNet34(ResNet):
 
             if train:
                 init.xavier_uniform_(self.fc_single[path].weight)
-                for m in self.extraction_paths[path]():
+                for m in self.extraction_paths[path]:
                     if isinstance(m, nn.Linear):
                         init.xavier_uniform_(m.weight)
 

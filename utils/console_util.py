@@ -75,8 +75,9 @@ class TableBuilderEx:
         else:
             if len(self.block_sizes[-1]) != len(args):
                 raise Exception(f'collumn number ({len(args)}) does not match current block ({len(self.blocks[-1])})')
-            self.blocks[-1].append(list(args))
             str_args = [s if type(s) is str else repr(s) for s in args]
+
+            self.blocks[-1].append(list(str_args))
             cell_lengths = np.array([len(s) for s in str_args])
             self.block_sizes[-1] = np.maximum(cell_lengths, self.block_sizes[-1])
 

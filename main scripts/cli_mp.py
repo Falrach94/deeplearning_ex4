@@ -239,7 +239,10 @@ class Controller:
         # train separate ensemble nets
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
             state = self.train_ensemble_net(i, tr_dl, val_dl)
-            #self.model.load_state_dict(state)
+            self.model.load_state_dict(state)
+            for j in range(FOLDS):
+                self.eval_ensemble_net(j)
+
             for j in range(FOLDS):
                 self.eval_ensemble_net(j)
 

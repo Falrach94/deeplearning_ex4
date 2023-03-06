@@ -23,7 +23,7 @@ class KFoldReader:
         self.holdout_set = None
 
         if TINY:
-            data = data[:len(0.1 * len(data))]
+            data = data[:int(0.1 * len(data))]
         # remove augmentations of images without labels
         if remove_unlabled_augs:
             aug = aug[(aug.inactive != 0) | (aug.crack != 0)]

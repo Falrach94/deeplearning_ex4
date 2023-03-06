@@ -53,8 +53,8 @@ class MultipathResNet34(ResNet):
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
         self.fc_single = nn.Linear(self.inter_cnt, 2)
 
-        state = torch.load(self.base_path)
-        self.load_state_dict(state)
+       # state = torch.load(self.base_path)
+       # self.load_state_dict(state)
 
         for m in self.modules():
             if isinstance(m, nn.Linear):
@@ -98,8 +98,9 @@ class MultipathResNet34(ResNet):
         x = self.layer2(x)
 
         if self.use_path is None:
-            y = [path(x) for path in self.extraction_paths]
-            x = torch.concat(y, dim=0)
+            y = [path(x)[:, :, None] for path in self.extraction_paths]
+            x = torch.concat(y, dim=2)
+            x = x.view(x.size(0), -1)
             x = self.fc(x)
         else:
             x = self.extraction_paths[self.use_path](x)

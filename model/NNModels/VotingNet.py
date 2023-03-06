@@ -40,7 +40,7 @@ class VotingNet(torch.nn.Module):
         x = torch.cat(y, dim=1)
 
         # highest confidence
-        
+
         conf = torch.maximum(x, 1-x)
         max_conf, ix = torch.max(conf, dim=1, keepdim=True)
         max_conf = max_conf.repeat(1, VOTER_CNT, 1)

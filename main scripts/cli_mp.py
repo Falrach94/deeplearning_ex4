@@ -29,7 +29,7 @@ PATIENCE = 10
 WINDOW = 5
 
 # model
-MODEL = MultipathResNet34(5)
+MODEL = MultipathResNet34(FOLDS)
 
 # metric calculation
 METRIC_CALC = calc_multi_f1
@@ -42,7 +42,7 @@ OPTIMIZER_FACTORY = AdamFactory(decay, lr)
 
 # loss fct
 gamma_neg = 3
-gamma_pos = 3
+gamma_pos = 2
 clip = 0.05
 
 loss_calculator = ASLCalculator(gamma_neg, gamma_pos, clip)
@@ -83,6 +83,7 @@ class Controller:
         self.val_dataset = None
 
         self.model_state = None
+        self.optimizer = None
 
         # --- setup training -----
         self.initialize_training_data()
@@ -108,8 +109,9 @@ class Controller:
         print('validation sample cnt:', [len(val) for val in val_dataset])
 
         # create k models and optimizers
-        self.models = [copy.deepcopy(MODEL).cuda() for _ in range(FOLDS)]
-        self.optimizer = [OPTIMIZER_FACTORY.create(model.parameters()) for model in self.models]
+        self.model = MODEL.cuda()
+        self.optimizer = [OPTIMIZER_FACTORY.create(self.model.parameters())
+                          for _ in range(FOLDS)]
 
         self.trainer = AutoEncTrainer()
         self.trainer.metric_calculator = METRIC_CALC
@@ -134,8 +136,10 @@ class Controller:
 
         print('k-fold training')
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
+            self.model.set_path(i, True)
+
             print(f'starting fold {i+1} / {FOLDS}')
-            self.trainer.set_session(self.models[i], self.optimizer[i],
+            self.trainer.set_session(self.model, self.optimizer[i],
                                      tr_dl, val_dl,
                                      BATCH_SIZE)
 

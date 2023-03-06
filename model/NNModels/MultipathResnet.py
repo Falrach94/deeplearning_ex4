@@ -11,27 +11,87 @@ from torchvision.models.resnet import BasicBlock, ResNet
 
 class MultipathResNet34(ResNet):
 
-    def __init__(self):
+#    base_path = 'assets/base_model.ckp'
+    inter_cnt = 32
+
+    def __init__(self, path_cnt):
         super().__init__(BasicBlock, [3, 4, 6, 3])
+
         weights = tv.models.ResNet34_Weights.DEFAULT
         self.load_state_dict(weights.get_state_dict(True))
 
-        self.layer3_2 = copy.deepcopy(self.layer3)
-        self.layer4_2 = copy.deepcopy(self.layer4)
-        self.avgpool_2 = copy.deepcopy(self.avgpool)
+        path = nn.Sequential(
+            copy.deepcopy(self.layer3),
+            copy.deepcopy(self.layer4),
+            copy.deepcopy(self.avgpool),
+            nn.Flatten(),
+            nn.Linear(512, self.inter_cnt),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+        )
 
-        self.fc = nn.Linear(512, 16)
-        self.fc2 = nn.Linear(512, 16)
+        self.layer3 = None
+        self.layer4 = None
+        self.avgpool = None
 
-        self.fc3 = nn.Linear(32, 2)
+        self.init_stage = [
+            self.conv1,
+            self.bn1,
+            self.maxpool,
+            self.layer1,
+            self.layer2
+        ]
 
-        init.xavier_uniform_(self.fc.weight)
-        init.xavier_uniform_(self.fc2.weight)
-        init.xavier_uniform_(self.fc3.weight)
+        self.extraction_paths = [copy.deepcopy(path) for _ in range(path_cnt)]
 
-        self.relu = nn.ReLU(inplace=True)
-        self.drop = nn.Dropout(p=0.5)
+        self.path1 = self.extraction_paths[0]
+        self.path2 = self.extraction_paths[1]
+        self.path3 = self.extraction_paths[2]
+        self.path4 = self.extraction_paths[3]
+        self.path5 = self.extraction_paths[4]
+
+        self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
+        self.fc_single = nn.Linear(self.inter_cnt, 2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                init.xavier_uniform_(m.weight)
+
         self.sig = nn.Sigmoid()
+
+        self.use_path = None
+
+    def set_path(self, path, train):
+        for param in self.parameters():
+            param.requires_grad = False
+
+        if path is None:
+            for path_layer in self.extraction_paths:
+                for param in path_layer.parameters():
+                    param.requires_grad = True
+
+            for param in self.fc.parameters():
+                param.requires_grad = True
+
+            if train:
+                init.xavier_uniform_(self.fc.weight)
+
+        else:
+            if path == 0:
+                for l in self.init_stage:
+                    for param in l.parameters():
+                        param.requires_grad = True
+
+            for param in self.extraction_paths[path].parameters():
+                param.requires_grad = True
+
+            if train:
+                init.xavier_uniform_(self.fc_single.weight)
+
+            for param in self.fc_single.parameters():
+                param.requires_grad = True
+
+        self.use_path = path
 
     def forward(self, x):
 
@@ -42,25 +102,15 @@ class MultipathResNet34(ResNet):
 
         x = self.layer1(x)
         x = self.layer2(x)
-        x2 = x
 
-        x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        if self.use_path is None:
+            y = [path(x) for path in self.extraction_paths]
+            x = torch.concat(y, dim=0)
+            x = self.fc(x)
+        else:
+            x = self.extraction_paths[self.use_path](x)
+            x = self.fc_single(x)
 
-        x2 = self.layer3_2(x2)
-        x2 = self.layer4_2(x2)
-        x2 = self.avgpool(x2)
-        x2 = x2.view(x2.size(0), -1)
-        x2 = self.fc2(x2)
-
-        x = torch.concat((x, x2), dim=1)
-        x = self.drop(x)
-        x = self.relu(x)
-
-        x = self.fc3(x)
         x = self.sig(x)
 
         return x

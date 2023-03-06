@@ -59,14 +59,14 @@ class MultipathResNet34(ResNet):
 
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
 
-        self.train_ll = True
-
         try:
             state = torch.load(self.base_path)
             self.load_state_dict(state)
             self.train_ll = False
         except:
             print('failed to load base model')
+            self.train_ll = True
+
 
         self.sig = nn.Sigmoid()
 
@@ -94,6 +94,8 @@ class MultipathResNet34(ResNet):
                 for l in self.init_stage:
                     for param in l.parameters():
                         param.requires_grad = True
+
+                print('ll')
 
             if train:
                 init.xavier_uniform_(self.fc_single[path].weight)

@@ -104,6 +104,7 @@ class Controller:
 
     def prepare_ui(self):
 
+        self.print_ensemble_metrics()
         print_progress_bar(f'epoch ? - training',
                            0, 1,
                            f'',
@@ -113,7 +114,6 @@ class Controller:
                            f'',
                            sb=sb, name='val_prog')
 
-        self.print_ensemble_metrics()
 
     def initialize_training_data(self):
 

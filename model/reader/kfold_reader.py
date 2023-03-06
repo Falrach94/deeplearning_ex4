@@ -25,7 +25,7 @@ class KFoldReader:
             aug = aug[(aug.inactive != 0) | (aug.crack != 0)]
 
         if holdout is not None:
-            data, self.holdout_set = train_test_split(data, split=holdout)
+            data, self.holdout_set = train_test_split(data, test_size=holdout)
             self.training_data = data
         # split not augmented data into k folds (tr, val)
         ix = np.arange(len(data))

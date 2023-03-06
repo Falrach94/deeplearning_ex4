@@ -24,7 +24,8 @@ export_path = 'assets/export'
 
 # training
 FOLDS = 5
-BATCH_SIZE = 16
+MAX_EPOCH = 2
+BATCH_SIZE = 32
 PATIENCE = 10
 WINDOW = 5
 
@@ -204,7 +205,7 @@ class Controller:
                                  BATCH_SIZE)
 
         model_state, metric_model_state = self.trainer.train_with_early_stopping(
-            max_epoch=100,
+            max_epoch=MAX_EPOCH,
             patience=PATIENCE,
             window=WINDOW,
             best_metric_sel=SELECT_BEST_METRIC
@@ -240,7 +241,7 @@ class Controller:
             state = self.train_ensemble_net(i, tr_dl, val_dl)
             self.model.load_state_dict(state)
             for j in range(FOLDS):
-               self.eval_ensemble_net(j)
+                self.eval_ensemble_net(j)
 
         # train ensemble
         state = self.train_ensemble()

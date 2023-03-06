@@ -69,22 +69,13 @@ class MultipathResNet34(ResNet):
             param.requires_grad = False
 
         if path is None:
-#            for path_layer in self.extraction_paths:
-#                for param in path_layer.parameters():
-#                    param.requires_grad = False
+            if train:
+                init.xavier_uniform_(self.fc.weight)
 
             for param in self.fc.parameters():
                 param.requires_grad = True
 
-            if train:
-                init.xavier_uniform_(self.fc.weight)
-
         else:
-            #if path == 0:
-            #    for l in self.init_stage:
-            #        for param in l.parameters():
-            #            param.requires_grad = True
-
             for param in self.extraction_paths[path].parameters():
                 param.requires_grad = True
 

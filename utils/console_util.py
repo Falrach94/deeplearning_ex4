@@ -3,37 +3,31 @@ import sys
 import numpy as np
 
 
-def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50):
-
-    perc = i/cnt
-    filled = round(perc*bar_length)
-    not_filled = bar_length-filled
-    bar = fill_char*filled + '-'*not_filled
-    print(f'\r{prefix}:\t|{bar}| ({i}/{cnt} | {round(perc*100)}%) - {suffix}', end='', flush=True)
-
-
 class ScreenBuilder:
 
     def __init__(self):
         self.current_line = 0
-        self.current_col = 0
 
-        self.marks={}
+        self.marks = {}
 
     def print_line(self, txt):
-        print(txt)
+        sys.stdout.write(txt+'\n')
         self.current_line += 1
+
+    def print(self, txt):
+        sys.stdout.write(txt)
 
     def reset_position(self):
         sys.stdout.write('\x1B[0;0H')
         self.current_line = 0
 
     def go_up(self, line_cnt):
-        sys.stdout.write(f'\x1B[0;{line_cnt}A')
+        sys.stdout.write(f'\r\x1B[{line_cnt}A')
         self.current_line -= line_cnt
 
     def goto_line(self, y):
-        self.go_up(self.current_line - y)
+        if y != self.current_line:
+            self.go_up(self.current_line - y)
 
     def mark_line(self, name):
         self.marks[name] = self.current_line
@@ -44,6 +38,11 @@ class ScreenBuilder:
     def has_mark(self, name):
         return name in self.marks
 
+    def hide_cursor(self):
+        sys.stdout.write('\x1B[? 25l')
+
+    def show_cursor(self):
+        sys.stdout.write('\x1B[? 25h')
 
 class TableBuilderEx:
 
@@ -117,3 +116,22 @@ class TableBuilderEx:
                 self.sb.print_line(self.build_line(line, target_size))
 
         self.print_hline(1)
+
+
+def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
+                       sb: ScreenBuilder = None, name='bar'):
+
+    perc = i/cnt
+    filled = round(perc*bar_length)
+    not_filled = bar_length-filled
+    bar = fill_char*filled + '-'*not_filled
+    txt = f'\r{prefix}:\t|{bar}| ({i}/{cnt} | {round(perc*100)}%) - {suffix}'
+
+    if sb is None:
+        print(txt, end='', flush=True)
+    else:
+        if not sb.has_mark(name):
+            sb.mark_line(name)
+        else:
+            sb.goto_mark(name)
+        sb.print_line(txt)

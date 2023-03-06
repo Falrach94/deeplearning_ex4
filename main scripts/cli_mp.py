@@ -13,7 +13,7 @@ from model.config import WORKER_THREADS
 from model.reader.kfold_reader import KFoldReader
 from model.training.autoEncTrainer import AutoEncTrainer
 from utils.cli_table_builder import TableBuilder
-from utils.console_util import print_progress_bar
+from utils.console_util import print_progress_bar, ScreenBuilder, TableBuilderEx
 from utils.loss_utils import calc_MSE_loss, select_best_metric, AdamFactory, ASLCalculator
 from utils.stat_tools import calc_multi_f1
 
@@ -23,7 +23,7 @@ best_model_path = 'assets/best_model'
 export_path = 'assets/export'
 
 # training
-FOLDS = 5
+FOLDS = 1
 BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5
@@ -50,8 +50,6 @@ loss_calculator = ASLCalculator(gamma_neg, gamma_pos, clip)
 TRAINING_LOSS = loss_calculator.calc
 VALIDATION_LOSS = calc_MSE_loss
 
-
-
 # data
 NORMALIZE = True
 REMOVE_UNLABLED_AUGS = False
@@ -62,6 +60,10 @@ SAVE_MODEL = True
 
 EXPORT_BEST_METRIC = False
 EXPORT_BEST_LOSS = True
+
+
+sb = ScreenBuilder()
+
 
 class Controller:
 
@@ -96,7 +98,7 @@ class Controller:
     def initialize_training_data(self):
 
         # create k fold data split
-        print(f'split data into {FOLDS} folds')
+        sb.print_line(f'split data into {FOLDS} folds')
         reader = KFoldReader(k=FOLDS, remove_unlabled_augs=REMOVE_UNLABLED_AUGS)
         folds = reader.folds
         tr_dataset = [AutoencoderDataset(fold[0], 'train', 1, NORMALIZE) for fold in folds]
@@ -105,8 +107,8 @@ class Controller:
                                  num_workers=WORKER_THREADS, shuffle=True) for data in tr_dataset]
         self.val_dl = [DataLoader(data, batch_size=BATCH_SIZE,
                                   num_workers=WORKER_THREADS, shuffle=False) for data in val_dataset]
-        print('training sample cnt:', [len(tr) for tr in tr_dataset])
-        print('validation sample cnt:', [len(val) for val in val_dataset])
+        sb.print_line('training sample cnt:', [len(tr) for tr in tr_dataset])
+        sb.print_line('validation sample cnt:', [len(val) for val in val_dataset])
 
         # create k models and optimizers
         self.model = MODEL.cuda()
@@ -134,11 +136,11 @@ class Controller:
     def train(self):
         self.start_time = time.time_ns()
 
-        print('k-fold training')
+        sb.print_line('k-fold training')
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
-            self.model.set_path(i, True)
+            self.model.set_path(None, True)
 
-            print(f'starting fold {i+1} / {FOLDS}')
+            sb.print_line(f'starting fold {i+1} / {FOLDS}')
             self.trainer.set_session(self.model, self.optimizer[i],
                                      tr_dl, val_dl,
                                      BATCH_SIZE)
@@ -159,7 +161,7 @@ class Controller:
 
     def print_metrics(self, loss, time, metrics, best, total_time):
 
-        builder = TableBuilder()
+        builder = TableBuilderEx(sb, name='epoch')
         builder.add_line(f'epoch: {self.trainer.epoch}',
                          f'runtime: {total_time[0]} min {total_time[1]} sec',
                          '')
@@ -208,7 +210,7 @@ class Controller:
         self.print_metrics(loss, epoch_time, metrics, best, (total_time_min, total_time_s))
 
     def export(self, state, path):
-        print('starting export')
+        sb.print_line('starting export')
 
         model = MODEL
 
@@ -232,7 +234,7 @@ class Controller:
 
         model.cuda()
 
-        print('export finished')
+        sb.print_line('export finished')
 
     def save_progress(self):
         self.model_state['state_dict'] = self.model.state_dict()
@@ -260,17 +262,17 @@ class Controller:
 
         print_progress_bar(f'epoch {self.trainer.epoch} - {"training" if training else "validation"}',
                            batch_ix+1, batch_cnt,
-                           f'~{int(approx_rem)} s remaining (~{round(tpb,2)} s/batch)')
+                           f'~{int(approx_rem)} s remaining (~{round(tpb,2)} s/batch)',
+                           sb=sb, name='tr_prog' if training else 'val_prog')
 
     def epoch_callback(self, epoch, loss, time, metrics, best):
-        print(f'epoch {epoch} finished', end='\r', flush=True)
+        sb.print_line(f'epoch {epoch} finished', end='\r', flush=True)
         self.metric_update(loss, time, metrics, best)
-#        torch.save(self.model.state_dict(), 'assets/tmp_model.ckp')
 
 
-print('batch size:', BATCH_SIZE)
-print('learning rate', lr)
-print('weight decay', decay)
-print('worker threads', WORKER_THREADS)
+sb.print_line('batch size:', BATCH_SIZE)
+sb.print_line('learning rate', lr)
+sb.print_line('weight decay', decay)
+sb.print_line('worker threads', WORKER_THREADS)
 
 controller = Controller()

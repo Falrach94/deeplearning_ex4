@@ -11,11 +11,12 @@ class ScreenBuilder:
         self.marks = {}
 
     def print_line(self, *txt):
-        sys.stdout.write(' '.join([repr(t) for t in txt]+'\n'))
+        self.print(txt)
+        sys.stdout.write('\n')
         self.current_line += 1
 
     def print(self, txt):
-        sys.stdout.write(txt)
+        sys.stdout.write(' '.join([repr(t) for t in txt]))
 
     def reset_position(self):
         sys.stdout.write('\x1B[0;0H')

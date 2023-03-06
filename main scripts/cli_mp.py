@@ -266,7 +266,7 @@ class Controller:
                            sb=sb, name='tr_prog' if training else 'val_prog')
 
     def epoch_callback(self, epoch, loss, time, metrics, best):
-        sb.print_line(f'epoch {epoch} finished', end='\r', flush=True)
+#        sb.print_line(f'epoch {epoch} finished', end='\r', flush=True)
         self.metric_update(loss, time, metrics, best)
 
 

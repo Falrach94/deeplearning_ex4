@@ -16,7 +16,7 @@ class ScreenBuilder:
         self.current_line += 1
 
     def print(self, txt):
-        sys.stdout.write(' '.join([repr(t) for t in txt]))
+        sys.stdout.write(' '.join([t if type(t) is str else repr(t) for t in txt]))
 
     def reset_position(self):
         sys.stdout.write('\x1B[0;0H')

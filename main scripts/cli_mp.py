@@ -133,6 +133,19 @@ class Controller:
 
     # --- internal methods --------------
 
+    def validate_ensemble(self):
+
+        table = TableBuilderEx(sb, 'val')
+        table.add_line('nbr', 'loss', 'f1-c', 'f1-i', 'f1-m')
+        for i in range(5):
+            self.model.set_path(i, train=False)
+            loss, time, metric = self.trainer.val_test()
+            table.add_line(str(i+1),
+                           loss,
+                           metric['crack']['f1'],
+                           metric['inactive']['f1'],
+                           metric['mean'])
+        table.print()
     def train(self):
         self.start_time = time.time_ns()
 
@@ -243,7 +256,7 @@ class Controller:
     # --- handler ------------------------
     def batch_callback(self, batch_ix, batch_cnt, time, training):
         if batch_ix == batch_cnt:
-            print()
+            #print()
             return
 
         tpb = time/(batch_ix+1)

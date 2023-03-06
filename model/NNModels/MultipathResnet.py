@@ -53,8 +53,8 @@ class MultipathResNet34(ResNet):
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
         self.fc_single = nn.Linear(self.inter_cnt, 2)
 
-       # state = torch.load(self.base_path)
-       # self.load_state_dict(state)
+        state = torch.load(self.base_path)
+        self.load_state_dict(state)
 
         for m in self.modules():
             if isinstance(m, nn.Linear):

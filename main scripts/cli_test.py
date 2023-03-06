@@ -5,7 +5,7 @@ from utils.cli_table_builder import TableBuilder
 
 from colorama import *
 
-init(strip=False)
+#init(strip=False)
 
 def set_cursor_pos_txt(x, y):
     sys.stdout.write(f'\033[{str(x)};{str(y)}H')

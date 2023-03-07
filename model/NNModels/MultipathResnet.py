@@ -86,6 +86,10 @@ class MultipathResNet34(ResNet):
         if not self.train_ll:
             self.init_stage.eval()
 
+        if mode:
+            for param in self.parameters():
+                param.grad = None
+
     def set_path(self, path, train):
         self.active_path = path
         self.requires_grad_(False)
@@ -101,10 +105,10 @@ class MultipathResNet34(ResNet):
         if path is None:
             self.fc.requires_grad_(True)
         else:
-            self.extraction_paths[path].requires_grad_(True)
-            self.fc_single[path].requires_grad_(True)
             if self.train_ll:
                 self.init_stage.requires_grad_(True)
+            self.extraction_paths[path].requires_grad_(True)
+            self.fc_single[path].requires_grad_(True)
 
     def forward(self, x):
 

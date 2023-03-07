@@ -33,28 +33,41 @@ class TestResNet34(ResNet):
             self.layer4,
             self.avgpool,
             nn.Flatten(),
-            self.fc
+            nn.Linear(512, 2)
         )
 
         self.path1 = copy.deepcopy(path)
         self.path2 = copy.deepcopy(path)
+        self.path3 = copy.deepcopy(path)
+        self.path4 = copy.deepcopy(path)
+        self.path5 = copy.deepcopy(path)
 
-        self.paths = [self.path1, self.path2]
+        self.current_path = None
+        self.paths = [self.path1, self.path2, self.path3, self.path4, self.path5]
 
         self.sel = 0
 
-    def select(self, i):
-        self.sel = i
+    def set_path(self, path, train):
+        self.sel = path
+        self.current_path = self.paths[path]
         self.requires_grad_(False)
-        self.paths[i].requires_grad_(True)
+
+        self.current_path.requires_grad_(train)
+        self.init.requires_grad_(path == 0 and train)
 
     def train(self, mode=True):
         super().train(mode)
 
-        self.init.eval()
+        if self.sel != 0:
+            self.init.eval()
+
+        if mode:
+            for param in self.parameters():
+                param.grad = None
+
 
     def forward(self, x):
         x = self.init(x)
-        x = self.paths[self.sel](x)
+        x = self.current_path(x)
 
         return x

@@ -20,30 +20,47 @@ class MultipathResNet34(ResNet):
         weights = tv.models.ResNet34_Weights.DEFAULT
         self.load_state_dict(weights.get_state_dict(True))
 
-        path = nn.Sequential(
-            copy.deepcopy(self.layer3),
-            copy.deepcopy(self.layer4),
-            copy.deepcopy(self.avgpool),
-            nn.Flatten(),
-            nn.Linear(512, self.inter_cnt),
-            nn.Dropout(p=0.5),
-            nn.ReLU(inplace=True),
-        )
 
-        self.layer3 = None
-        self.layer4 = None
-        self.avgpool = None
-
-        self.init_stage = [
+        self.init_stage = nn.Sequential(
             self.conv1,
             self.bn1,
+            self.relu,
             self.maxpool,
             self.layer1,
             self.layer2
-        ]
+        )
+
+        path = nn.Sequential(
+            self.layer3,
+            self.layer4,
+            self.avgpool,
+            nn.Flatten(),
+            nn.Linear(512, self.inter_cnt),
+            #     nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+        )
 
         self.extraction_paths = [copy.deepcopy(path) for _ in range(path_cnt)]
+        for path in self.extraction_paths:
+            for module in path.modules():
+                if isinstance(module, nn.Linear):
+                    init.xavier_uniform_(module.weight)
+
         self.fc_single = [nn.Linear(self.inter_cnt, 2) for _ in range(path_cnt)]
+        for fc in self.fc_single:
+            init.xavier_uniform_(fc.weight)
+
+        self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
+        init.xavier_uniform_(self.fc.weight)
+
+        self.conv1 = None
+        self.bn1 = None
+        self.maxpool = None
+        self.layer1 = None
+        self.layer2 = None
+        self.layer3 = None
+        self.layer4 = None
+        self.avgpool = None
 
         self.path1 = self.extraction_paths[0]
         self.path2 = self.extraction_paths[1]
@@ -57,72 +74,48 @@ class MultipathResNet34(ResNet):
         self.fc_single4 = self.fc_single[3]
         self.fc_single5 = self.fc_single[4]
 
-        self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
-
-        #try:
-        #state = torch.load(self.base_path)
-        #self.load_state_dict(state)
         self.train_ll = False
-        #except:
-        #    print('failed to load base model')
-        #    self.train_ll = True
-
 
         self.sig = nn.Sigmoid()
 
-        self.use_path = None
+        self.active_path = None
+
+    def train(self, mode=True):
+        super().train(mode)
+
+        if not self.train_ll:
+            self.init_stage.eval()
 
     def set_path(self, path, train):
-        self.use_path = path
+        self.active_path = path
+        self.requires_grad_(False)
+
+        if not train:
+            return
+
         if path != 0:
             self.train_ll = False
 
-        self.requires_grad_(False)
-
         if path is None:
-            if train:
-                init.xavier_uniform_(self.fc.weight)
-                self.fc.requires_grad_(True)
-
+            self.fc.requires_grad_(True)
         else:
-
-            if train:
-                # init fc layers
-                init.xavier_uniform_(self.fc_single[path].weight)
-                for m in self.extraction_paths[path].modules():
-                    if isinstance(m, nn.Linear):
-                        init.xavier_uniform_(m.weight)
-
-                # train low level feature extraction
-                if self.train_ll:
-                    for layer in self.init_stage:
-                        layer.requires_grad_(True)
-
-                # train high level feature extraction
-                self.extraction_paths[path].requires_grad_(True)
-
-                # train classifier
-                self.fc_single[path].requires_grad_(True)
-
+            self.extraction_paths[path].requires_grad_(True)
+            self.fc_single[path].requires_grad_(True)
+            if self.train_ll:
+                self.init_stage.requires_grad_(True)
 
     def forward(self, x):
 
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
+        x = self.init_stage(x)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
-
-        if self.use_path is None:
+        if self.active_path is None:
             y = [path(x)[:, :, None] for path in self.extraction_paths]
             x = torch.concat(y, dim=2)
             x = x.view(x.size(0), -1)
             x = self.fc(x)
         else:
-            x = self.extraction_paths[self.use_path](x)
-            x = self.fc_single[self.use_path](x)
+            x = self.extraction_paths[self.active_path](x)
+            x = self.fc_single[self.active_path](x)
 
         x = self.sig(x)
 

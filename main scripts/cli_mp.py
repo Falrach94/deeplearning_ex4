@@ -25,7 +25,7 @@ export_path = 'assets/export'
 # training
 FOLDS = 5
 MAX_EPOCH = 1
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5
 
@@ -92,7 +92,7 @@ class Controller:
         self.optimizer = None
 
         self.net_eval = [None] * FOLDS
-        self.ensemble_eval = ['?']*4
+        self.ensemble_eval = ['?']*6
 
         # --- setup training -----
         self.initialize_training_data()
@@ -134,12 +134,12 @@ class Controller:
         self.holdout_tr_dl = DataLoader(AutoencoderDataset(reader.training_data, 'train', 1, NORMALIZE),
                                         batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
         self.holdout_val_dl = DataLoader(AutoencoderDataset(reader.holdout_set, 'val', 0, NORMALIZE),
-                                         batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=True)
+                                         batch_size=BATCH_SIZE, num_workers=WORKER_THREADS, shuffle=False)
 
         # create k models and optimizers
         self.model = MODEL.cuda()
-        self.optimizer = [OPTIMIZER_FACTORY.create(self.model.parameters())
-                          for _ in range(FOLDS)]
+        #self.optimizer = [OPTIMIZER_FACTORY.create(self.model.parameters())
+        #                  for _ in range(FOLDS)]
 
         self.trainer = AutoEncTrainer()
         self.trainer.metric_calculator = METRIC_CALC
@@ -162,30 +162,39 @@ class Controller:
     def print_ensemble_metrics(self):
 
         table = TableBuilderEx(sb, 'val')
-        table.add_line('nbr', 'loss', 'f1-c', 'f1-i', 'f1-m')
+        table.add_line('nbr', 'loss', 'f1-c', 'f1-i', 'f1-m', 'crack (tp, tn, fp, fn)', 'inactive (tp, tn, fp, fn)')
         for i, info in enumerate(self.net_eval):
             if info is None:
-                table.add_line(i+1, '?', '?', '?', '?')
+                table.add_line(i+1, '?', '?', '?', '?', '?', '?')
             else:
-                table.add_line(i+1, info[0], info[1], info[2], info[3])
+                table.add_line(i+1, info[0], info[1], info[2], info[3], info[4], info[5])
         table.add_line('ensemble', *self.ensemble_eval)
         table.print()
 
     def eval_ensemble_net(self, i):
         self.trainer.set_session(self.model, None,
-                                 self.holdout_tr_dl, self.holdout_val_dl,
+                                 None, self.holdout_val_dl,
                                  BATCH_SIZE)
         self.model.set_path(i, train=False)
         loss, time, metric = self.trainer.val_test()
-        self.net_eval[i] = [loss,
+        self.net_eval[i] = [loss.item(),
                             metric['crack']['f1'],
                             metric['inactive']['f1'],
-                            metric['mean']]
-        self.print_ensemble_metrics()
+                            metric['mean'],
+                            (metric['crack']['tp'],
+                             metric['crack']['tn'],
+                             metric['crack']['fp'],
+                             metric['crack']['fn']),
+                            (metric['inactive']['tp'],
+                             metric['inactive']['tn'],
+                             metric['inactive']['fp'],
+                             metric['inactive']['fn'])]
+
+       # self.print_ensemble_metrics()
 
     def eval_ensemble(self):
         self.trainer.set_session(self.model, None,
-                                 self.holdout_tr_dl, self.holdout_val_dl,
+                                 None, self.holdout_val_dl,
                                  BATCH_SIZE)
         self.model.set_path(None, train=False)
         loss, time, metric = self.trainer.val_test()
@@ -200,7 +209,7 @@ class Controller:
         self.model.set_path(i, True)
 
         sb.print_line(f'starting fold {i + 1} / {FOLDS}')
-        self.trainer.set_session(self.model, self.optimizer[i],
+        self.trainer.set_session(self.model, OPTIMIZER_FACTORY.create(self.model.parameters()),
                                  tr_dl, val_dl,
                                  BATCH_SIZE)
 
@@ -237,14 +246,20 @@ class Controller:
 #            self.eval_ensemble_net(i)
 
         # train separate ensemble nets
+       # states = []
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
             state = self.train_ensemble_net(i, tr_dl, val_dl)
-            self.model.load_state_dict(state)
-            for j in range(FOLDS):
-                self.eval_ensemble_net(j)
+           # states.append(state)
+            for _ in range(5):
+                print('new')
+                print('new')
+                print('new')
+                for j in range(FOLDS):
+                  #  if j < len(states):
+                  #      self.model.load_state_dict(states[j])
+                    self.eval_ensemble_net(j)
+                self.print_ensemble_metrics()
 
-            for j in range(FOLDS):
-                self.eval_ensemble_net(j)
 
         # train ensemble
         state = self.train_ensemble()

@@ -133,7 +133,7 @@ class AutoEncTrainer:
             self._optim.zero_grad()
             prediction = self._model(x)
             loss = self.loss_fct(x, prediction, y, self.last_metric)
-           # loss.backward()
+            loss.backward()
             self._optim.step()
             total_loss += loss
 

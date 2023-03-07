@@ -251,9 +251,6 @@ class Controller:
             state = self.train_ensemble_net(i, tr_dl, val_dl)
            # states.append(state)
             for _ in range(5):
-                print('new')
-                print('new')
-                print('new')
                 for j in range(FOLDS):
                   #  if j < len(states):
                   #      self.model.load_state_dict(states[j])

@@ -8,16 +8,13 @@ model = MultipathResNet34(5)
 #model = TestResNet34()
 model.cuda()
 
-x = torch.rand(32, 3, 300, 300)
-x = x.cuda()
-
-
 optim = torch.optim.Adam(lr=0.001, params=model.parameters())
 loss = torch.nn.MSELoss().cuda()
 
-
-
 for i in range(100):
+    x = torch.rand(32, 3, 300, 300)
+    x = x.cuda()
+
     model.set_path(path=0, train=False)
     model.eval()
     y = model(x)

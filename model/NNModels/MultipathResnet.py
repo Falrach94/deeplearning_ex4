@@ -93,8 +93,8 @@ class MultipathResNet34(ResNet):
         if not train:
             return
 
-        if path != 0:
-            self.train_ll = False
+        if path == 0:
+            self.train_ll = True
 
         if path is None:
             self.fc.requires_grad_(True)

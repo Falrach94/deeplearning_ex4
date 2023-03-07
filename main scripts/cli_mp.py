@@ -65,6 +65,10 @@ EXPORT_BEST_LOSS = True
 
 sb = ScreenBuilder()
 
+def early_stoping_selector(loss, metrics, best_crit_val):
+    if best_crit_val is None or best_crit_val < metrics['mean']:
+        return metrics['mean'], True
+    return best_crit_val, False
 
 class Controller:
 
@@ -225,7 +229,8 @@ class Controller:
             max_epoch=MAX_EPOCH,
             patience=PATIENCE,
             window=WINDOW,
-            best_metric_sel=SELECT_BEST_METRIC
+            best_metric_sel=SELECT_BEST_METRIC,
+            early_stop_criterion=early_stoping_selector
         )
         torch.save(model_state, best_model_path+'.ckp')
         return model_state

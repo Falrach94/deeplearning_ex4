@@ -17,7 +17,7 @@ class AutoencoderDataset(Dataset):
     def label(self):
         self._autoencode = False
 
-    def __init__(self, data, mode, transform_mode, normalize=False):
+    def __init__(self, data, mode, transform_mode=0, normalize=True):
         super().__init__()
 
         self._autoencode = False

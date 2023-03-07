@@ -24,7 +24,7 @@ export_path = 'assets/export'
 
 # training
 FOLDS = 5
-MAX_EPOCH = 100
+MAX_EPOCH = 10
 BATCH_SIZE = 8
 PATIENCE = 10
 WINDOW = 5

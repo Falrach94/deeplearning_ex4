@@ -52,19 +52,6 @@ class MultipathResNet34(ResNet):
 
         self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)  # legacy
 
-        state = torch.load(self.base_path)
-        self.load_state_dict(state)
-
-        self.fc = nn.Sequential(
-            nn.Linear(self.inter_cnt*path_cnt, 128),
-            nn.Dropout(p=0.5),
-            nn.ReLU(inplace=True),
-            nn.Linear(128, 2)
-        )
-        for module in fc.modules():
-            if isinstance(module, nn.Linear):
-                init.xavier_uniform_(module.weight)
-
         self.conv1 = None
         self.bn1 = None
         self.maxpool = None
@@ -91,6 +78,21 @@ class MultipathResNet34(ResNet):
         self.sig = nn.Sigmoid()
 
         self.active_path = None
+
+
+        state = torch.load(self.base_path)
+        self.load_state_dict(state)
+
+        self.fc = nn.Sequential(
+            nn.Linear(self.inter_cnt*path_cnt, 128),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(128, 2)
+        )
+        for module in fc.modules():
+            if isinstance(module, nn.Linear):
+                init.xavier_uniform_(module.weight)
+
 
     def train(self, mode=True):
         super().train(mode)

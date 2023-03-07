@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from utils.stat_tools import fully_categorize_data
 
 
-TINY = True
+TINY = False
 
 # creates k fold cross validation sets from data.csv
 # augments of labeled elements are added to th  training data sets

@@ -37,13 +37,13 @@ METRIC_CALC = calc_multi_f1
 SELECT_BEST_METRIC = select_best_metric
 
 # optimizer
-lr = 0.00003
+lr = 0.0001
 decay = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(decay, lr)
 
 # loss fct
 gamma_neg = 3
-gamma_pos = 3
+gamma_pos = 2
 clip = 0.05
 
 loss_calculator = ASLCalculator(gamma_neg, gamma_pos, clip)

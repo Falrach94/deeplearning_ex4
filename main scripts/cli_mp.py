@@ -198,18 +198,18 @@ class Controller:
                                  BATCH_SIZE)
         self.model.set_path(None, train=False)
         loss, time, metric = self.trainer.val_test()
-        self.ensemble_eval = [loss,
-                            metric['crack']['f1'],
-                            metric['inactive']['f1'],
-                            metric['mean']
-                            (metric['crack']['tp'],
-                             metric['crack']['tn'],
-                             metric['crack']['fp'],
-                             metric['crack']['fn']),
-                            (metric['inactive']['tp'],
-                             metric['inactive']['tn'],
-                             metric['inactive']['fp'],
-                             metric['inactive']['fn'])]
+        self.ensemble_eval = [loss.item(),
+                              metric['crack']['f1'],
+                              metric['inactive']['f1'],
+                              metric['mean']
+                              (metric['crack']['tp'],
+                               metric['crack']['tn'],
+                               metric['crack']['fp'],
+                               metric['crack']['fn']),
+                              (metric['inactive']['tp'],
+                               metric['inactive']['tn'],
+                               metric['inactive']['fp'],
+                               metric['inactive']['fn'])]
         self.print_ensemble_metrics()
 
     def train_ensemble_net(self, i, tr_dl, val_dl):

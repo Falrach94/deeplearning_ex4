@@ -36,7 +36,7 @@ class MultipathResNet34(ResNet):
             self.avgpool,
             nn.Flatten(),
             nn.Linear(512, self.inter_cnt),
-            #     nn.Dropout(p=0.5),
+            nn.Dropout(p=0.5),
             nn.ReLU(inplace=True),
         )
 

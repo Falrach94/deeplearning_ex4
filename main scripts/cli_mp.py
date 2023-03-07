@@ -201,7 +201,7 @@ class Controller:
         self.ensemble_eval = [loss.item(),
                               metric['crack']['f1'],
                               metric['inactive']['f1'],
-                              metric['mean']
+                              metric['mean'],
                               (metric['crack']['tp'],
                                metric['crack']['tn'],
                                metric['crack']['fp'],

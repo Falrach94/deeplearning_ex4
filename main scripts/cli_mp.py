@@ -23,7 +23,7 @@ best_model_path = 'assets/base_model'
 export_path = 'assets/export'
 
 # training
-FOLDS = 5
+FOLDS = 2
 MAX_EPOCH = 100
 BATCH_SIZE = 8
 PATIENCE = 10

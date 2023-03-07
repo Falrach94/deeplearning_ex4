@@ -3,6 +3,7 @@ import time
 import numpy as np
 import torch as t
 import torch.cuda
+from torch.utils.data import DataLoader
 
 
 class AutoEncTrainer:
@@ -129,7 +130,6 @@ class AutoEncTrainer:
 
             x = x.cuda()
             y = y.cuda()
-
             self._optim.zero_grad()
             prediction = self._model(x)
             loss = self.loss_fct(x, prediction, y, self.last_metric)

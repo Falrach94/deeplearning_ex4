@@ -80,8 +80,8 @@ class MultipathResNet34(ResNet):
         self.active_path = None
 
 
-        state = torch.load(self.base_path)
-        self.load_state_dict(state)
+       # state = torch.load(self.base_path)
+       # self.load_state_dict(state)
 
         self.fc = nn.Sequential(
             nn.Linear(self.inter_cnt*path_cnt, 128),

@@ -50,8 +50,20 @@ class MultipathResNet34(ResNet):
         for fc in self.fc_single:
             init.xavier_uniform_(fc.weight)
 
-        self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)
-        init.xavier_uniform_(self.fc.weight)
+        self.fc = nn.Linear(self.inter_cnt*path_cnt, 2)  # legacy
+
+        state = torch.load(self.base_path)
+        self.load_state_dict(state)
+
+        self.fc = nn.Sequential(
+            nn.Linear(self.inter_cnt*path_cnt, 128),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(128, 2)
+        )
+        for module in fc.modules():
+            if isinstance(module, nn.Linear):
+                init.xavier_uniform_(module.weight)
 
         self.conv1 = None
         self.bn1 = None
@@ -85,6 +97,9 @@ class MultipathResNet34(ResNet):
 
         if not self.train_ll:
             self.init_stage.eval()
+        if self.active_path is None:
+            for path in self.extraction_paths:
+                path.eval()
 
         if mode:
             for param in self.parameters():

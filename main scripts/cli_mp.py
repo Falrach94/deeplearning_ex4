@@ -25,7 +25,7 @@ export_path = 'assets/export'
 # training
 FOLDS = 5
 MAX_EPOCH = 100
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 PATIENCE = 10
 WINDOW = 5
 
@@ -190,7 +190,7 @@ class Controller:
                              metric['inactive']['fp'],
                              metric['inactive']['fn'])]
 
-       # self.print_ensemble_metrics()
+        self.print_ensemble_metrics()
 
     def eval_ensemble(self):
         self.trainer.set_session(self.model, None,
@@ -201,7 +201,15 @@ class Controller:
         self.ensemble_eval = [loss,
                             metric['crack']['f1'],
                             metric['inactive']['f1'],
-                            metric['mean']]
+                            metric['mean']
+                            (metric['crack']['tp'],
+                             metric['crack']['tn'],
+                             metric['crack']['fp'],
+                             metric['crack']['fn']),
+                            (metric['inactive']['tp'],
+                             metric['inactive']['tn'],
+                             metric['inactive']['fp'],
+                             metric['inactive']['fn'])]
         self.print_ensemble_metrics()
 
     def train_ensemble_net(self, i, tr_dl, val_dl):
@@ -244,8 +252,8 @@ class Controller:
 
         # train separate ensemble nets
         for i, (tr_dl, val_dl) in enumerate(zip(self.tr_dl, self.val_dl)):
-            state = self.train_ensemble_net(i, tr_dl, val_dl)
-            self.model.load_state_dict(state)
+         #   state = self.train_ensemble_net(i, tr_dl, val_dl)
+         #   self.model.load_state_dict(state)
             for j in range(FOLDS):
                 self.eval_ensemble_net(j)
             self.print_ensemble_metrics()

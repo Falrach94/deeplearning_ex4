@@ -63,15 +63,15 @@ class MultipathResNet34(ResNet):
 
         self.path1 = self.extraction_paths[0]
         self.path2 = self.extraction_paths[1]
-        self.path3 = self.extraction_paths[2]
-        self.path4 = self.extraction_paths[3]
-        self.path5 = self.extraction_paths[4]
+        #self.path3 = self.extraction_paths[2]
+        #self.path4 = self.extraction_paths[3]
+        #self.path5 = self.extraction_paths[4]
 
         self.fc_single1 = self.fc_single[0]
         self.fc_single2 = self.fc_single[1]
-        self.fc_single3 = self.fc_single[2]
-        self.fc_single4 = self.fc_single[3]
-        self.fc_single5 = self.fc_single[4]
+        #self.fc_single3 = self.fc_single[2]
+        #self.fc_single4 = self.fc_single[3]
+        #self.fc_single5 = self.fc_single[4]
 
         self.train_ll = False
 

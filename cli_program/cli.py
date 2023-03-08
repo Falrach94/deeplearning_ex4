@@ -73,7 +73,7 @@ class Program:
                               training=training, batch_ix=batch_ix, batch_cnt=batch_cnt,
                               approx_rem=approx_rem, tpb=tpb)
 
-        self.cli.sb.print(self.image_provider.augs, cr=True)
+        self.cli.sb.print(self.image_provider.augs)
 
     def _epoch_callback(self, epoch, loss, epoch_time, metrics, best):
         total_time_s = int((time.time_ns() - self._start_time) / 10 ** 9)

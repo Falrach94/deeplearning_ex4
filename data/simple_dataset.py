@@ -17,7 +17,7 @@ class SimpleDataset(Dataset):
     l = torch.Tensor([0,0])
     def __getitem__(self, idx):
 
-        return t, l
+        return self.t, self.l
         image = self.image_provider.get(self._data, idx)
         image = self.transforms(image)
         label = self.label_provider.get_label(self._data, idx)

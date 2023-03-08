@@ -12,8 +12,8 @@ class ScreenBuilder:
 
     def print_line(self, *txt, go_to_end=True, clear_line=True):
 
-        if clear_line:
-            self.clear_line()
+     #   if clear_line:
+     #       self.clear_line()
 
         self.print(txt)
         sys.stdout.write('\n')

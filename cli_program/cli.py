@@ -61,6 +61,7 @@ class Program:
         self.trainer.set_metric_selector(BEST_METRIC_SELECTOR)
         self.trainer.set_stopping_criterium(None)
 
+    v = 0
     def _batch_callback(self, batch_ix, batch_cnt, time, training):
         if batch_ix == batch_cnt:
             return
@@ -73,7 +74,8 @@ class Program:
                               training=training, batch_ix=batch_ix, batch_cnt=batch_cnt,
                               approx_rem=approx_rem, tpb=tpb)
 
-        self.cli.sb.print(self.image_provider.augs)
+        self.v += 1
+        self.cli.sb.print(self.image_provider.augs, self.v)
 
     def _epoch_callback(self, epoch, loss, epoch_time, metrics, best):
         total_time_s = int((time.time_ns() - self._start_time) / 10 ** 9)

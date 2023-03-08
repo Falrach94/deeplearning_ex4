@@ -48,15 +48,14 @@ class AugmentedImageLoader(CachedImageLoader):
     def __init__(self, image_path_col, augmentor):
         super().__init__(image_path_col)
         self.augmentor = augmentor
-
+        self.augs = 0
     def _calc_key(self, df, idx):
         return (df.loc[idx, self.image_path_col],
                 self.augmentor.get_aug_idx(df, idx))
 
     def _get(self, df, idx):
-        sys.stdout.write('aug')
         image_path, aug_idx = self._calc_key(df, idx)
-
+        self.augs += 1
         if aug_idx == 0:
             base_image = self._load_image(image_path)
         else:

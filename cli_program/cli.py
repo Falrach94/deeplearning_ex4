@@ -31,7 +31,7 @@ class Program:
 
     def _prepare_data(self):
         augmentor = CustomAugmentor(AUGMENTATIONS)
-        image_provider = AugmentedImageLoader(image_path_col='filename',
+        self.image_provider = AugmentedImageLoader(image_path_col='filename',
                                               augmentor=augmentor)
         label_provider = SimpleLabeler(*LABEL_COLUMNS)
         self.data = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
@@ -40,7 +40,7 @@ class Program:
         self.data = create_single_split_datasets(
             data=self.data,
             split=HOLDOUT_SPLIT,
-            image_provider=image_provider,
+            image_provider=self.image_provider,
             label_provider=label_provider,
             augmentor=augmentor,
             tr_transform=TR_TRANSFORMS,
@@ -72,6 +72,8 @@ class Program:
         self.cli.batch_update(epoch=self.trainer.epoch,
                               training=training, batch_ix=batch_ix, batch_cnt=batch_cnt,
                               approx_rem=approx_rem, tpb=tpb)
+
+        self.cli.sb.print_line(self.image_provider.augs)
 
     def _epoch_callback(self, epoch, loss, epoch_time, metrics, best):
         total_time_s = int((time.time_ns() - self._start_time) / 10 ** 9)

@@ -74,7 +74,7 @@ class Program:
                               approx_rem=approx_rem, tpb=tpb)
 
     def _epoch_callback(self, epoch, loss, epoch_time, metrics, best):
-        total_time_s = int((time.time_ns() - self.start_time) / 10 ** 9)
+        total_time_s = int((time.time_ns() - self._start_time) / 10 ** 9)
         total_time_min = int(total_time_s / 60)
         total_time_s %= 60
         self.cli.epoch_update(epoch, loss, epoch_time, metrics, best, (total_time_min, total_time_s))

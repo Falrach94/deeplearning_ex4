@@ -20,8 +20,8 @@ class ScreenBuilder:
         self.current_line += 1
         if self.lowest_line < self.current_line:
             self.lowest_line = self.current_line
-        #if go_to_end:
-        #    self.go_to_end()
+        if go_to_end:
+            self.go_to_end()
 
     def clear_line(self):
         sys.stdout.write('\x1B[K')
@@ -64,8 +64,8 @@ class ScreenBuilder:
     def show_cursor(self):
         sys.stdout.write('\x1B[? 25h')
 
-    def go_to_end(self):
-        self.goto_line(self.lowest_line+1)
+    def goto_end(self):
+        self.goto_line(self.lowest_line)
 
 
 class TableBuilderEx:

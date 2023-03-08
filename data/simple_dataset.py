@@ -13,11 +13,8 @@ class SimpleDataset(Dataset):
     def __len__(self):
         return len(self._data)
 
-    t = torch.rand(3, 300, 300)
-    l = torch.Tensor([0,0])
     def __getitem__(self, idx):
 
-        return self.t, self.l
         image = self.image_provider.get(self._data, idx)
         image = self.transforms(image)
         label = self.label_provider.get_label(self._data, idx)

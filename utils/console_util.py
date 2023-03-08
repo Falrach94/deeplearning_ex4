@@ -21,7 +21,7 @@ class ScreenBuilder:
         if self.lowest_line < self.current_line:
             self.lowest_line = self.current_line
         if go_to_end:
-            self.go_to_end()
+            self.goto_end()
 
     def clear_line(self):
         sys.stdout.write('\x1B[K')

@@ -61,7 +61,7 @@ class Program:
         if batch_ix == batch_cnt:
             return
 
-        tpb = self._approx[0 if training else 1].add(time / (batch_ix + 1))
+        tpb = self._approx[0 if training else 1].add(val=time/(batch_ix + 1))
 
         approx_rem = tpb * (batch_cnt - batch_ix-1)
 

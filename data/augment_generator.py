@@ -21,7 +21,7 @@ class BaseAugmentor:
     - adds a copy of each row for each possible augmentation
     '''
     def add_augmentations_to_df(self, df):
-        df[self.col_name] = 0
+        df[:, self.col_name] = 0
         augmented_dfs = [df.copy() for _ in range(self.cnt)]
         for i, df_aug in enumerate(augmented_dfs):
             df_aug[self.col_name] = i

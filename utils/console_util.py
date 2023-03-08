@@ -102,13 +102,13 @@ class TableBuilderEx:
 
     def print_hline(self, p):
         if p == -1:
-            self.sb.clear_line()
+            #self.sb.clear_line()
             self.sb.print_line('┌' + self.hl * (self.max_line_len) + '┐', go_to_end=False)
         if p == 0:
-            self.sb.clear_line()
+            #self.sb.clear_line()
             self.sb.print_line('├' + self.hl * (self.max_line_len) + '┤', go_to_end=False)
         if p == 1:
-            self.sb.clear_line()
+            #self.sb.clear_line()
             self.sb.print_line('└' + self.hl * (self.max_line_len) + '┘')
 
     @staticmethod
@@ -158,6 +158,6 @@ def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
             sb.mark_line(name)
         else:
             sb.goto_mark(name)
-        sb.clear_line()
+       # sb.clear_line()
         sb.print_line(txt)
 

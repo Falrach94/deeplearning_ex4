@@ -22,9 +22,9 @@ class CLInterface:
                            f'~{round(approx_rem, 1)} s remaining (~{round(tpb,2)} s/batch)',
                            sb=self.sb, name='tr_prog' if training else 'val_prog')
 
-    def epoch_update(self, loss, time, metrics, best, total_time):
+    def epoch_update(self, epoch, loss, time, metrics, best, total_time):
         builder = TableBuilderEx(self.sb, name='epoch')
-        builder.add_line(f'epoch: {self.trainer.epoch}',
+        builder.add_line(f'epoch: {epoch}',
                          f'runtime: {total_time[0]} min {total_time[1]} sec',
                          '')
         builder.add_line(f'epoch time: {round(time["total"], 1)} s',

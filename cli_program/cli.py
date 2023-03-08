@@ -19,7 +19,7 @@ class Program:
         self.trainer = None
         self.cli = CLInterface()
 
-        self._approx = [AverageApproximator(), AverageApproximator]
+        self._approx = [AverageApproximator(), AverageApproximator()]
 
         self._prepare_ui()
         self._prepare_data()
@@ -73,7 +73,7 @@ class Program:
         total_time_s = int((time.time_ns() - self.start_time) / 10 ** 9)
         total_time_min = int(total_time_s / 60)
         total_time_s %= 60
-        self.cli.epoch_update(loss, time, metrics, best, (total_time_min, total_time_s))
+        self.cli.epoch_update(epoch, loss, time, metrics, best, (total_time_min, total_time_s))
 
     def perform_training(self):
         model = MODEL.cuda()

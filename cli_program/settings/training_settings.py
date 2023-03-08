@@ -4,12 +4,12 @@ from utils.stat_tools import calc_multi_f1
 
 # training
 MAX_EPOCH = 100
-BATCH_SIZE = 8
+BATCH_SIZE = 16
 PATIENCE = 10
 WINDOW = 5
 
 # optimizer
-LR = 0.0001
+LR = 0.00003
 DECAY = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(DECAY, LR)
 

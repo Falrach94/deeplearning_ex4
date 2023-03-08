@@ -1,4 +1,5 @@
 import sys
+from threading import Lock
 
 import torch
 from skimage.color import gray2rgb
@@ -49,6 +50,7 @@ class AugmentedImageLoader(CachedImageLoader):
         super().__init__(image_path_col)
         self.augmentor = augmentor
         self.augs = 0
+        self.lock = Lock()
 
     def _calc_key(self, df, idx):
         return (df.loc[idx, self.image_path_col],
@@ -56,7 +58,10 @@ class AugmentedImageLoader(CachedImageLoader):
 
     def _get(self, df, idx):
         image_path, aug_idx = self._calc_key(df, idx)
+        self.lock.acquire()
         self.augs += 1
+        print(self.augs)
+        self.lock.release()
         if aug_idx == 0:
             base_image = self._load_image(image_path)
         else:

@@ -14,10 +14,7 @@ class SimpleDataset(Dataset):
 
     def __getitem__(self, idx):
         image = self.image_provider.get(self._data, idx)
-        if image.size(0) != 3:
-            b = 0
         image = self.transforms(image)
-
         label = self.label_provider.get_label(self._data, idx)
 
         return image, label

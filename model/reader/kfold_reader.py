@@ -17,7 +17,7 @@ TINY = False
 # augments of labeled elements are added to th  training data sets
 class KFoldReader:
 
-    def __init__(self, k=5, remove_unlabled_augs=True, split=0.2, holdout=None):
+    def __init__(self, k=5, remove_unlabled_augs=True, split=0.2, holdout=None, path='assets/data.csv'):
         data = pd.read_csv('assets/data.csv', sep=',')
         aug = pd.read_csv('assets/main_data_augs.csv', sep=',').set_index('nbr')
         self.holdout_set = None

@@ -143,3 +143,4 @@ def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
         else:
             sb.goto_mark(name)
         sb.print_line(txt)
+

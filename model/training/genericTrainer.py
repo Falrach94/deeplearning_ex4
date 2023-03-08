@@ -1,13 +1,31 @@
 import copy
 import time
-import numpy as np
 import torch as t
 import torch.cuda
-from torch.utils.data import DataLoader
 
 
-class AutoEncTrainer:
+class GenericTrainer:
     # --- interface --------------
+
+    def set_batch_callback(self, callback):
+        self.batch_callback = callback
+
+    def set_epoch_callback(self, callback):
+        self.epoch_callback = callback
+
+    def set_training_loss_calculator(self, fct):
+        self.loss_fct = fct
+
+    def set_validation_loss_calculator(self, fct):
+        self.val_loss_fct = fct
+
+    def set_metric_calculator(self, fct):
+        self.metric_calculator = fct
+
+    def set_stopping_criterium(self, fct):
+        self.early_stop_criterion = fct
+    def set_metric_selector(self, fct):
+        self.best_metric_selector = fct
 
     def single_epoch_with_eval(self):
         old_time = time.time_ns()
@@ -30,7 +48,7 @@ class AutoEncTrainer:
                {'total': total_time, 'train': train_time, 'val': val_time}, \
             metrics
 
-    def train_with_early_stopping(self, max_epoch, patience=10, window=5, early_stop_criterion=None, best_metric_sel=None):
+    def train_with_early_stopping(self, max_epoch, patience=10, window=5):
         best_crit_val = -1
         best_epoch = None
         best_model = None
@@ -42,17 +60,17 @@ class AutoEncTrainer:
 
         for i in range(max_epoch):
             loss, time, metrics = self.single_epoch_with_eval()
-            if best_metric_sel is not None:
-                val, update = best_metric_sel(metrics, best_metric_val)
+            if self.best_metric_selector is not None:
+                val, update = self.best_metric_selector(metrics, best_metric_val)
                 if update:
                     best_metric_val = val
                     best_metric_model = copy.deepcopy(self._model.state_dict())
 
-            if early_stop_criterion is None:
+            if self.early_stop_criterion is None:
                 crit = loss['val']
                 update = crit < best_crit_val
             else:
-                crit, update = early_stop_criterion(loss, metrics, best_crit_val)
+                crit, update = self.early_stop_criterion(loss, metrics, best_crit_val)
 
             if update or i == 0:
                 best_loss = loss['val']
@@ -91,6 +109,8 @@ class AutoEncTrainer:
         self.loss_fct = self.calc_loss
         self.val_loss_fct = self.calc_loss
 
+        self.early_stop_criterion = None
+        self.best_metric_selector = None
         self.metric_calculator = None
         self.batch_callback = None
         self.epoch_callback = None

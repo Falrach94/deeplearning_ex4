@@ -7,7 +7,7 @@ from model.Datasets.autoencoder_dataset import AutoencoderDataset
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.VotingNet import VotingNet
 from model.reader.small_reader import SmallDataReader
-from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.genericTrainer import GenericTrainer
 from utils.console_util import print_progress_bar
 from utils.loss_utils import calc_BCE_loss
 from utils.stat_tools import calc_multi_f1, calc_multi_f1_conf
@@ -50,7 +50,7 @@ val_set = AutoencoderDataset(data, 'val', 0, True)
 val_dl = DataLoader(val_set, 16, False)
 
 print('preparing evaluation')
-trainer = AutoEncTrainer(True)
+trainer = GenericTrainer(True)
 trainer.metric_calculator = calc_multi_f1_conf
 trainer.val_loss_fct = calc_BCE_loss
 trainer.set_session(model, None, None, val_dl, 16)

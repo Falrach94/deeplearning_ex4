@@ -14,7 +14,7 @@ from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
 from model.reader.small_reader import SmallDataReader
-from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.genericTrainer import GenericTrainer
 from model.training.losses.asl_loss import AsymmetricLossOptimized
 from utils.console_util import print_progress_bar
 from utils.stat_tools import calc_multi_f1
@@ -88,7 +88,7 @@ class Controller:
 #        loss = AsymmetricLossOptimized()
         loss = torch.nn.BCELoss()
 
-        self.trainer = AutoEncTrainer()
+        self.trainer = GenericTrainer()
         self.trainer.metric_calculator = calc_multi_f1
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback

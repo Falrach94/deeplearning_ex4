@@ -11,7 +11,7 @@ from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 from model.config import WORKER_THREADS
 from model.reader.kfold_reader import KFoldReader
-from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.genericTrainer import GenericTrainer
 from utils.cli_table_builder import TableBuilder
 from utils.console_util import print_progress_bar
 from utils.loss_utils import calc_MSE_loss, select_best_metric, AdamFactory, ASLCalculator
@@ -111,7 +111,7 @@ class Controller:
         self.models = [copy.deepcopy(MODEL).cuda() for _ in range(FOLDS)]
         self.optimizer = [OPTIMIZER_FACTORY.create(model.parameters()) for model in self.models]
 
-        self.trainer = AutoEncTrainer()
+        self.trainer = GenericTrainer()
         self.trainer.metric_calculator = METRIC_CALC
         self.trainer.batch_callback = self.batch_callback
         self.trainer.epoch_callback = self.epoch_callback

@@ -3,11 +3,11 @@ import numpy as np
 import torch as t
 import torch.cuda
 
-from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.genericTrainer import GenericTrainer
 from model.training.losses.asl_loss import AsymmetricLossOptimized
 
 
-class AutoEncTrainerEx(AutoEncTrainer):
+class AutoEncTrainerEx(GenericTrainer):
     def __init__(self, cf, aef, ld):
         super().__init__()
 

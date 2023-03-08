@@ -23,7 +23,7 @@ from model.config import WORKER_THREADS
 from model.profiles.builder.descriptor import Descriptor
 from model.profiles.builder.hyper_parameter import HyperParameter
 from model.reader.small_reader import SmallDataReader
-from model.training.autoEncTrainer import AutoEncTrainer
+from model.training.genericTrainer import GenericTrainer
 from utils.console_util import print_progress_bar
 
 BATCH_SIZE = 32
@@ -154,7 +154,7 @@ class Presenter(QObject):
                                      weight_decay=decay)
         loss = torch.nn.MSELoss()
 
-        self.trainer = AutoEncTrainer()
+        self.trainer = GenericTrainer()
         self.trainer.batch_callback = self.callback
         self.trainer.set_session(self.model, loss, optimizer, self.tr_dl, self.val_dl)
 

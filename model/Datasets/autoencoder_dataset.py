@@ -41,6 +41,8 @@ class AutoencoderDataset(Dataset):
             transforms = [tv.transforms.Compose([tv.transforms.ToPILImage(),
                                                  tv.transforms.ToTensor()]),
                           tv.transforms.Compose([tv.transforms.ToPILImage(),
+                                                 tv.transforms.GaussianBlur(7),
+                                                 tv.transforms.RandomAutocontrast(),
                                                  tv.transforms.ToTensor()])]
                                                  #tv.transforms.GaussianBlur(7),
                                                  #tv.transforms.RandomAutocontrast()])]

@@ -70,6 +70,8 @@ def early_stoping_selector(loss, metrics, best_crit_val):
         return metrics['mean'], True
     return best_crit_val, False
 
+EARLY_STOPPING = None
+
 class Controller:
 
     # --- initialization ----------------
@@ -230,7 +232,7 @@ class Controller:
             patience=PATIENCE,
             window=WINDOW,
             best_metric_sel=SELECT_BEST_METRIC,
-            early_stop_criterion=early_stoping_selector
+            early_stop_criterion=EARLY_STOPPING
         )
         torch.save(model_state, best_model_path+'.ckp')
         return model_state

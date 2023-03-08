@@ -69,6 +69,7 @@ def calc_data_stats(session):
            [len(tr_cat[3]), len(val_cat[3])]]
     return res
 
+
 def calc_multi_f1_conf(prediction, label):
 
     f1 = calc_multi_f1(prediction, label)
@@ -81,11 +82,17 @@ def calc_multi_f1_conf(prediction, label):
 
 def calc_multi_f1(prediction, label):
 
-    stat_c = calc_f1(prediction[:, 0], label[:, 0])
-    stat_i = calc_f1(prediction[:, 1], label[:, 1])
+    if prediction.size(1) == 1:
+        stat_i = calc_f1(prediction, label)
+        stat_c = stat_i
+    else:
+        stat_c = calc_f1(prediction[:, 0], label[:, 0])
+        stat_i = calc_f1(prediction[:, 1], label[:, 1])
+
     f1 = (stat_c['f1'] + stat_i['f1'])/2
 
     return {'crack': stat_c, 'inactive': stat_i, 'mean': f1}
+
 
 def calc_multi_conf(pred, label):
     stat_c = calc_conf(pred[:, 0], label[:, 0])

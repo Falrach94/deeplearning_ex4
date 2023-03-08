@@ -31,7 +31,7 @@ class ScreenBuilder:
         sys.stdout.write('\x1B[K')
 
     def print(self, txt, cr=False):
-        sys.stdout.write('\r' if cr else '' + ' '.join([t if type(t) is str else repr(t) for t in txt]))
+        sys.stdout.write(('\r' if cr else '') + ' '.join([t if type(t) is str else repr(t) for t in txt]))
 
     def reset_position(self):
         sys.stdout.write('\x1B[0;0H')

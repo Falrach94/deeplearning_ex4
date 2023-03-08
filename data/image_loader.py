@@ -49,6 +49,7 @@ class AugmentedImageLoader(CachedImageLoader):
         super().__init__(image_path_col)
         self.augmentor = augmentor
         self.augs = 0
+
     def _calc_key(self, df, idx):
         return (df.loc[idx, self.image_path_col],
                 self.augmentor.get_aug_idx(df, idx))

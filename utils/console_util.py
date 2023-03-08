@@ -12,16 +12,20 @@ class ScreenBuilder:
 
     def print_line(self, *txt, go_to_end=True, clear_line=True):
 
-     #   if clear_line:
-     #       self.clear_line()
+        if clear_line:
+            self.clear_line()
 
         self.print(txt)
         sys.stdout.write('\n')
-        self.current_line += 1
-        if self.lowest_line < self.current_line:
-            self.lowest_line = self.current_line
+        self._set_current_line(self.current_line+1)
         if go_to_end:
             self.goto_end()
+
+    def _set_current_line(self, val):
+        self.current_line = val
+        if self.lowest_line < self.current_line:
+            self.lowest_line = self.current_line
+
 
     def clear_line(self):
         sys.stdout.write('\x1B[K')
@@ -35,13 +39,11 @@ class ScreenBuilder:
 
     def go_up(self, line_cnt):
         sys.stdout.write(f'\r\x1B[{line_cnt}A')
-        self.current_line -= line_cnt
+        self._set_current_line(self.current_line-line_cnt)
 
     def go_down(self, line_cnt):
         sys.stdout.write(f'\r\x1B[{line_cnt}B')
-        self.current_line += line_cnt
-        if self.lowest_line < self.current_line:
-            self.lowest_line = self.current_line
+        self._set_current_line(self.current_line+line_cnt)
 
     def goto_line(self, y):
         if y < self.current_line:
@@ -138,7 +140,7 @@ class TableBuilderEx:
                 self.print_hline(0)
 
             for line in lines:
-                self.sb.print_line(self.build_line(line, target_size))
+                self.sb.print_line(self.build_line(line, target_size), go_to_end=False)
 
         self.print_hline(1)
 

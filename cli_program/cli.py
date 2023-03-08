@@ -87,7 +87,7 @@ class Program:
                                  tr_dl=self.data['tr']['dl'],
                                  val_dl=self.data['val']['dl'],
                                  batch_size=BATCH_SIZE)
-        best_model_state = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
+        best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
         model.load_state_dict(best_model_state)
 
         torch.save(best_model_state, BEST_MODEL_PATH)

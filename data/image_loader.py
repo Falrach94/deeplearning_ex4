@@ -1,3 +1,5 @@
+import sys
+
 import torch
 from skimage.color import gray2rgb
 from skimage.io import imread
@@ -52,7 +54,9 @@ class AugmentedImageLoader(CachedImageLoader):
                 self.augmentor.get_aug_idx(df, idx))
 
     def _get(self, df, idx):
+        sys.stdout.write('aug')
         image_path, aug_idx = self._calc_key(df, idx)
+
         if aug_idx == 0:
             base_image = self._load_image(image_path)
         else:

@@ -55,7 +55,6 @@ class AugmentedImageLoader(CachedImageLoader):
                 self.augmentor.get_aug_idx(df, idx))
 
     def _get(self, df, idx):
-        return torch.rand((3, 300, 300))
         image_path, aug_idx = self._calc_key(df, idx)
         if aug_idx == 0:
             base_image = self._load_image(image_path)

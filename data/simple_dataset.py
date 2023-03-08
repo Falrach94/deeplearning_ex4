@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset
 
 
@@ -13,6 +14,7 @@ class SimpleDataset(Dataset):
         return len(self._data)
 
     def __getitem__(self, idx):
+        return torch.rand((3, 300, 300)), torch.Tensor(0,0)
         image = self.image_provider.get(self._data, idx)
         image = self.transforms(image)
         label = self.label_provider.get_label(self._data, idx)

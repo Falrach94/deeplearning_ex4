@@ -7,13 +7,20 @@ class ScreenBuilder:
 
     def __init__(self):
         self.current_line = 0
-
+        self.lowest_line = 0
         self.marks = {}
 
-    def print_line(self, *txt):
+    def print_line(self, *txt, go_to_end=True):
         self.print(txt)
         sys.stdout.write('\n')
         self.current_line += 1
+        if self.lowest_line < self.current_line:
+            self.lowest_line = self.current_line
+        if go_to_end:
+            self.go_to_end()
+
+    def clear_line(self):
+        sys.stdout.write('\x1B[K')
 
     def print(self, txt):
         sys.stdout.write(' '.join([t if type(t) is str else repr(t) for t in txt]))
@@ -29,12 +36,14 @@ class ScreenBuilder:
     def go_down(self, line_cnt):
         sys.stdout.write(f'\r\x1B[{line_cnt}B')
         self.current_line += line_cnt
+        if self.lowest_line < self.current_line:
+            self.lowest_line = self.current_line
 
     def goto_line(self, y):
         if y < self.current_line:
             self.go_up(self.current_line - y)
         elif y > self.current_line:
-            self.go_down(y - self.current_line )
+            self.go_down(y - self.current_line)
 
     def mark_line(self, name):
         self.marks[name] = self.current_line
@@ -50,6 +59,10 @@ class ScreenBuilder:
 
     def show_cursor(self):
         sys.stdout.write('\x1B[? 25h')
+
+    def go_to_end(self):
+        self.goto_line(self.lowest_line+1)
+
 
 class TableBuilderEx:
 
@@ -89,10 +102,13 @@ class TableBuilderEx:
 
     def print_hline(self, p):
         if p == -1:
-            self.sb.print_line('┌' + self.hl * (self.max_line_len) + '┐')
+            self.sb.clear_line()
+            self.sb.print_line('┌' + self.hl * (self.max_line_len) + '┐', go_to_end=False)
         if p == 0:
-            self.sb.print_line('├' + self.hl * (self.max_line_len) + '┤')
+            self.sb.clear_line()
+            self.sb.print_line('├' + self.hl * (self.max_line_len) + '┤', go_to_end=False)
         if p == 1:
+            self.sb.clear_line()
             self.sb.print_line('└' + self.hl * (self.max_line_len) + '┘')
 
     @staticmethod
@@ -142,5 +158,6 @@ def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
             sb.mark_line(name)
         else:
             sb.goto_mark(name)
+        sb.clear_line()
         sb.print_line(txt)
 

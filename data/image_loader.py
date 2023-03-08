@@ -60,7 +60,7 @@ class AugmentedImageLoader(CachedImageLoader):
         image_path, aug_idx = self._calc_key(df, idx)
         self.lock.acquire()
         self.augs += 1
-        print(self.augs)
+       # print(self.augs)
         self.lock.release()
         if aug_idx == 0:
             base_image = self._load_image(image_path)

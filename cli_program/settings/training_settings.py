@@ -4,7 +4,7 @@ from utils.stat_tools import calc_multi_f1
 
 # training
 MAX_EPOCH = 100
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 PATIENCE = 10
 WINDOW = 5
 
@@ -20,7 +20,7 @@ CLIP = 0.05
 
 LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
 
-TRAINING_LOSS = LOSS_CALCULATOR.calc
+TRAINING_LOSS = calc_BCE_loss#LOSS_CALCULATOR.calc
 VALIDATION_LOSS = calc_MSE_loss
 
 

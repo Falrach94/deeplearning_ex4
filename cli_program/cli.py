@@ -25,8 +25,8 @@ class Program:
 
         self._approx = [AverageApproximator(), AverageApproximator()]
 
-        self._prepare_ui()
         self._prepare_data()
+        self._prepare_ui()
         self._prepare_training()
 
     def _prepare_data(self):
@@ -49,7 +49,7 @@ class Program:
         )
 
     def _prepare_ui(self):
-        self.cli.prepare_ui()
+        self.cli.prepare_ui(self.data)
 
     def _prepare_training(self):
         self.trainer = GenericTrainer()

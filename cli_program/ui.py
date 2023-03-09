@@ -1,3 +1,7 @@
+from cli_program.settings.behaviour_settings import EXPORT_PATH, BEST_MODEL_PATH
+from cli_program.settings.data_settings import *
+from cli_program.settings.training_settings import *
+from model.config import WORKER_THREADS
 from utils.console_util import ScreenBuilder, print_progress_bar, TableBuilderEx
 
 
@@ -6,11 +10,35 @@ class CLInterface:
     def __init__(self):
         self.sb = ScreenBuilder()
 
-    def print_settings(self):
+    def print_settings(self, data):
         table = TableBuilderEx(self.sb, 'settings')
-        table.
+        table.add_line('Data:', 'dataset', 'labels', 'split')
+        table.add_line('', DATA_PATH, LABEL_COLUMNS, HOLDOUT_SPLIT)
 
-    def prepare_ui(self):
+        table.new_block()
+        table.add_line('validation set size', 'training set size')
+        table.add_line(len(data['val']['dataset']), len(data['tr']['dataset']))
+
+        table.new_block()
+        table.add_line('optimizer', 'lr', 'weight decay')
+        table.add_line(type(OPTIMIZER_FACTORY), LR, DECAY)
+
+        table.new_block()
+        table.add_line('loss fct', 'gamma_neg', 'gamma_pos', 'clip')
+        table.add_line(type(LOSS_CALCULATOR), GAMMA_NEG, GAMMA_POS, CLIP)
+
+        table.new_block()
+        table.add_line('training', 'max epoch', 'patience', 'window', 'batch size')
+        table.add_line('', MAX_EPOCH, PATIENCE, WINDOW, BATCH_SIZE)
+
+        table.new_block()
+        table.add_line('general', 'checkpoint path', 'export path', 'worker cnt')
+        table.add_line('', BEST_MODEL_PATH, EXPORT_PATH, WORKER_THREADS)
+
+        table.print()
+
+    def prepare_ui(self, data):
+        self.print_settings(data)
         print_progress_bar(f'epoch ? - training',
                            0, 1,
                            f'',

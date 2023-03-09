@@ -35,7 +35,7 @@ def mirror_and_rotate(x, hor, ver, rot):
     if hor:
         x = torch.flipud(x)
     if ver:
-        x = torch.fliprd(x)
+        x = torch.fliplr(x)
     if rot != 0:
         x = torch.rot90(x, rot, dims=(1, 2))
     return x

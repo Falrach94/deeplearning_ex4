@@ -12,9 +12,10 @@ DEFAULT_AUGMENTS = [
 
 
 class BaseAugmentor:
-    def __init__(self, col_name, augment_cnt):
+    def __init__(self, col_name, augment_cnt, filter):
         self.cnt = augment_cnt
         self.col_name = col_name
+        self.filter = filter
 
     '''
     - adds an additional column containing the augmentation to be used
@@ -27,6 +28,8 @@ class BaseAugmentor:
         for i, df_aug in enumerate(augmented_dfs):
             df_aug[self.col_name] = i
         df = pd.concat((df, *augmented_dfs)).reset_index()
+        if self.filter:
+            df = self.filter(df)
         return df
 
     def get_aug_idx(self, df, idx):
@@ -46,8 +49,8 @@ class BaseAugmentor:
 
 
 class CustomAugmentor(BaseAugmentor):
-    def __init__(self, augments=DEFAULT_AUGMENTS):
-        super().__init__(augment_cnt=len(augments), col_name='aug')
+    def __init__(self, augments=DEFAULT_AUGMENTS, filter=None):
+        super().__init__(augment_cnt=len(augments), col_name='aug', filter=filter)
 
         self.augmentation_dict = augments
 

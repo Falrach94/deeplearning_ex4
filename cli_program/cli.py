@@ -30,9 +30,9 @@ class Program:
         self._prepare_training()
 
     def _prepare_data(self):
-        augmentor = CustomAugmentor(AUGMENTATIONS)
+        augmentor = CustomAugmentor(AUGMENTATIONS, AUGMENTATION_FILTER)
         self.image_provider = AugmentedImageLoader(image_path_col='filename',
-                                              augmentor=augmentor)
+                                                   augmentor=augmentor)
         label_provider = SimpleLabeler(*LABEL_COLUMNS)
         self.data = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
         self.data = label_provider.label_dataframe(self.data)

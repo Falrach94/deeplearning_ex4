@@ -11,5 +11,5 @@ class DataFilter:
 class AugmentFilter:
     @staticmethod
     def filter_unlabled_augments(df):
-        return df[(df.aug == 0) | (df.inactive != 0) | (df.crack != 0)].copy()
+        return df[(df.aug == 0) | (df.inactive != 0) | (df.crack != 0)].copy().reset_index()
 

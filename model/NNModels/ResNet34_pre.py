@@ -21,10 +21,10 @@ class ResNet34_Pretrained(ResNet):
         self.fc = torch.nn.Linear(512, label_cnt)
         init.xavier_uniform_(self.fc.weight)
 
-        state = torch.load(BEST_MODEL_PATH)
-        self.load_state_dict(state)
-        self.fc = torch.nn.Linear(512, 2)
-        init.xavier_uniform_(self.fc.weight)
+ #       state = torch.load(BEST_MODEL_PATH)
+#        self.load_state_dict(state)
+#        self.fc = torch.nn.Linear(512, 2)
+#        init.xavier_uniform_(self.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()
 

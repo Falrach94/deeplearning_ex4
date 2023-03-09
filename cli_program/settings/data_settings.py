@@ -17,9 +17,9 @@ HOLDOUT_SPLIT = 0.2
 AUGMENTATIONS = [
     mirror_vertical,
     mirror_horizontal,
- #   lambda x: rotate90deg(x, 1),
+    lambda x: rotate90deg(x, 1),
  #   lambda x: rotate90deg(x, 2),  # 180 deg
- #   lambda x: rotate90deg(x, 3),  # 270 deg
+    lambda x: rotate90deg(x, 3),  # 270 deg
 ]
 
 AUGMENTATION_FILTER = AugmentFilter.filter_unlabled_augments

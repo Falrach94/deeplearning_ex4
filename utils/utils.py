@@ -31,6 +31,15 @@ def export(model: nn.Module, state, path, sb):
     sb.print_line('export finished')
 
 
+def mirror_and_rotate(x, hor, ver, rot):
+    if hor:
+        x = torch.flipud(x)
+    if ver:
+        x = torch.fliprd(x)
+    if rot != 0:
+        x = torch.rot90(x, rot, dims=(1, 2))
+    return x
+
 def mirror_horizontal(x):
     x = torch.flipud(x)
     return x

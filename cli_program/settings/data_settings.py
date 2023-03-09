@@ -2,7 +2,7 @@ import torch
 import torchvision as tv
 
 from data.data_filter import AugmentFilter
-from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg
+from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
 DATA_PATH = 'assets/data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
@@ -15,12 +15,26 @@ LABEL_COLUMNS = ['crack', 'inactive']
 HOLDOUT_SPLIT = 0.2
 
 AUGMENTATIONS = [
-    mirror_vertical,
-    mirror_horizontal,
-    lambda x: rotate90deg(x, 1),
- #   lambda x: rotate90deg(x, 2),  # 180 deg
-    lambda x: rotate90deg(x, 3),  # 270 deg
+    lambda x: mirror_and_rotate(x, False, False, 1),
+    lambda x: mirror_and_rotate(x, False, False, 2),
+    lambda x: mirror_and_rotate(x, False, False, 3),
+    lambda x: mirror_and_rotate(x, True, False, 0),
+    lambda x: mirror_and_rotate(x, True, False, 1),
+    lambda x: mirror_and_rotate(x, True, False, 2),
+    lambda x: mirror_and_rotate(x, True, False, 3),
+    lambda x: mirror_and_rotate(x, False, True, 0),
+    lambda x: mirror_and_rotate(x, False, True, 1),
+    lambda x: mirror_and_rotate(x, False, True, 2),
+    lambda x: mirror_and_rotate(x, False, True, 3),
 ]
+
+#AUGMENTATIONS = [
+#    mirror_vertical,
+#    mirror_horizontal,
+#    lambda x: rotate90deg(x, 1),
+#    lambda x: rotate90deg(x, 2),  # 180 deg
+#    lambda x: rotate90deg(x, 3),  # 270 deg
+#]
 
 AUGMENTATION_FILTER = AugmentFilter.filter_unlabled_augments
 

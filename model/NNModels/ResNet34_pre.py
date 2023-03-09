@@ -7,7 +7,7 @@ from torch.nn import init
 from torchvision.models import ResNet
 from torchvision.models.resnet import BasicBlock
 
-from cli_program.settings.behaviour_settings import BEST_MODEL_PATH
+from cli_program.settings.behaviour_settings import BASE_MODEL_PATH
 
 
 class ResNet34_Pretrained(ResNet):
@@ -21,7 +21,7 @@ class ResNet34_Pretrained(ResNet):
         self.fc = torch.nn.Linear(512, label_cnt)
         init.xavier_uniform_(self.fc.weight)
 
-        state = torch.load(BEST_MODEL_PATH)
+        state = torch.load(BASE_MODEL_PATH)
         self.load_state_dict(state)
         self.fc = nn.Sequential(
             nn.Linear(512, 128),

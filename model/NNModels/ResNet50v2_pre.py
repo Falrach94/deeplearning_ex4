@@ -22,7 +22,6 @@ class ResNet50v2_Pretrained(torch.nn.Module):
         for module in self.model.fc.modules():
             if isinstance(module, nn.Linear):
                 init.xavier_uniform_(module.weight)
-        init.xavier_uniform_(self.model.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()
 

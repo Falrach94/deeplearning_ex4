@@ -3,13 +3,13 @@ import torchvision as tv
 
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg
 
-#DATA_PATH = 'assets/data.csv'
-DATA_PATH = 'assets/elpv_data.csv'
+DATA_PATH = 'assets/data.csv'
+#DATA_PATH = 'assets/elpv_data.csv'
 
 CSV_SEPERATOR = ','
 
-LABEL_COLUMNS = ['inactive']
-#LABEL_COLUMNS = ['inactive', 'crack']
+#LABEL_COLUMNS = ['inactive']
+LABEL_COLUMNS = ['crack', 'inactive']
 
 HOLDOUT_SPLIT = 0.2
 

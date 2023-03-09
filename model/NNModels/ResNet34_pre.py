@@ -21,9 +21,19 @@ class ResNet34_Pretrained(ResNet):
         self.fc = torch.nn.Linear(512, label_cnt)
         init.xavier_uniform_(self.fc.weight)
 
- #       state = torch.load(BEST_MODEL_PATH)
-#        self.load_state_dict(state)
-#        self.fc = torch.nn.Linear(512, 2)
+        state = torch.load(BEST_MODEL_PATH)
+        self.load_state_dict(state)
+        self.fc = nn.Sequential(
+            nn.Linear(512, 128),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(128, 2)
+        )
+        for module in self.fc.modules():
+            if isinstance(module, nn.Linear):
+                init.xavier_uniform_(self.module.weight)
+
+        #        self.fc = torch.nn.Linear(512, 2)
 #        init.xavier_uniform_(self.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()

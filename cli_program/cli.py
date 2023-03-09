@@ -87,7 +87,8 @@ class Program:
                                  optim=OPTIMIZER_FACTORY.create(model.parameters()),
                                  tr_dl=self.data['tr']['dl'],
                                  val_dl=self.data['val']['dl'],
-                                 batch_size=BATCH_SIZE)
+                                 batch_size=BATCH_SIZE,
+                                 label_cnt=len(LABEL_COLUMNS))
         best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
         model.load_state_dict(best_model_state)
 

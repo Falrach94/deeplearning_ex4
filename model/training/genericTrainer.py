@@ -116,7 +116,7 @@ class GenericTrainer:
         self.epoch_callback = None
         self.epoch = 0
 
-    def set_session(self, model, optim, tr_dl, val_dl, batch_size):
+    def set_session(self, model, optim, tr_dl, val_dl, batch_size, label_cnt):
         self.epoch = 0
         self._model = model
         self._optim = optim
@@ -124,6 +124,7 @@ class GenericTrainer:
         self._val_test_dl = val_dl
         self._val_sample_cnt = len(val_dl) * batch_size
         self._batch_size = batch_size
+        self._label_cnt = label_cnt
 
         self.last_metric = None
 
@@ -176,8 +177,8 @@ class GenericTrainer:
 
     def val_test(self):
 
-        predictions = torch.empty(self._val_sample_cnt, 2)
-        labels = torch.empty(self._val_sample_cnt, 2)
+        predictions = torch.empty(self._val_sample_cnt, self._label_cnt)
+        labels = torch.empty(self._val_sample_cnt, self._label_cnt)
 
         loss = 0
 
@@ -198,13 +199,13 @@ class GenericTrainer:
 
                 loss += self.val_loss_fct(x, step_prediction, y, self.last_metric)
 
-                if step_prediction.size(1) == 2:
-                    j = i*self._batch_size
-                    if type(step_prediction) is tuple:
-                        predictions[j:j+y.shape[0]] = step_prediction[1]
-                    else:
-                        predictions[j:j+y.shape[0]] = step_prediction
-                    labels[j:j+y.shape[0]] = y
+#                if step_prediction.size(1) == 2:
+                j = i*self._batch_size
+                if type(step_prediction) is tuple:
+                    predictions[j:j+y.shape[0]] = step_prediction[1]
+                else:
+                    predictions[j:j+y.shape[0]] = step_prediction
+                labels[j:j+y.shape[0]] = y
 
                 if self.batch_callback is not None:
                     self.batch_callback(i,

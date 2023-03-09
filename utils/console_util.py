@@ -10,6 +10,10 @@ class ScreenBuilder:
         self.lowest_line = 0
         self.marks = {}
 
+        self.print_box = False
+        self.box_width = None
+
+
     def print_line(self, *txt, go_to_end=True, clear_line=True):
 
         if clear_line:

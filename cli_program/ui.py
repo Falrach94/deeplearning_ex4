@@ -6,6 +6,10 @@ class CLInterface:
     def __init__(self):
         self.sb = ScreenBuilder()
 
+    def print_settings(self):
+        table = TableBuilderEx(self.sb, 'settings')
+        table.
+
     def prepare_ui(self):
         print_progress_bar(f'epoch ? - training',
                            0, 1,

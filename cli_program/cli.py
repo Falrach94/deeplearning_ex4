@@ -93,8 +93,8 @@ class Program:
         model.load_state_dict(best_model_state)
 
         torch.save(best_model_state, BEST_MODEL_PATH)
-        export(model, best_model_state, EXPORT_PATH, self.sb)
+        export(model, best_model_state, EXPORT_PATH, self.cli.sb)
 
-
+print('')
 prog = Program()
 prog.perform_training()

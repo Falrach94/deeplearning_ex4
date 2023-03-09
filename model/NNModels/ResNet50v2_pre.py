@@ -2,6 +2,7 @@ import numpy as np
 import torch.nn
 
 import torchvision as tv
+from torch import nn
 from torch.nn import init
 
 
@@ -12,7 +13,15 @@ class ResNet50v2_Pretrained(torch.nn.Module):
 
         self.model = tv.models.wide_resnet50_2(
             weights=tv.models.Wide_ResNet50_2_Weights.DEFAULT)
-        self.model.fc = torch.nn.Linear(2048, 2)
+        self.model.fc = nn.Sequential(
+            nn.Linear(2048, 512),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(512, 2)
+        )
+        for module in self.model.fc.modules():
+            if isinstance(module, nn.Linear):
+                init.xavier_uniform_(module.weight)
         init.xavier_uniform_(self.model.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()

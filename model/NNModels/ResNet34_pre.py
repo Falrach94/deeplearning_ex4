@@ -7,6 +7,8 @@ from torch.nn import init
 from torchvision.models import ResNet
 from torchvision.models.resnet import BasicBlock
 
+from cli_program.settings.behaviour_settings import BEST_MODEL_PATH
+
 
 class ResNet34_Pretrained(ResNet):
 
@@ -17,6 +19,11 @@ class ResNet34_Pretrained(ResNet):
         self.load_state_dict(weights.get_state_dict(True))
 
         self.fc = torch.nn.Linear(512, label_cnt)
+        init.xavier_uniform_(self.fc.weight)
+
+        state = torch.load(BEST_MODEL_PATH)
+        self.load_state_dict(state)
+        self.fc = torch.nn.Linear(512, 2)
         init.xavier_uniform_(self.fc.weight)
 
         self.sigmoid = torch.nn.Sigmoid()

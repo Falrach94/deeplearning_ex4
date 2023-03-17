@@ -80,7 +80,7 @@ class CLInterface:
 
     def epoch_update(self, epoch, loss, time, metrics, best, total_time):
         builder = TableBuilderEx(self.sb, name='epoch')
-        builder.add_line(f'epoch: {epoch}',
+        builder.add_line(f'epoch: {epoch+1}',
                          f'runtime: {total_time[0]} min {total_time[1]} sec',
                          '')
         builder.add_line(f'epoch time: {round(time["total"], 1)} s',

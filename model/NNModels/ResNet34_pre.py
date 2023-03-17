@@ -32,6 +32,7 @@ class ResNet34_Pretrained(ResNet):
             if isinstance(module, nn.Linear):
                 init.xavier_uniform_(module.weight)
 
+
         #        self.fc = torch.nn.Linear(512, 2)
 #        init.xavier_uniform_(self.fc.weight)
 
@@ -53,5 +54,8 @@ class ResNet34_Pretrained(ResNet):
         x = x.view(x.size(0), -1)
 
         x = self.fc(x)
+
+
+
       #  x = self.sigmoid(x)
         return x

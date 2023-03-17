@@ -117,10 +117,15 @@ class WeightedAsymmetricLossOptimized(nn.Module):
         self.disable_torch_grad_focal_loss = disable_torch_grad_focal_loss
         self.eps = eps
 
+        self.weights = None
+
         # prevent memory allocation and gpu uploading every iteration, and encourages inplace operations
         self.targets = self.anti_targets = self.xs_pos = self.xs_neg = self.asymmetric_w = self.loss = None
 
-    def forward(self, x, y, label_weights):
+    def set_weights(self, w):
+        self.weights = w
+
+    def forward(self, x, y):
         """"
         Parameters
         ----------
@@ -155,7 +160,7 @@ class WeightedAsymmetricLossOptimized(nn.Module):
                 torch.set_grad_enabled(True)
             self.loss *= self.asymmetric_w
 
-        self.loss *= label_weights
+        self.loss *= self.weights
 
         return -self.loss.sum()
 

@@ -52,7 +52,10 @@ class Program:
                                image_provider=self.image_provider,
                                label_provider=LABEL_PROVIDER)
 
-        print(self.data['tr']['dataset'].get_categories())
+        dist = self.data['tr']['dataset'].get_categories()
+        total = sum(dist)
+        weights = [total/d for d in dist]
+        LOSS_CALCULATOR.set_weights(weights)
 
     def _prepare_ui(self):
         self.cli.prepare_ui(self.data)

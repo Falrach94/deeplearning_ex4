@@ -16,6 +16,16 @@ class ASLCalculator:
     def calc(self, input, pred, label, metrics):
         return self.loss(pred, label)
 
+class WeightedASLCalculator:
+    def __init__(self, g_n, g_p, clip):
+        self.loss = WeightedAsymmetricLossOptimized(g_n, g_p, clip).cuda()
+
+    def set_weights(self, w):
+        self.loss.set_weights(w)
+
+    def calc(self, input, pred, label, metrics):
+        return self.loss(pred, label)
+
 def select_best_metric(new_metric, old_metric):
     if old_metric is None or old_metric < new_metric['mean']:
         return new_metric['mean'], True

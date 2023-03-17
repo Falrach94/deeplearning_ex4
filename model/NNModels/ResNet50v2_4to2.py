@@ -28,5 +28,5 @@ class ResNet50v2_4to2(torch.nn.Module):
 
         x = x > 0.5
         x = torch.stack((x[:,1] | x[:,3], x[:,2] | x[:,3])).transpose(0,1).float()
-        
+
         return x

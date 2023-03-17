@@ -24,5 +24,5 @@ class BalancedFuser:
         df_augs_cnt = [len(frame) for frame in df_augs_cat]
         df_augs_cnt = [min(max_cnt - df_cnt, df_a_cnt) for df_cnt, df_a_cnt in zip(df_cat_cnt, df_augs_cnt)]
         df_augs_sel = [frame.sample(cnt) for frame, cnt in zip(df_augs_cat, df_augs_cnt)]
-        return df.sample(200).reset_index()
+       # return df.sample(200).reset_index()
         return pd.concat((df, *df_augs_sel)).reset_index()

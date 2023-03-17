@@ -113,6 +113,32 @@ class CLInterface:
                              f'',
                              f'')
 
+            classical = metrics["classical"]
+            builder.add_line(f'crack:',
+                             f'{round(classical["stats"]["f1"], 4)}',
+                             f'{classical["stats"]["precision"]}',
+                             f'{classical["stats"]["recall"]}',
+                             f'{classical["stats"]["tp"]}',
+                             f'{classical["stats"]["tn"]}',
+                             f'{classical["stats"]["fp"]}',
+                             f'{classical["stats"]["fn"]}')
+            builder.add_line(f'inactive:',
+                             f'{round(classical["stats"]["f1"], 4)}',
+                             f'{classical["stats"]["precision"]}',
+                             f'{classical["stats"]["recall"]}',
+                             f'{classical["stats"]["tp"]}',
+                             f'{classical["stats"]["tn"]}',
+                             f'{classical["stats"]["fp"]}',
+                             f'{classical["stats"]["fn"]}')
+            builder.add_line(f'mean:',
+                             f'{round(classical["mean"], 4)}',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'')
+
             #builder.add_line(f'f1',
             #                 f'crack {round(metrics["crack"]["f1"], 4)}',
             #                 f'inactive {round(metrics["inactive"]["f1"], 4)}',
@@ -146,6 +172,31 @@ class CLInterface:
                                  f'',
                                  f'')
 
+                classical = best['metric']["classical"]
+                builder.add_line(f'crack:',
+                                 f'{round(classical["stats"]["f1"], 4)}',
+                                 f'{classical["stats"]["precision"]}',
+                                 f'{classical["stats"]["recall"]}',
+                                 f'{classical["stats"]["tp"]}',
+                                 f'{classical["stats"]["tn"]}',
+                                 f'{classical["stats"]["fp"]}',
+                                 f'{classical["stats"]["fn"]}')
+                builder.add_line(f'inactive:',
+                                 f'{round(classical["stats"]["f1"], 4)}',
+                                 f'{classical["stats"]["precision"]}',
+                                 f'{classical["stats"]["recall"]}',
+                                 f'{classical["stats"]["tp"]}',
+                                 f'{classical["stats"]["tn"]}',
+                                 f'{classical["stats"]["fp"]}',
+                                 f'{classical["stats"]["fn"]}')
+                builder.add_line(f'mean:',
+                                 f'{round(classical["mean"], 4)}',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'')
 #                builder.add_line(f'f1',
 #                                 f'crack {round(best["metric"]["crack"]["f1"], 4)}',
 #                                 f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',

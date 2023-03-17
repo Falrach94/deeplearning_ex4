@@ -26,7 +26,7 @@ class ResNet34_Pretrained(ResNet):
         self.fc = nn.Sequential(
             nn.Linear(512, 4),
           #  nn.Dropout(p=0.5),
-            nn.Softmax()
+            nn.Softmax(dim=1)
         )
         for module in self.fc.modules():
             if isinstance(module, nn.Linear):

@@ -10,9 +10,9 @@ class SimpleFuser:
 
 class BalancedFuser:
 
-    def __init__(self, label_provider, target_per_category):
+    def __init__(self, label_provider, target_per_category, oversample=True):
         self.label_provider = label_provider
-
+        self.oversample = oversample
     def fuse(self, df, df_augs):
         distribution = get_distribution(df, self.label_provider)
         max_cnt = max(distribution)
@@ -24,5 +24,8 @@ class BalancedFuser:
         df_augs_cnt = [len(frame) for frame in df_augs_cat]
         df_augs_cnt = [min(max_cnt - df_cnt, df_a_cnt) for df_cnt, df_a_cnt in zip(df_cat_cnt, df_augs_cnt)]
         df_augs_sel = [frame.sample(cnt) for frame, cnt in zip(df_augs_cat, df_augs_cnt)]
+
+   #     if self.oversample:
+
        # return df.sample(200).reset_index()
         return pd.concat((df, *df_augs_sel)).reset_index()

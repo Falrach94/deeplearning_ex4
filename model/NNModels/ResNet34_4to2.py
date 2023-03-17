@@ -50,7 +50,7 @@ class ResNet34_4to2(ResNet):
         x = self.fc(x)
 
         x = x > 0.5
-        x = torch.stack((x[:,1] | x[:,3], x[:,2] | x[:,3])).transpose(1,2)
+        x = torch.stack((x[:,1] | x[:,3], x[:,2] | x[:,3])).transpose(0,1).float()
 
       #  x = self.sigmoid(x)
         return x

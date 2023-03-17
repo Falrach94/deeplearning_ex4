@@ -5,10 +5,8 @@ import torchvision as tv
 from torch import nn
 from torch.nn import init
 
-from cli_program.settings.behaviour_settings import BASE_MODEL_PATH
 
-
-class ResNet50v2_Pretrained(torch.nn.Module):
+class ResNet50v2_4to2(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
@@ -19,15 +17,16 @@ class ResNet50v2_Pretrained(torch.nn.Module):
             nn.Linear(2048, 4),
             nn.Softmax(1)
         )
-        for module in self.model.fc.modules():
-            if isinstance(module, nn.Linear):
-                init.xavier_uniform_(module.weight)
-
-        state = torch.load(BASE_MODEL_PATH)
-        self.load_state_dict(state)
+#        for module in self.model.fc.modules():
+#            if isinstance(module, nn.Linear):
+#                init.xavier_uniform_(module.weight)
 
 #        self.sigmoid = torch.nn.Sigmoid()
 
     def forward(self, x):
         x = self.model(x)
+
+        x = x > 0.5
+        x = torch.stack((x[:,1] | x[:,3], x[:,2] | x[:,3])).transpose(0,1).float()
+        
         return x

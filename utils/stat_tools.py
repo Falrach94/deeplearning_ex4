@@ -80,6 +80,35 @@ def calc_multi_f1_conf(prediction, label):
     return f1
 
 
+def calc_f1_m(pred, label):
+    pred = pred > 0.5
+    label = label > 0.5
+
+    tp = np.logical_and(pred, label)
+    tn = np.logical_and(np.invert(pred), np.invert(label))
+    fp = np.logical_and(pred, np.invert(label))
+    fn = np.logical_and(np.invert(pred), label)
+
+    tp = tp.sum(dim=0)
+    tn = tn.sum(dim=0)
+    fp = fp.sum(dim=0)
+    fn = fn.sum(dim=0)
+
+    precision = [np.nan if tpv+fpv == 0 else (tpv/(tpv+fpv)).item()
+                 for tpv, fpv in zip(tp, fp)]
+
+    recall = [np.nan if tpv+fnv == 0 else (tpv/(tpv+fnv)).item()
+              for tpv, fnv in zip(tp, fn)]
+
+    nan = [np.isnan(r) or np.isnan(p) or p + r == 0
+           for p, r in zip(precision, recall)]
+
+    stats = [{'tp': tpv.item(), 'tn': tnv.item(), 'fp': fpv.item(), 'fn': fnv.item(),
+              'precision': p, 'recall': r,
+              'f1': (0 if nanv else 2*p*r/(p+r))}
+             for tpv, tnv, fpv, fnv, nanv, p, r in zip (tp, tn, fp, fn, nan, precision, recall)]
+    return {'stats': stats, 'mean': np.mean([stat['f1'] for stat in stats])}
+
 def calc_multi_f1(prediction, label):
 
     if prediction.size(1) == 1:

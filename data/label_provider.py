@@ -1,20 +1,54 @@
+import numpy as np
 import torch
 
 
 class SimpleLabeler:
-    def __init__(self, *col_names):
+    OM_IDX = 'idx'
+    OM_ONE_HOT = 'one_hot'
+    OM_RAW = 'raw'
+
+    def __init__(self, *col_names, output_mode='raw'):
         self.col_names = col_names
+        self.output_mode = output_mode
+
+    def set_output_mode(self, mode):
+        self.output_mode = mode
+
+    def get_output_mode(self):
+        return self.output_mode
 
     def label_dataframe(self, df):
         label_series = self._get_df_labels(df, self.col_names)
+        label_series_id = self._get_df_labels_id(df, self.col_names)
         df['label'] = label_series
+        df['label_id'] = label_series_id
         return df
 
-    @staticmethod
-    def get_label(df, idx):
-        return torch.Tensor(df.loc[idx, 'label'])
+    def class_count(self, raw):
+        if raw:
+            return len(self.col_names)
+        else:
+            return 2**len(self.col_names)
+    def get_label(self, df, idx):
+        return self.get_label_from_row(df.iloc[idx])
+
+    def get_label_from_row(self, row):
+        if self.output_mode == self.OM_RAW:
+            return torch.Tensor(row['label'])
+
+        label = row['label_id']
+        if self.output_mode == self.OM_IDX:
+            return label
+
+        if self.output_mode == self.OM_ONE_HOT:
+            return torch.nn.functional.one_hot(torch.tensor(label), self.class_count(False)).float()
+
+        raise NotImplemented(f'output mode "{self.output_mode}" not recognized!')
 
     @staticmethod
     def _get_df_labels(data, col_names):
         return list(zip(*[data[col].astype('float') for col in col_names]))
 
+    @staticmethod
+    def _get_df_labels_id(data, col_names):
+        return np.sum([(2**i)*data[col].astype('int') for i, col in enumerate(col_names)], axis=0)

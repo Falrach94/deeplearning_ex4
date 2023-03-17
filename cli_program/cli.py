@@ -10,6 +10,7 @@ from data.dataset_generator import create_single_split_datasets
 from data.data_reader import CSVReader
 from data.image_loader import AugmentedImageLoader
 from data.label_provider import SimpleLabeler
+from data.simple_dataset import SimpleDataset
 from model.training.genericTrainer import GenericTrainer
 from utils.averageApproximator import AverageApproximator
 from utils.utils import export
@@ -30,23 +31,28 @@ class Program:
         self._prepare_training()
 
     def _prepare_data(self):
-        augmentor = CustomAugmentor(AUGMENTATIONS, AUGMENTATION_FILTER)
+        augmentor = CustomAugmentor(FUSER, AUGMENTATIONS)
         self.image_provider = AugmentedImageLoader(image_path_col='filename',
                                                    augmentor=augmentor)
-        label_provider = SimpleLabeler(*LABEL_COLUMNS)
-        self.data = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
-        self.data = label_provider.label_dataframe(self.data)
+        df = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
+        df = LABEL_PROVIDER.label_dataframe(df)
 
         self.data = create_single_split_datasets(
-            data=self.data,
+            data=df,
             split=HOLDOUT_SPLIT,
             image_provider=self.image_provider,
-            label_provider=label_provider,
+            label_provider=LABEL_PROVIDER,
             augmentor=augmentor,
             tr_transform=TR_TRANSFORMS,
             val_transform=VAL_TRANSFORMS,
             batch_size=BATCH_SIZE
         )
+        self.data['raw'] = SimpleDataset(augmentor.add_augmentations_to_df(df, True),
+                               transforms=VAL_TRANSFORMS,
+                               image_provider=self.image_provider,
+                               label_provider=LABEL_PROVIDER)
+
+        print(self.data['tr']['dataset'].get_categories())
 
     def _prepare_ui(self):
         self.cli.prepare_ui(self.data)
@@ -88,7 +94,7 @@ class Program:
                                  tr_dl=self.data['tr']['dl'],
                                  val_dl=self.data['val']['dl'],
                                  batch_size=BATCH_SIZE,
-                                 label_cnt=len(LABEL_COLUMNS))
+                                 label_cnt=LABEL_PROVIDER.class_count(False))
         best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
         model.load_state_dict(best_model_state)
 

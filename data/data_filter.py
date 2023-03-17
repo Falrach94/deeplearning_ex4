@@ -1,3 +1,5 @@
+from data.utils import get_distribution
+
 
 class DataFilter:
     def __init__(self):
@@ -10,6 +12,7 @@ class DataFilter:
 
 class AugmentFilter:
     @staticmethod
-    def filter_unlabled_augments(df):
+    def filter_unlabled_augments(df, old_df):
         return df[(df.aug == 0) | (df.inactive != 0) | (df.crack != 0)].copy().reset_index()
+
 

@@ -18,16 +18,15 @@ class ResNet34_Pretrained(ResNet):
         weights = tv.models.ResNet34_Weights.DEFAULT
         self.load_state_dict(weights.get_state_dict(True))
 
-        self.fc = torch.nn.Linear(512, label_cnt)
-        init.xavier_uniform_(self.fc.weight)
+        #self.fc = torch.nn.Linear(512, label_cnt)
+        #init.xavier_uniform_(self.fc.weight)
+        #state = torch.load(BASE_MODEL_PATH)
+        #self.load_state_dict(state)
 
-        state = torch.load(BASE_MODEL_PATH)
-        self.load_state_dict(state)
         self.fc = nn.Sequential(
-            nn.Linear(512, 128),
-            nn.Dropout(p=0.5),
-            nn.ReLU(inplace=True),
-            nn.Linear(128, 2)
+            nn.Linear(512, 4),
+          #  nn.Dropout(p=0.5),
+            nn.Softmax()
         )
         for module in self.fc.modules():
             if isinstance(module, nn.Linear):
@@ -36,7 +35,8 @@ class ResNet34_Pretrained(ResNet):
         #        self.fc = torch.nn.Linear(512, 2)
 #        init.xavier_uniform_(self.fc.weight)
 
-        self.sigmoid = torch.nn.Sigmoid()
+
+     #   self.sigmoid = torch.nn.Sigmoid()
 
     def forward(self, x):
         x = self.conv1(x)
@@ -53,5 +53,5 @@ class ResNet34_Pretrained(ResNet):
         x = x.view(x.size(0), -1)
 
         x = self.fc(x)
-        x = self.sigmoid(x)
+      #  x = self.sigmoid(x)
         return x

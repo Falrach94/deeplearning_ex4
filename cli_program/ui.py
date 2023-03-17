@@ -10,14 +10,38 @@ class CLInterface:
     def __init__(self):
         self.sb = ScreenBuilder()
 
+    @staticmethod
+    def _make_label_distribution_line(table, dist):
+        cnt = sum(dist)
+        max_val = max(dist)
+        table.add_line('', *[f'{val} ({round(100*val/cnt, 1)} %, 1:{(round(max_val/val, 1)) if val != 0 else "-"})' for val in dist])
+
     def print_settings(self, data):
+        tr_set = data['tr']['dataset']
+        val_set = data['val']['dataset']
+        raw_set = data['raw']
+
+        raw_stats = raw_set.get_categories()
+        val_stats = val_set.get_categories()
+        tr_stats = tr_set.get_categories()
+
         table = TableBuilderEx(self.sb, 'settings')
-        table.add_line('Data:', 'dataset', 'labels', 'split')
-        table.add_line('', DATA_PATH, LABEL_COLUMNS, HOLDOUT_SPLIT)
+        table.add_line('Data:', 'dataset', 'labels', 'size')
+        table.add_line('', DATA_PATH, LABEL_COLUMNS, len(raw_set))
 
         table.new_block()
-        table.add_line('validation set size', 'training set size')
-        table.add_line(len(data['val']['dataset']), len(data['tr']['dataset']))
+        table.add_line('raw distribution:', *[f'label {i}' for i in range(len(raw_stats))])
+        self._make_label_distribution_line(table, raw_stats)
+
+        table.new_block()
+        table.add_line('validation set size', 'training set size', 'split')
+        table.add_line(len(val_set), len(tr_set), HOLDOUT_SPLIT)
+
+        table.new_block()
+        table.add_line('validation data:', *[f'label {i}' for i in range(len(val_stats))])
+        self._make_label_distribution_line(table, val_stats)
+        table.add_line('training data:', *[f'label {i}' for i in range(len(tr_stats))])
+        self._make_label_distribution_line(table, tr_stats)
 
         table.new_block()
         table.add_line('optimizer', 'lr', 'weight decay')
@@ -68,10 +92,31 @@ class CLInterface:
                          f'val {round(loss["val"], 5)}',
                          '')
         if metrics is not None:
-            builder.add_line(f'f1',
-                             f'crack {round(metrics["crack"]["f1"], 4)}',
-                             f'inactive {round(metrics["inactive"]["f1"], 4)}',
-                             f'mean {round(metrics["mean"], 4)}')
+            builder.new_block()
+            builder.add_line(f'label', 'f1', 'precision', 'recall', 'tp', 'tn', 'fp', 'fn')
+            for i, m in enumerate(metrics['stats']):
+                builder.add_line(f'{i}:',
+                                 f'{round(m["f1"], 4)}',
+                                 f'{round(m["precision"], 4)}',
+                                 f'{round(m["recall"], 4)}',
+                                 f'{m["tp"]}',
+                                 f'{m["tn"]}',
+                                 f'{m["fp"]}',
+                                 f'{m["fn"]}')
+
+            builder.add_line(f'mean:',
+                             f'{round(metrics["mean"], 4)}',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'')
+
+            #builder.add_line(f'f1',
+            #                 f'crack {round(metrics["crack"]["f1"], 4)}',
+            #                 f'inactive {round(metrics["inactive"]["f1"], 4)}',
+            #                 f'mean {round(metrics["mean"], 4)}')
 
         if best['epoch'] is not None:
             builder.new_block()
@@ -80,9 +125,30 @@ class CLInterface:
                              '',
                              '')
             if metrics is not None:
-                builder.add_line(f'f1',
-                                 f'crack {round(best["metric"]["crack"]["f1"], 4)}',
-                                 f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
-                                 f'mean {round(best["metric"]["mean"], 4)}')
+                builder.new_block()
+                builder.add_line(f'label', 'f1', 'precision', 'recall', 'tp', 'tn', 'fp', 'fn')
+                for i, m in enumerate(best['metric']['stats']):
+                    builder.add_line(f'{i}:',
+                                     f'{round(m["f1"], 4)}',
+                                     f'{round(m["precision"], 4)}',
+                                     f'{round(m["recall"], 4)}',
+                                     f'{m["tp"]}',
+                                     f'{m["tn"]}',
+                                     f'{m["fp"]}',
+                                     f'{m["fn"]}')
+
+                builder.add_line(f'mean:',
+                                 f'{round(best["metric"]["mean"], 4)}',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'')
+
+#                builder.add_line(f'f1',
+#                                 f'crack {round(best["metric"]["crack"]["f1"], 4)}',
+#                                 f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
+#                                 f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()

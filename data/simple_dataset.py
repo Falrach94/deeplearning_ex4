@@ -1,6 +1,8 @@
 import torch
 from torch.utils.data import Dataset
 
+from data.utils import get_distribution
+
 
 class SimpleDataset(Dataset):
 
@@ -21,3 +23,5 @@ class SimpleDataset(Dataset):
 
         return image, label
 
+    def get_categories(self):
+        return get_distribution(self._data, self.label_provider)

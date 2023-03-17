@@ -12,24 +12,31 @@ DEFAULT_AUGMENTS = [
 
 
 class BaseAugmentor:
-    def __init__(self, col_name, augment_cnt, filter):
+    def __init__(self, col_name, augment_cnt, fuser):
         self.cnt = augment_cnt
         self.col_name = col_name
-        self.filter = filter
+        self.fuser = fuser
 
     '''
     - adds an additional column containing the augmentation to be used
     - adds a copy of each row for each possible augmentation
     '''
-    def add_augmentations_to_df(self, df):
+    def add_augmentations_to_df(self, df, identity=False):
         df = df.copy()
         df[self.col_name] = 0
-        augmented_dfs = [df.copy() for _ in range(self.cnt)]
-        for i, df_aug in enumerate(augmented_dfs):
+
+        if identity:
+            return df
+
+        #create dataframe with augments
+        augmented_df = [df.copy() for _ in range(self.cnt)]
+        for i, df_aug in enumerate(augmented_df):
             df_aug[self.col_name] = i
-        df = pd.concat((df, *augmented_dfs)).reset_index()
-        if self.filter:
-            df = self.filter(df)
+        augmented_df = pd.concat(augmented_df).reset_index()
+
+        #fuse original df with augmentations
+        df = self.fuser.fuse(df, augmented_df)
+
         return df
 
     def get_aug_idx(self, df, idx):
@@ -49,8 +56,8 @@ class BaseAugmentor:
 
 
 class CustomAugmentor(BaseAugmentor):
-    def __init__(self, augments=DEFAULT_AUGMENTS, filter=None):
-        super().__init__(augment_cnt=len(augments), col_name='aug', filter=filter)
+    def __init__(self, fuser, augments=DEFAULT_AUGMENTS):
+        super().__init__(augment_cnt=len(augments), col_name='aug', fuser=fuser)
 
         self.augmentation_dict = augments
 

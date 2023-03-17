@@ -24,8 +24,10 @@ class ResNet34_Pretrained(ResNet):
         #self.load_state_dict(state)
 
         self.fc = nn.Sequential(
-            nn.Linear(512, 4),
-          #  nn.Dropout(p=0.5),
+            nn.Linear(512, 256),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(256, 4),
             nn.Softmax(dim=1)
         )
         for module in self.fc.modules():

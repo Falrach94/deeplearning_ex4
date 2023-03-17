@@ -6,8 +6,8 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 # training
 MAX_EPOCH = 100
 BATCH_SIZE = 16
-PATIENCE = 20
-WINDOW = 10
+PATIENCE = 10
+WINDOW = 5
 
 # optimizer
 LR = 0.0001
@@ -15,8 +15,8 @@ DECAY = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(DECAY, LR)
 
 # loss fct
-GAMMA_NEG = 10
-GAMMA_POS = 2
+GAMMA_NEG = 1
+GAMMA_POS = 10
 CLIP = 0.05
 
 #LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)

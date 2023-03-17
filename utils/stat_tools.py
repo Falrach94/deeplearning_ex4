@@ -82,10 +82,10 @@ def calc_multi_f1_conf(prediction, label):
 def calc_f1_from_4class(pred, label):
     pred = pred > 0.5
     pred = torch.stack((pred[:, 1] | pred[:, 3],
-                        pred[:, 2] | pred[:, 3]))
+                        pred[:, 2] | pred[:, 3])).transpose(0,1)
     label = label > 0.5
     label = torch.stack((label[:, 1] | label[:, 3],
-                          label[:, 2] | label[:, 3]))
+                          label[:, 2] | label[:, 3])).transpose(0,1)
 
     tp = np.logical_and(pred, label)
     tn = np.logical_and(np.invert(pred), np.invert(label))

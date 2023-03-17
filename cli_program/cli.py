@@ -1,5 +1,7 @@
 import time
 
+import torch
+
 from cli_program.settings.behaviour_settings import BEST_MODEL_PATH, EXPORT_PATH
 from cli_program.settings.data_settings import *
 from cli_program.settings.model_settings import *
@@ -55,7 +57,7 @@ class Program:
         dist = self.data['tr']['dataset'].get_categories()
         total = sum(dist)
         weights = [total/d for d in dist]
-        LOSS_CALCULATOR.set_weights(weights)
+        LOSS_CALCULATOR.set_weights(torch.tensor(weights).cuda())
 
     def _prepare_ui(self):
         self.cli.prepare_ui(self.data)

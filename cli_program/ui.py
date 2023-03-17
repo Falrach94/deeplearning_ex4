@@ -115,21 +115,21 @@ class CLInterface:
 
             classical = metrics["classical"]
             builder.add_line(f'crack:',
-                             f'{round(classical["stats"]["f1"], 4)}',
-                             f'{classical["stats"]["precision"]}',
-                             f'{classical["stats"]["recall"]}',
-                             f'{classical["stats"]["tp"]}',
-                             f'{classical["stats"]["tn"]}',
-                             f'{classical["stats"]["fp"]}',
-                             f'{classical["stats"]["fn"]}')
+                             f'{round(classical["stats"][0]["f1"], 4)}',
+                             f'{classical["stats"][0]["precision"]}',
+                             f'{classical["stats"][0]["recall"]}',
+                             f'{classical["stats"][0]["tp"]}',
+                             f'{classical["stats"][0]["tn"]}',
+                             f'{classical["stats"][0]["fp"]}',
+                             f'{classical["stats"][0]["fn"]}')
             builder.add_line(f'inactive:',
-                             f'{round(classical["stats"]["f1"], 4)}',
-                             f'{classical["stats"]["precision"]}',
-                             f'{classical["stats"]["recall"]}',
-                             f'{classical["stats"]["tp"]}',
-                             f'{classical["stats"]["tn"]}',
-                             f'{classical["stats"]["fp"]}',
-                             f'{classical["stats"]["fn"]}')
+                             f'{round(classical["stats"][1]["f1"], 4)}',
+                             f'{classical["stats"][1]["precision"]}',
+                             f'{classical["stats"][1]["recall"]}',
+                             f'{classical["stats"][1]["tp"]}',
+                             f'{classical["stats"][1]["tn"]}',
+                             f'{classical["stats"][1]["fp"]}',
+                             f'{classical["stats"][1]["fn"]}')
             builder.add_line(f'mean:',
                              f'{round(classical["mean"], 4)}',
                              f'',
@@ -174,21 +174,21 @@ class CLInterface:
 
                 classical = best['metric']["classical"]
                 builder.add_line(f'crack:',
-                                 f'{round(classical["stats"]["f1"], 4)}',
-                                 f'{classical["stats"]["precision"]}',
-                                 f'{classical["stats"]["recall"]}',
-                                 f'{classical["stats"]["tp"]}',
-                                 f'{classical["stats"]["tn"]}',
-                                 f'{classical["stats"]["fp"]}',
-                                 f'{classical["stats"]["fn"]}')
+                                 f'{round(classical["stats"][0]["f1"], 4)}',
+                                 f'{classical["stats"][0]["precision"]}',
+                                 f'{classical["stats"][0]["recall"]}',
+                                 f'{classical["stats"][0]["tp"]}',
+                                 f'{classical["stats"][0]["tn"]}',
+                                 f'{classical["stats"][0]["fp"]}',
+                                 f'{classical["stats"][0]["fn"]}')
                 builder.add_line(f'inactive:',
-                                 f'{round(classical["stats"]["f1"], 4)}',
-                                 f'{classical["stats"]["precision"]}',
-                                 f'{classical["stats"]["recall"]}',
-                                 f'{classical["stats"]["tp"]}',
-                                 f'{classical["stats"]["tn"]}',
-                                 f'{classical["stats"]["fp"]}',
-                                 f'{classical["stats"]["fn"]}')
+                                 f'{round(classical["stats"][1]["f1"], 4)}',
+                                 f'{classical["stats"][1]["precision"]}',
+                                 f'{classical["stats"][1]["recall"]}',
+                                 f'{classical["stats"][1]["tp"]}',
+                                 f'{classical["stats"][1]["tn"]}',
+                                 f'{classical["stats"][1]["fp"]}',
+                                 f'{classical["stats"][1]["fn"]}')
                 builder.add_line(f'mean:',
                                  f'{round(classical["mean"], 4)}',
                                  f'',

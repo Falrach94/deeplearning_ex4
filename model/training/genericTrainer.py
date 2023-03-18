@@ -58,7 +58,12 @@ class GenericTrainer:
 
         if self.abort_fit:
             return None
+
         last_result[0]['val'] = eval_loss.item()
+        last_result[1]['total'] += total_time
+        last_result[1]['val'] += val_time
+        last_result[2] = metrics
+
         return last_result
 
     def train_with_early_stopping(self, max_epoch, patience=10, window=5):

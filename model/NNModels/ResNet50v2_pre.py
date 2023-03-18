@@ -23,8 +23,8 @@ class ResNet50v2_Pretrained(torch.nn.Module):
             if isinstance(module, nn.Linear):
                 init.xavier_uniform_(module.weight)
 
-        state = torch.load(BASE_MODEL_PATH)
-        self.load_state_dict(state)
+       # state = torch.load(BASE_MODEL_PATH)
+       # self.load_state_dict(state)
 
 #        self.sigmoid = torch.nn.Sigmoid()
 

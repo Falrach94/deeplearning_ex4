@@ -106,6 +106,7 @@ class Program:
         torch.save(best_model_state, BEST_MODEL_PATH)
         export(model, best_model_state, EXPORT_PATH, self.cli.sb)
 
-print('')
-prog = Program()
-prog.perform_training()
+if __name__ == '__main__':
+    print('')
+    prog = Program()
+    prog.perform_training()

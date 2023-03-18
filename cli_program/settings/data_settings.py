@@ -1,4 +1,3 @@
-import torch
 import torchvision as tv
 
 from data.augment_fuser import BalancedFuser

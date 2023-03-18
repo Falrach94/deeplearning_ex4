@@ -4,6 +4,7 @@ import torch as t
 import torch.cuda
 
 from cli_program.settings.behaviour_settings import BEST_MODEL_PATH, EXPORT_PATH
+from cli_program.ui import SINGLETON_SB
 from utils.utils import export
 
 
@@ -105,7 +106,7 @@ class GenericTrainer:
                 self.epoch_callback(i, loss, time, metrics,
                                     {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
 
-            export(self._model, self._model.state_dict(), EXPORT_PATH)
+            export(self._model, self._model.state_dict(), EXPORT_PATH, SINGLETON_SB)
 
             loss, time, metrics = self.repeat_eval((loss, time, metrics))
             if self.epoch_callback is not None:

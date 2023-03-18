@@ -12,7 +12,7 @@ from cli_program.settings.behaviour_settings import BASE_MODEL_PATH
 
 class ResNet34_Pretrained(ResNet):
 
-    def __init__(self, label_cnt):
+    def __init__(self):
         super().__init__(BasicBlock, [3, 4, 6, 3])
 
         weights = tv.models.ResNet34_Weights.DEFAULT

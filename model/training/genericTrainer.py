@@ -47,6 +47,19 @@ class GenericTrainer:
         return {'train': train_loss.item(), 'val': eval_loss.item()}, \
                {'total': total_time, 'train': train_time, 'val': val_time}, \
             metrics
+    def repeat_eval(self, last_result):
+        old_time = time.time_ns()
+
+        # validate
+        eval_loss, val_time, metrics = self.val_test()
+
+        # calculate combined time
+        total_time = (time.time_ns() - old_time) / 10 ** 9
+
+        if self.abort_fit:
+            return None
+        last_result[0]['val'] = eval_loss.item()
+        return last_result
 
     def train_with_early_stopping(self, max_epoch, patience=10, window=5):
         best_crit_val = -1
@@ -79,9 +92,19 @@ class GenericTrainer:
                 best_crit_val = crit
                 best_model = copy.deepcopy(self._model.state_dict())
 
+
+
             if self.epoch_callback is not None:
                 self.epoch_callback(i, loss, time, metrics,
                                     {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
+
+
+            loss, time, metrics = self.repeat_eval((loss, time, metrics))
+            if self.epoch_callback is not None:
+                self.epoch_callback(i, loss, time, metrics,
+                                    {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
+
+
 
             if i >= patience:
                 if i - best_epoch > window:

@@ -1,8 +1,10 @@
 import torch
 from torch import nn
 
+from cli_program.ui import SINGLETON_SB
 
-def export(model: nn.Module, state, path, sb):
+
+def export(model: nn.Module, state, path, sb=SINGLETON_SB):
     sb.print_line('starting export')
 
     was_cuda = next(model.parameters()).is_cuda

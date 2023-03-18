@@ -4,11 +4,14 @@ from cli_program.settings.training_settings import *
 from model.config import WORKER_THREADS
 from utils.console_util import ScreenBuilder, print_progress_bar, TableBuilderEx
 
+SINGLETON_SB = ScreenBuilder()
 
 class CLInterface:
 
+
+
     def __init__(self):
-        self.sb = ScreenBuilder()
+        self.sb = SINGLETON_SB
 
     @staticmethod
     def _make_label_distribution_line(table, dist):

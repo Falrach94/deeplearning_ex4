@@ -3,6 +3,9 @@ import time
 import torch as t
 import torch.cuda
 
+from cli_program.settings.behaviour_settings import BEST_MODEL_PATH, EXPORT_PATH
+from utils.utils import export
+
 
 class GenericTrainer:
     # --- interface --------------
@@ -102,6 +105,7 @@ class GenericTrainer:
                 self.epoch_callback(i, loss, time, metrics,
                                     {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
 
+            export(self._model, self._model.state_dict(), EXPORT_PATH)
 
             loss, time, metrics = self.repeat_eval((loss, time, metrics))
             if self.epoch_callback is not None:

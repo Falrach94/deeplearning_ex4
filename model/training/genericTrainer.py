@@ -64,7 +64,7 @@ class GenericTrainer:
         last_result[1]['val'] += val_time
         last_result[2] = metrics
 
-        return last_result
+        return (last_result[0], last_result[1], metrics)
 
     def train_with_early_stopping(self, max_epoch, patience=10, window=5):
         best_crit_val = -1

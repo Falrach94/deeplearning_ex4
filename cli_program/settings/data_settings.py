@@ -1,8 +1,8 @@
 import torchvision as tv
 from torchvision.transforms import InterpolationMode
 
-from data.augment_fuser import BalancedFuser
-from data.data_filter import AugmentFilter
+from data.augment_fuser import BalancedFuser, SimpleFuser
+from data.data_filter import AugmentFilter, NoDefectsFilter
 from data.label_provider import SimpleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
@@ -54,5 +54,9 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])
 
-LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
-FUSER = BalancedFuser(LABEL_PROVIDER, None)
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
+#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
+#FUSER = BalancedFuser(LABEL_PROVIDER, None)
+FUSER = SimpleFuser()
+TR_FILTER = NoDefectsFilter()
+VAL_FILTER = NoDefectsFilter()

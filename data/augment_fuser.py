@@ -6,7 +6,7 @@ from data.utils import get_distribution, split_df_by_category
 class SimpleFuser:
     @staticmethod
     def fuse(df, df_augs):
-        return pd.concat(df, df_augs)
+        return pd.concat((df, df_augs)).sample(frac=1).reset_index(drop=True)
 
 class BalancedFuser:
 

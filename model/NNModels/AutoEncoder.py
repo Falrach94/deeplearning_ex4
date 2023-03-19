@@ -53,11 +53,6 @@ class Encoder(nn.Module):
                                           nn.ReLU(inplace=True),
                                           nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147->144x144 -> 72x72 -> 73x73
 
-        self.l1 = self._make_layer(64, 64, 3)  # 73x73 -> 73x73
-        self.l2 = self._make_layer(64, 128, 4)  # 73x73 -> 37x37
-        self.l3 = self._make_layer(128, 256, 6)  # 37x37 -> 19x19
-        self.l4 = self._make_layer(256, 512, 3)  # 19x19 -> 10x10
-
         # ResNet34
         layers = [
             self._make_layer(64, 64, 3),  # 71x71 -> 71x71
@@ -75,10 +70,6 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         x = self.initial_conv(x)
-        x = self.l1(x)
-        x = self.l2(x)
-        x = self.l3(x)
-        x = self.l4(x)
         x = self.feature_extraction(x)
         x = self.output_layer(x)
         return x

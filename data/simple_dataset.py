@@ -19,7 +19,7 @@ class SimpleDataset(Dataset):
 
         image = self.image_provider.get(self._data, idx)
         image = self.transforms(image)
-        label = self.label_provider.get_label(self._data, idx)
+        label = self.label_provider.get_label(self._data, idx, image)
 
         return image, label
 

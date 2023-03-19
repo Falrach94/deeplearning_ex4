@@ -47,7 +47,9 @@ class Program:
             augmentor=augmentor,
             tr_transform=TR_TRANSFORMS,
             val_transform=VAL_TRANSFORMS,
-            batch_size=BATCH_SIZE
+            batch_size=BATCH_SIZE,
+            tr_filter=TR_FILTER,
+            val_filter=VAL_FILTER
         )
         self.data['raw'] = SimpleDataset(augmentor.add_augmentations_to_df(df, True),
                                transforms=VAL_TRANSFORMS,
@@ -56,7 +58,7 @@ class Program:
 
         dist = self.data['tr']['dataset'].get_categories()
         total = sum(dist)
-        weights = [total/d for d in dist]
+        weights = [total/d if d != 0 else 0 for d in dist]
         LOSS_CALCULATOR.set_weights(torch.tensor(weights).cuda())
 
     def _prepare_ui(self):

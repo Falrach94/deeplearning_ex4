@@ -10,14 +10,23 @@ def _create_datasets(tr_data, val_data,
                      image_provider, label_provider,
                      augmentor,
                      tr_transform, val_transform,
-                     batch_size):
+                     batch_size,
+                     tr_filter, val_filter):
 
-    tr_dataset = SimpleDataset(augmentor.add_augmentations_to_df(tr_data),
+    tr_df = augmentor.add_augmentations_to_df(tr_data)
+    if tr_filter is not None:
+        tr_df = tr_filter.filter(tr_df)
+
+    val_df = augmentor.add_augmentations_to_df(val_data)
+    if val_filter is not None:
+        val_df = tr_filter.filter(val_df)
+
+    tr_dataset = SimpleDataset(tr_df,
                                transforms=tr_transform,
                                image_provider=image_provider,
                                label_provider=label_provider)
     tr_dl = DataLoader(tr_dataset, batch_size=batch_size, shuffle=True, num_workers=WORKER_THREADS)
-    val_dataset = SimpleDataset(augmentor.add_augmentations_to_df(val_data),
+    val_dataset = SimpleDataset(val_df,
                                 transforms=val_transform,
                                 image_provider=image_provider,
                                 label_provider=label_provider)
@@ -33,13 +42,15 @@ def create_single_split_datasets(data, split,
                                  image_provider, label_provider,
                                  augmentor,
                                  tr_transform, val_transform,
-                                 batch_size):
+                                 batch_size,
+                                 tr_filter, val_filter):
     tr_data, val_data = train_test_split(data, test_size=split)
     return _create_datasets(tr_data, val_data,
                             image_provider, label_provider,
                             augmentor,
                             tr_transform, val_transform,
-                            batch_size)
+                            batch_size,
+                            tr_filter, val_filter)
 
 
 def create_k_fold_datasets(data, k,

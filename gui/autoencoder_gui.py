@@ -1,8 +1,13 @@
+import copy
+
 import numpy as np
+import torch
+import torchmetrics
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSignal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from skimage import filters
 
 from gui.Slider import Slider
 from utils.gui_tools import add_hlayout
@@ -21,17 +26,41 @@ class AEWindow(QtWidgets.QMainWindow):
 
         input = np.array(input)
         output = np.array(output)
-        dif = (input-output).transpose((1, 2, 0))
-        dif = (dif - dif.min()) / (dif.max() - dif.min())
+
+        ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
+                                                             kernel_size=(5,5),
+                                                             reduction='none',
+                                                             return_full_image=True)
+
+        image_tensor = torch.Tensor(input).mean(dim=0)[None, None, :, :]
+        clean_tensor = torch.Tensor(output).mean(dim=0)[None, None, :, :]
+
+        dif = ssim(image_tensor, clean_tensor)
+
+        #dif = np.mean(np.power(input-output, 2), axis=0)
+        #dif = abs(dif - dif.min()) / (dif.max() - dif.min())
+
+        dif = dif[1][0, :, 3:303, 3:303]
+        dif = np.array(dif.repeat(3, 1, 1))
+
+        threshold = filters.threshold_otsu(dif)
+        dif_idx = dif < threshold
+        dif = dif_idx.astype(np.float)
+
         input = (input - input.min()) / (input.max() - input.min())
-        #output = (output - output.min()) / (output.max() - output.min())
+        output = (output - output.min()) / (output.max() - output.min())
+
+        combined = copy.deepcopy(input)
+        combined[~dif_idx] = 0
 
         self.ax_image.clear()
         self.ax_image.imshow(input.transpose((1, 2, 0)))
         self.ax_pp_image.clear()
         self.ax_pp_image.imshow(output.transpose((1, 2, 0)))
         self.ax_dif_image.clear()
-        self.ax_dif_image.imshow(dif)
+        self.ax_dif_image.imshow(dif.transpose((1, 2, 0)))
+        self.ax_comb_image.clear()
+        self.ax_comb_image.imshow(combined.transpose((1, 2, 0)))
         self.image_canvas.draw()
 
        # print(input.min(), input.max())
@@ -58,9 +87,10 @@ class AEWindow(QtWidgets.QMainWindow):
 
         self.canvas = None
         self.image_figure = Figure()
-        self.ax_image = self.image_figure.add_subplot(1, 3, 1)
-        self.ax_pp_image = self.image_figure.add_subplot(1, 3, 2)
-        self.ax_dif_image = self.image_figure.add_subplot(1, 3, 3)
+        self.ax_image = self.image_figure.add_subplot(2, 2, 1)
+        self.ax_pp_image = self.image_figure.add_subplot(2, 2, 2)
+        self.ax_dif_image = self.image_figure.add_subplot(2, 2, 3)
+        self.ax_comb_image = self.image_figure.add_subplot(2, 2, 4)
 
         self.loss_figure = Figure()
         self.ax_loss = self.loss_figure.add_subplot(1, 1, 1)

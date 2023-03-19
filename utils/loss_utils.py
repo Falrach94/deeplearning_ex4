@@ -1,4 +1,7 @@
 import torch
+from torchgeometry.losses import SSIM
+
+#import torchmetrics
 
 from model.training.losses.asl_loss import WeightedAsymmetricLossOptimized, AsymmetricLossOptimized
 
@@ -11,6 +14,19 @@ def calc_MSE_loss(input, pred, label, metrics):
 
 #def calc_SSIM_loss(input, pred, label, metrics):
 #    return torchgeometry
+
+class SSIMCalculator:
+    def __init__(self):
+
+        self.ssim = SSIM(window_size=5, reduction='mean').cuda()
+ #       self.ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
+#                                                                  kernel_size=5).cuda()
+        self.ssim = self.ssim.cuda()
+    def calc(self, input, pred, label, metrics):
+
+        return self.ssim(pred, input)
+        #return self.ssim(torch.mean(pred, dim=1, keepdim=True), input[:, 0:1, :, :])
+
 
 class ASLCalculator:
     def __init__(self, g_n, g_p, clip):

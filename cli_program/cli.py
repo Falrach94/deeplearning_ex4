@@ -56,10 +56,10 @@ class Program:
                                image_provider=self.image_provider,
                                label_provider=LABEL_PROVIDER)
 
-        dist = self.data['tr']['dataset'].get_categories()
-        total = sum(dist)
-        weights = [total/d if d != 0 else 0 for d in dist]
-        LOSS_CALCULATOR.set_weights(torch.tensor(weights).cuda())
+        #dist = self.data['tr']['dataset'].get_categories()
+        #total = sum(dist)
+        #weights = [total/d if d != 0 else 0 for d in dist]
+        #LOSS_CALCULATOR.set_weights(torch.tensor(weights).cuda())
 
     def _prepare_ui(self):
         self.cli.prepare_ui(self.data)

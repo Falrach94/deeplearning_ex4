@@ -101,18 +101,9 @@ class GenericTrainer:
                 best_model = copy.deepcopy(self._model.state_dict())
 
 
-
             if self.epoch_callback is not None:
                 self.epoch_callback(i, loss, time, metrics,
                                     {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
-
-            export(self._model, self._model.state_dict(), EXPORT_PATH, SINGLETON_SB)
-
-            loss, time, metrics = self.repeat_eval((loss, time, metrics))
-            if self.epoch_callback is not None:
-                self.epoch_callback(i, loss, time, metrics,
-                                    {'epoch': best_epoch, 'loss': best_loss, 'metric': best_metric})
-
 
 
             if i >= patience:

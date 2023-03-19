@@ -24,7 +24,7 @@ class AEWindow(QtWidgets.QMainWindow):
         dif = (input-output).transpose((1, 2, 0))
         dif = (dif - dif.min()) / (dif.max() - dif.min())
         input = (input - input.min()) / (input.max() - input.min())
-        output = (output - output.min()) / (output.max() - output.min())
+        #output = (output - output.min()) / (output.max() - output.min())
 
         self.ax_image.clear()
         self.ax_image.imshow(input.transpose((1, 2, 0)))

@@ -197,44 +197,6 @@ class TestDecoder(torch.nn.Module):
         return x
 
 
-class SimpleDecoder(nn.Module):
-    def __init__(self):
-        super(SimpleDecoder, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=512, out_channels=256, kernel_size=3, stride=1, padding=1)
-        self.bn1 = nn.BatchNorm2d(num_features=256)
-        self.conv2 = nn.Conv2d(in_channels=256, out_channels=128, kernel_size=3, stride=1, padding=1)
-        self.bn2 = nn.BatchNorm2d(num_features=128)
-        self.conv3 = nn.Conv2d(in_channels=128, out_channels=64, kernel_size=3, stride=1, padding=1)
-        self.bn3 = nn.BatchNorm2d(num_features=64)
-        self.conv4 = nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, stride=1, padding=1)
-        self.bn4 = nn.BatchNorm2d(num_features=32)
-        self.conv5 = nn.Conv2d(in_channels=32, out_channels=3, kernel_size=3, stride=1, padding=1)
-
-        self.relu = nn.ReLU(inplace=True)
-        self.sigmoid = nn.Sigmoid()
-        self.upsample = nn.Upsample(scale_factor=2)
-
-    def forward(self, x):
-        # reshape from a flattened tensor to a 4-dimensional tensor
-        x = x.view(x.size(0), 512, 1, 1)
-
-        x = self.conv1(self.upsample(x))
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.conv2(self.upsample(x))
-        x = self.bn2(x)
-        x = self.relu(x)
-        x = self.conv3(self.upsample(x))
-        x = self.bn3(x)
-        x = self.relu(x)
-        x = self.conv4(self.upsample(x))
-        x = self.bn4(x)
-        x = self.relu(x)
-        x = self.conv5(self.upsample(x))
-        x = self.sigmoid(x)
-
-        return x
-
 
 class ResNetAutoEncoder(torch.nn.Module):
 
@@ -267,4 +229,7 @@ class ResNetAutoEncoder(torch.nn.Module):
         x = self.decoder(x)
        # y_s = self.classifier(x_s)
 
-        return x#, y_s, x_s
+        mean = 0.59685254
+        std = 0.16043035
+
+        return (x-mean)/std#, y_s, x_s

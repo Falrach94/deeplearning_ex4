@@ -7,7 +7,7 @@ class InceptionV3(nn.Module):
 
     def __init__(self):
         super().__init__()
-        
+
         self.model = tv.models.inception_v3(weights=tv.models.Inception_V3_Weights.DEFAULT)
 
         self.model.fc = nn.Sequential(
@@ -21,4 +21,6 @@ class InceptionV3(nn.Module):
 
 
     def forward(self, x):
-        return self.model(x)
+        x = self.model(x)
+
+        return x

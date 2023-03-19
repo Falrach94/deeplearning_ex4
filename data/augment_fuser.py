@@ -33,7 +33,7 @@ class BalancedFuser:
         #oversample underrepresented classes
         df_cat = split_df_by_category(df)
         remaining_cnt = [target_cnt - len(frame) for frame in df_cat]
-        df_os = [df_cat.sample(cnt, replace=True) for cnt in remaining_cnt]
+        df_os = [df_c.sample(cnt, replace=True) for cnt, df_c in zip(remaining_cnt, df_cat)]
         df = pd.concat(df, *df_os).sample(frac=1).reset_index(drop=True)
 
         return df

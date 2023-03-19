@@ -16,7 +16,7 @@ class ResNet34_4to2(ResNet34_Pretrained):
 
     def forward(self, x):
 
-        x = super.forward(x)
+        x = super().forward(x)
         x = x > 0.5
         x = torch.stack((x[:,1] | x[:,3], x[:,2] | x[:,3])).transpose(0,1).float()
 

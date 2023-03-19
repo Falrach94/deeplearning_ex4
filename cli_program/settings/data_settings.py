@@ -1,4 +1,5 @@
 import torchvision as tv
+from torchvision.transforms import InterpolationMode
 
 from data.augment_fuser import BalancedFuser
 from data.data_filter import AugmentFilter
@@ -46,7 +47,9 @@ TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
                                        tv.transforms.GaussianBlur(7),
                                        tv.transforms.RandomAutocontrast(),
-                                       tv.transforms.Normalize(TR_MEAN, TR_STD),])
+                                       tv.transforms.Normalize(TR_MEAN, TR_STD),
+                                       tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
+                                       ])
 VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])

@@ -29,4 +29,4 @@ VALIDATION_LOSS = calc_MSE_loss
 
 # metric calculation
 METRIC_CALC = None #calc_f1_m
-BEST_METRIC_SELECTOR = select_best_metric
+BEST_METRIC_SELECTOR = None # select_best_metric

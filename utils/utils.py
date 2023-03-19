@@ -27,7 +27,7 @@ def export(model: nn.Module, state, path, sb):
     if was_cuda:
         model.cuda()
 
-    sb.print_line('export finished')
+    sb.print_line(f'export finished ("{path}")')
 
 
 def mirror_and_rotate(x, hor, ver, rot):

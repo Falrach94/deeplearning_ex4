@@ -6,11 +6,11 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 # training
 MAX_EPOCH = 100
 BATCH_SIZE = 16
-PATIENCE = 20
-WINDOW = 10
+PATIENCE = 10
+WINDOW = 5
 
 # optimizer
-LR = 0.00003
+LR = 0.0001
 DECAY = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(DECAY, LR)
 
@@ -25,6 +25,8 @@ LOSS_CALCULATOR = WeightedASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
 #TRAINING_LOSS = LOSS_CALCULATOR.calc
 TRAINING_LOSS = calc_MSE_loss
 VALIDATION_LOSS = calc_MSE_loss
+#TRAINING_LOSS = calc_SSIM_loss
+#VALIDATION_LOSS = calc_SSIM_loss
 
 
 # metric calculation

@@ -1,6 +1,8 @@
 import torch
 from torch import nn
 
+from cli_program.settings.behaviour_settings import BEST_MODEL_PATH
+
 
 class ResNetBlock(nn.Module):
 
@@ -236,7 +238,7 @@ class SimpleDecoder(nn.Module):
 
 class ResNetAutoEncoder(torch.nn.Module):
 
-    def __init__(self, sparse_cnt=128):
+    def __init__(self, sparse_cnt=128, load=False):
         super().__init__()
 
         self.encoder = Encoder(sparse_cnt)
@@ -246,6 +248,9 @@ class ResNetAutoEncoder(torch.nn.Module):
                                         nn.Sigmoid())
         self._sparse_output = False
 
+        if load:
+            state = torch.load(BEST_MODEL_PATH)
+            self.load_state_dict(state)
     def sparse(self):
         self._sparse_output = True
         self.bottleneck.sparse()

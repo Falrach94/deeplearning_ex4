@@ -9,6 +9,9 @@ def calc_BCE_loss(input, pred, label, metrics):
 def calc_MSE_loss(input, pred, label, metrics):
     return torch.nn.functional.mse_loss(pred, label)
 
+#def calc_SSIM_loss(input, pred, label, metrics):
+#    return torchgeometry
+
 class ASLCalculator:
     def __init__(self, g_n, g_p, clip):
         self.loss = AsymmetricLossOptimized(g_n, g_p, clip).cuda()

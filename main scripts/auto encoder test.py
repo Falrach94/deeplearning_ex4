@@ -88,7 +88,7 @@ class Presenter(QObject):
 
         # --- setup training -----
         self.initialize_display_model()
-        self.model = SkipAutoEncoder()
+        self.model = ResNetAutoEncoder(load=True)
         #self.model = ScrambledAutoEncoder()
 
         #self.initialize_training_data()
@@ -104,17 +104,17 @@ class Presenter(QObject):
 #        reader = SmallDataReader(memorize_all=True)
  #       self.display_data = reader.all
         self.display_data = pd.read_csv('assets/val_data.csv', sep=';')
-        self.display_model = ScrambledAutoEncoder()
+        self.display_model = ResNetAutoEncoder(load=True)
 
-        state_dict = torch.load(load_path)
-        self.display_model.load_state_dict(state_dict)
+        #state_dict = torch.load(load_path)
+        #self.display_model.load_state_dict(state_dict)
 
         train_mean = [0.59685254, 0.59685, 0.59685254]
         train_std = [0.16043035, 0.16043035, 0.16043035]
         self.display_transform = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                                         tv.transforms.ToTensor(),
                                                         tv.transforms.Normalize(train_mean, train_std)])
-
+    '''
     def initialize_training_data(self):
 
         if os.path.exists('assets/tr_data.csv'):
@@ -157,7 +157,7 @@ class Presenter(QObject):
         self.trainer = GenericTrainer()
         self.trainer.batch_callback = self.callback
         self.trainer.set_session(self.model, loss, optimizer, self.tr_dl, self.val_dl)
-
+    '''
     def initialize_model_state(self):
         if os.path.exists(save_path):
             self.model_state = torch.load(save_path)

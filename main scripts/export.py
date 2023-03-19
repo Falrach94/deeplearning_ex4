@@ -13,7 +13,7 @@ print('loading state dict')
 #state_dict = torch.load(best_classifier_path)
 
 print('creating model')
-model = ResNet50v2_4to2()
+model = ResNet34_4to2()
 #model.load_state_dict(state_dict)
 model.eval()
 #model.set_path(4, False)

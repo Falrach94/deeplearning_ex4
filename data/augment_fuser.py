@@ -15,17 +15,25 @@ class BalancedFuser:
         self.oversample = oversample
     def fuse(self, df, df_augs):
         distribution = get_distribution(df, self.label_provider)
-        max_cnt = max(distribution)
+        target_cnt = max(distribution)
 
+        #split original samples into categories
         df_cat = split_df_by_category(df)
+
+        #split augmented samples into categories
         df_augs_cat = split_df_by_category(df_augs)
 
+        #select augmentations to balance categories as much as possible
         df_cat_cnt = [len(frame) for frame in df_cat]
         df_augs_cnt = [len(frame) for frame in df_augs_cat]
-        df_augs_cnt = [min(max_cnt - df_cnt, df_a_cnt) for df_cnt, df_a_cnt in zip(df_cat_cnt, df_augs_cnt)]
+        df_augs_cnt = [min(target_cnt - df_cnt, df_a_cnt) for df_cnt, df_a_cnt in zip(df_cat_cnt, df_augs_cnt)]
         df_augs_sel = [frame.sample(cnt) for frame, cnt in zip(df_augs_cat, df_augs_cnt)]
+        df = pd.concat((df, *df_augs_sel))
 
-   #     if self.oversample:
+        #oversample underrepresented classes
+        df_cat = split_df_by_category(df)
+        remaining_cnt = [target_cnt - len(frame) for frame in df_cat]
+        df_os = [df_cat.sample(cnt, replace=True) for cnt in remaining_cnt]
+        df = pd.concat(df, *df_os).sample(frac=1).reset_index(drop=True)
 
-       # return df.sample(200).reset_index()
-        return pd.concat((df, *df_augs_sel)).reset_index()
+        return df

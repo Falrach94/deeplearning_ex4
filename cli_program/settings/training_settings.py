@@ -10,7 +10,7 @@ PATIENCE = 10
 WINDOW = 5
 
 # optimizer
-LR = 0.0001
+LR = 0.00003
 DECAY = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(DECAY, LR)
 

@@ -222,13 +222,13 @@ class GenericTrainer:
 
                 loss += self.val_loss_fct(x, step_prediction, y, self.last_metric)
 
-#                if step_prediction.size(1) == 2:
-                j = i*self._batch_size
-                if type(step_prediction) is tuple:
-                    predictions[j:j+y.shape[0]] = step_prediction[1]
-                else:
-                    predictions[j:j+y.shape[0]] = step_prediction
-                labels[j:j+y.shape[0]] = y
+                if self.metric_calculator is not None:
+                    j = i*self._batch_size
+                    if type(step_prediction) is tuple:
+                        predictions[j:j+y.shape[0]] = step_prediction[1]
+                    else:
+                        predictions[j:j+y.shape[0]] = step_prediction
+                    labels[j:j+y.shape[0]] = y
 
                 if self.batch_callback is not None:
                     self.batch_callback(i,

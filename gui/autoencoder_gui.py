@@ -26,9 +26,9 @@ class AEWindow(QtWidgets.QMainWindow):
 
         input = np.array(input)
         output = np.array(output)
-
+        kernel_size = 9
         ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
-                                                             kernel_size=(5,5),
+                                                             kernel_size=(kernel_size, kernel_size),
                                                              reduction='none',
                                                              return_full_image=True)
 
@@ -39,8 +39,8 @@ class AEWindow(QtWidgets.QMainWindow):
 
         #dif = np.mean(np.power(input-output, 2), axis=0)
         #dif = abs(dif - dif.min()) / (dif.max() - dif.min())
-
-        dif = dif[1][0, :, 3:303, 3:303]
+        t = 1
+        dif = dif[1][0, :, t:300+t, t:300+t]
         dif = np.array(dif.repeat(3, 1, 1))
 
         threshold = filters.threshold_otsu(dif)
@@ -51,7 +51,18 @@ class AEWindow(QtWidgets.QMainWindow):
         output = (output - output.min()) / (output.max() - output.min())
 
         combined = copy.deepcopy(input)
-        combined[dif_idx] = 0
+        combined[~dif_idx] = 0
+
+        av = copy.deepcopy(input)
+        av[~dif_idx] = np.mean(av)
+
+        mask = np.zeros((3, 300, 300))
+#        mask[0,dif_idx[0,:,:]] = 0.3
+#        mark = copy.deepcopy(input) + mask
+#        mark = (mark - mark.min()) / (mark.max() - mark.min())
+        mark = copy.deepcopy(input)
+        mark[0, dif_idx[0, :, :]] = 1
+
 
         self.ax_image.clear()
         self.ax_image.imshow(input.transpose((1, 2, 0)))
@@ -61,6 +72,10 @@ class AEWindow(QtWidgets.QMainWindow):
         self.ax_dif_image.imshow(dif.transpose((1, 2, 0)))
         self.ax_comb_image.clear()
         self.ax_comb_image.imshow(combined.transpose((1, 2, 0)))
+        self.ax_image_m.clear()
+        self.ax_image_m.imshow(mark.transpose((1, 2, 0)))
+        self.ax_av.clear()
+        self.ax_av.imshow(av.transpose((1, 2, 0)))
         self.image_canvas.draw()
 
        # print(input.min(), input.max())
@@ -87,10 +102,12 @@ class AEWindow(QtWidgets.QMainWindow):
 
         self.canvas = None
         self.image_figure = Figure()
-        self.ax_image = self.image_figure.add_subplot(2, 2, 1)
-        self.ax_pp_image = self.image_figure.add_subplot(2, 2, 2)
-        self.ax_dif_image = self.image_figure.add_subplot(2, 2, 3)
-        self.ax_comb_image = self.image_figure.add_subplot(2, 2, 4)
+        self.ax_image = self.image_figure.add_subplot(3, 2, 1)
+        self.ax_image_m = self.image_figure.add_subplot(3, 2, 5)
+        self.ax_pp_image = self.image_figure.add_subplot(3, 2, 3)
+        self.ax_dif_image = self.image_figure.add_subplot(3, 2, 2)
+        self.ax_comb_image = self.image_figure.add_subplot(3, 2, 4)
+        self.ax_av = self.image_figure.add_subplot(3, 2, 6)
 
         self.loss_figure = Figure()
         self.ax_loss = self.loss_figure.add_subplot(1, 1, 1)
@@ -117,7 +134,7 @@ class AEWindow(QtWidgets.QMainWindow):
         button_layout.addWidget(button_prev)
         button_layout.addWidget(button_next)
         button_layout.addWidget(button_refresh)
-        main_layout.addWidget(self.loss_canvas)
+       # main_layout.addWidget(self.loss_canvas)
 
         # initialization
         self.setCentralWidget(main_panel)

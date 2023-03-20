@@ -7,6 +7,7 @@ class SimpleLabeler:
     OM_ONE_HOT = 'one_hot'
     OM_RAW = 'raw'
     OM_AUTOENCODE = 'auto'
+    OM_NAME = 'name'
 
     def __init__(self, *col_names, output_mode='raw'):
         self.col_names = col_names
@@ -30,7 +31,10 @@ class SimpleLabeler:
             return len(self.col_names)
         else:
             return 2**len(self.col_names)
+
     def get_label(self, df, idx, x):
+        if self.output_mode == self.OM_NAME:
+            return df.loc[idx, 'filename']
         if self.output_mode == self.OM_AUTOENCODE:
             return x
         return self.get_label_from_row(df.iloc[idx])

@@ -25,7 +25,7 @@ class BaseAugmentor:
         df = df.copy()
         df[self.col_name] = 0
 
-        if identity:
+        if identity or self.cnt == 0:
             return df
 
         #create dataframe with augments

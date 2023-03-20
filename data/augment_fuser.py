@@ -8,6 +8,11 @@ class SimpleFuser:
     def fuse(df, df_augs):
         return pd.concat((df, df_augs)).sample(frac=1).reset_index(drop=True)
 
+class RejectAugmentsFuser:
+    @staticmethod
+    def fuse(df, df_augs):
+        return df.sample(frac=1).reset_index(drop=True)
+
 class BalancedFuser:
 
     def __init__(self, label_provider, target_per_category, oversample=True):

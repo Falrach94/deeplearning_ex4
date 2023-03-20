@@ -47,7 +47,7 @@ class ResNetBlock(nn.Module):
 
 class Encoder(nn.Module):
 
-    def __init__(self, sparse_cnt):
+    def __init__(self):
         super().__init__()
 
         self.initial_conv = nn.Sequential(nn.Conv2d(3, 64, 7, 2),  # 300x300 -> 293x293 ->146x146 -> 147x147
@@ -64,10 +64,13 @@ class Encoder(nn.Module):
         ]
         self.feature_extraction = nn.Sequential(*layers)
 
+ #       self.output_layer = nn.Sequential(
+ #       )
+
     def forward(self, x):
         x = self.initial_conv(x)
         x = self.feature_extraction(x)
-        #x = self.output_layer(x)
+#        x = self.output_layer(x)
         return x
 
     @staticmethod
@@ -84,10 +87,9 @@ class Bottleneck(nn.Module):
         super().__init__()
 
         self.bottleneck = nn.Sequential(
-            nn.Linear(512*10*10, 512),
-            nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5),
-            nn.Linear(512, 256 * 9 * 9),
+            nn.AdaptiveAvgPool2d((1,1)),
+            nn.Flatten(),
+            nn.Linear(512, 128 * 18 * 18),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5)
         )
@@ -114,9 +116,9 @@ class Bottleneck(nn.Module):
 
     def forward(self, x):
 
-        x = x.view(x.size(0), -1)
+       # x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
-        x = x.view(x.size(0), 256, 9, 9)
+        #x = x.view(x.size(0), 256, 9, 9)
 
         #self.last_activation = x
 
@@ -207,12 +209,12 @@ class TestDecoder(torch.nn.Module):
 
 class ResNetAutoEncoder(torch.nn.Module):
 
-    def _make_upsample_block(self, in_channels, inter_cnt, out_channels, fct=nn.ReLU(inplace=True)):
+    def _make_upsample_block(self, in_channels, out_channels, padding, out_padding, fct=nn.ReLU(inplace=True)):
         return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, inter_cnt, kernel_size=3, stride=2),
-            nn.BatchNorm2d(inter_cnt),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=3, stride=2, padding=padding, output_padding=out_padding),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(inter_cnt, out_channels, kernel_size=2, stride=1, padding=0),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
@@ -223,6 +225,7 @@ class ResNetAutoEncoder(torch.nn.Module):
     def __init__(self, sparse_cnt=128, load=False):
         super().__init__()
 
+        '''
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1), #150
             nn.BatchNorm2d(64),
@@ -236,7 +239,8 @@ class ResNetAutoEncoder(torch.nn.Module):
             nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(16),
             nn.ReLU(inplace=True),
-        )
+        )'''
+        '''
         self.bottleneck = nn.Sequential(
             nn.Linear(75*75*16, 500),
             nn.Dropout(p=0.5),
@@ -244,11 +248,17 @@ class ResNetAutoEncoder(torch.nn.Module):
             nn.Linear(500, 75*75*16),
             nn.Dropout(p=0.5),
             nn.ReLU(inplace=True)
-        )
+        )'''
+        self.bottleneck = Bottleneck(128)
+
         self.decoder = nn.Sequential(
-            self._make_upsample_block(16, 64, 32),
-            self._make_upsample_block(32, 64, 3, nn.Sigmoid()),
+            self._make_upsample_block(128, 128, 0, 0), #18 -> 37
+            self._make_upsample_block(128, 64, 0, 0), # 37->75
+            self._make_upsample_block(64, 32, 1, 1), # 75->150
+            self._make_upsample_block(32, 3, 1, 1, nn.Sigmoid()), #150-300
         )
+
+        self.encoder = Encoder()
 
         #self.encoder = Encoder(sparse_cnt)
         #self.bottleneck = Bottleneck(sparse_cnt)
@@ -271,9 +281,9 @@ class ResNetAutoEncoder(torch.nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
-        x = x.view(x.size(0), -1)
+        #x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
-        x = x.view(x.size(0), 16, 75, 75)
+        x = x.view(x.size(0), 128, 18, 18)
         x = self.decoder(x)
 
         mean = 0.59685254

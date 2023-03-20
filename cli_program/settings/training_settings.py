@@ -11,7 +11,7 @@ WINDOW = 5
 
 # optimizer
 LR = 0.0001
-DECAY = 0.0001
+DECAY = 0.00001
 OPTIMIZER_FACTORY = AdamFactory(decay=DECAY, lr=LR)
 
 # loss fct

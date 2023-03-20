@@ -23,7 +23,7 @@ class SSIMCalculator:
         std = 0.16043035
         max_val = np.abs(mean/std)
 
-        self.ssim = SSIM(window_size=9, max_val=max_val, reduction='sum').cuda()
+        self.ssim = SSIM(window_size=9, max_val=max_val, reduction='mean').cuda()
 
     def calc(self, input, pred, label, metrics):
 

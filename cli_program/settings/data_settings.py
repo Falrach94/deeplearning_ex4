@@ -16,7 +16,7 @@ CSV_SEPERATOR = ','
 #LABEL_COLUMNS = ['inactive']
 LABEL_COLUMNS = ['crack', 'inactive']
 
-HOLDOUT_SPLIT = 0.2
+HOLDOUT_SPLIT = 0.05
 
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, False, 1),
@@ -70,10 +70,10 @@ TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
 TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
-                                       tv.transforms.GaussianBlur(5),
-                                       tv.transforms.RandomAutocontrast(),
+#                                       tv.transforms.GaussianBlur(5),
+#                                       tv.transforms.RandomAutocontrast(),
                                        tv.transforms.Normalize(TR_MEAN, TR_STD),
-                                       tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
+#                                       tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
                                        ])
 VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),

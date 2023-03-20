@@ -58,12 +58,12 @@ TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
 TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
-                                       #tv.transforms.GaussianBlur(7),
-                                       #tv.transforms.RandomAutocontrast(),
+                                       tv.transforms.GaussianBlur(5),
+                                       tv.transforms.RandomAutocontrast(),
                                        tv.transforms.Normalize(TR_MEAN, TR_STD),
                                        tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
                                        ])
-VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
+VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(), 
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])
 

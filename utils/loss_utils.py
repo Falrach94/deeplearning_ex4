@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torchgeometry.losses import SSIM
 
@@ -18,10 +19,12 @@ def calc_MSE_loss(input, pred, label, metrics):
 class SSIMCalculator:
     def __init__(self):
 
-        self.ssim = SSIM(window_size=5, reduction='mean').cuda()
- #       self.ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
-#                                                                  kernel_size=5).cuda()
-        self.ssim = self.ssim.cuda()
+        mean = 0.59685254
+        std = 0.16043035
+        max_val = np.abs(mean/std)
+
+        self.ssim = SSIM(window_size=9, max_val=max_val, reduction='sum').cuda()
+
     def calc(self, input, pred, label, metrics):
 
         return self.ssim(pred, input)

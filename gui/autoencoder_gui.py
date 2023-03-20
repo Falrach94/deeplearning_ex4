@@ -51,7 +51,7 @@ class AEWindow(QtWidgets.QMainWindow):
         output = (output - output.min()) / (output.max() - output.min())
 
         combined = copy.deepcopy(input)
-        combined[~dif_idx] = 0
+        combined[dif_idx] = 0
 
         self.ax_image.clear()
         self.ax_image.imshow(input.transpose((1, 2, 0)))

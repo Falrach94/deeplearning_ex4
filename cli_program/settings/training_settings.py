@@ -10,9 +10,9 @@ PATIENCE = 10
 WINDOW = 5
 
 # optimizer
-LR = 0.00003
-DECAY = 0.00005
-OPTIMIZER_FACTORY = AdamFactory(DECAY, LR)
+LR = 0.0001
+DECAY = 0.0001
+OPTIMIZER_FACTORY = AdamFactory(decay=DECAY, lr=LR)
 
 # loss fct
 GAMMA_NEG = 4

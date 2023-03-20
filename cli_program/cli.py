@@ -28,7 +28,7 @@ class Program:
 
         self._approx = [AverageApproximator(), AverageApproximator()]
 
-        self._losses = {'train': [], 'val': []}
+        self._losses = None# {'train': [], 'val': []}
 
         self._prepare_data()
         self._prepare_ui()
@@ -94,6 +94,7 @@ class Program:
         total_time_s %= 60
         self._losses['train'] += [loss['train']]
         self._losses['val'] += [loss['val']]
+        self._losses['metric'] += [metrics]
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))
 
     def perform_training(self):
@@ -106,7 +107,7 @@ class Program:
                                  batch_size=BATCH_SIZE,
                                  label_cnt=LABEL_PROVIDER.class_count(False))
 
-        self._losses = {'train': [], 'val': []}
+        self._losses = {'train': [], 'val': [], 'metric': []}
         best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
         model.load_state_dict(best_model_state)
 

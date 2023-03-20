@@ -64,11 +64,18 @@ class CLInterface:
 
         table.print()
 
-    def print_losses(self, loss):
+    def print_losses(self, loss, metric):
         builder = TableBuilderEx(self.sb, name='loss')
-        builder.add_line('epoch', 'training loss', 'validation loss', 'mean f1')
-        for i, (loss_tr, loss_val, metric) in enumerate(zip(loss['train'], loss['val'], loss['metric'])):
-            builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['classical']['mean'], 4))
+
+        if metric is not None:
+            builder.add_line('epoch', 'training loss', 'validation loss', 'mean f1')
+            for i, (loss_tr, loss_val, metric) in enumerate(zip(loss['train'], loss['val'], metric)):
+                builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['classical']['mean'], 4))
+        else:
+            builder.add_line('epoch', 'training loss', 'validation loss')
+            for i, (loss_tr, loss_val, metric) in enumerate(zip(loss['train'], loss['val'])):
+                builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4))
+
         builder.print()
 
     def prepare_ui(self, data):
@@ -88,7 +95,9 @@ class CLInterface:
                            f'~{round(approx_rem, 1)} s remaining (~{round(tpb,2)} s/batch)',
                            sb=self.sb, name='tr_prog' if training else 'val_prog')
 
-    def epoch_update(self, epoch, loss, time, metrics, best, total_time):
+    def epoch_update(self, epoch, loss, time, metrics_list, best, total_time):
+
+        metrics = metrics_list[-1] if metrics_list is not None else None
         builder = TableBuilderEx(self.sb, name='epoch')
         builder.add_line(f'epoch: {epoch+1}',
                          f'runtime: {total_time[0]} min {total_time[1]} sec',
@@ -214,4 +223,4 @@ class CLInterface:
 
         builder.print()
 
-        self.print_losses(loss)
+        self.print_losses(loss, metrics_list)

@@ -64,6 +64,13 @@ class CLInterface:
 
         table.print()
 
+    def print_losses(self, loss):
+        builder = TableBuilderEx(self.sb, name='loss')
+        builder.add_line('epoch', 'training loss', 'validation loss')
+        for i, (loss_tr, loss_val) in enumerate(zip(loss['train'], loss['val'])):
+            builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4))
+        builder.print()
+
     def prepare_ui(self, data):
         self.print_settings(data)
         print_progress_bar(f'epoch ? - training',
@@ -91,8 +98,8 @@ class CLInterface:
                          f'val time: {round(time["val"], 1)} s')
         builder.new_block()
         builder.add_line(f'loss',
-                         f'tr {round(loss["train"], 5)}',
-                         f'val {round(loss["val"], 5)}',
+                         f'tr {round(loss["train"][-1], 5)}',
+                         f'val {round(loss["val"][-1], 5)}',
                          '')
         if metrics is not None:
             builder.new_block()
@@ -206,3 +213,5 @@ class CLInterface:
 #                                 f'mean {round(best["metric"]["mean"], 4)}')
 
         builder.print()
+
+        self.print_losses(loss)

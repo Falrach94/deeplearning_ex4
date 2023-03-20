@@ -28,6 +28,8 @@ class Program:
 
         self._approx = [AverageApproximator(), AverageApproximator()]
 
+        self._losses = {'train': [], 'val': []}
+
         self._prepare_data()
         self._prepare_ui()
         self._prepare_training()
@@ -86,12 +88,13 @@ class Program:
                               training=training, batch_ix=batch_ix, batch_cnt=batch_cnt,
                               approx_rem=approx_rem, tpb=tpb)
 
-
     def _epoch_callback(self, epoch, loss, epoch_time, metrics, best):
         total_time_s = int((time.time_ns() - self._start_time) / 10 ** 9)
         total_time_min = int(total_time_s / 60)
         total_time_s %= 60
-        self.cli.epoch_update(epoch, loss, epoch_time, metrics, best, (total_time_min, total_time_s))
+        self._losses['train'] += [loss['train']]
+        self._losses['val'] += [loss['val']]
+        self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))
 
     def perform_training(self):
         self._start_time = time.time_ns()
@@ -102,11 +105,14 @@ class Program:
                                  val_dl=self.data['val']['dl'],
                                  batch_size=BATCH_SIZE,
                                  label_cnt=LABEL_PROVIDER.class_count(False))
+
+        self._losses = {'train': [], 'val': []}
         best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
         model.load_state_dict(best_model_state)
 
         torch.save(best_model_state, BEST_MODEL_PATH)
         export(model, best_model_state, EXPORT_PATH, self.cli.sb)
+
 
 if __name__ == '__main__':
     print('')

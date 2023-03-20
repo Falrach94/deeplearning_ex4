@@ -30,6 +30,14 @@ AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, True, 2),
     lambda x: mirror_and_rotate(x, False, True, 3),
 ]
+
+AUGMENTATIONS = [
+    lambda x: mirror_and_rotate(x, False, False, 1),
+    lambda x: mirror_and_rotate(x, False, False, 2),
+    lambda x: mirror_and_rotate(x, False, False, 3),
+    lambda x: mirror_and_rotate(x, True, False, 0),
+    lambda x: mirror_and_rotate(x, False, True, 0),
+]
 #AUGMENTATIONS = [
 #    lambda x: mirror_and_rotate(x, False, False, 1),
 #    lambda x: mirror_and_rotate(x, False, False, 2),
@@ -63,7 +71,7 @@ TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.Normalize(TR_MEAN, TR_STD),
                                        tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
                                        ])
-VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(), 
+VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])
 

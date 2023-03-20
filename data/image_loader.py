@@ -21,7 +21,10 @@ class ImageLoader:
 
     def _load_image(self, path):
         image = imread(self.rel_path+path)
-        image = torch.tensor(gray2rgb(image)).transpose(0, 2).transpose(1, 2)
+        if len(image.shape) == 2:
+            image = gray2rgb(image)
+
+        image = torch.tensor(image).transpose(0, 2).transpose(1, 2)
         return image
 
 

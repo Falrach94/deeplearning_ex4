@@ -6,9 +6,9 @@ from data.data_filter import AugmentFilter, NoDefectsFilter
 from data.label_provider import SimpleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
-DATA_PATH = 'assets/data.csv'
+#DATA_PATH = 'assets/data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
-#DATA_PATH = 'assets/data_seg.csv'
+DATA_PATH = 'assets/data_seg.csv'
 
 CSV_SEPERATOR = ','
 
@@ -53,8 +53,6 @@ AUGMENTATIONS = [
 #    lambda x: rotate90deg(x, 3),  # 270 deg
 #]
 
-AUGMENTATION_FILTER = AugmentFilter.filter_unlabled_augments
-
 TR_MEAN = [0.59685254, 0.59685254, 0.59685254]
 TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
@@ -69,9 +67,12 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])
 
-LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
-#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
-#FUSER = BalancedFuser(LABEL_PROVIDER, None)
-FUSER = SimpleFuser()
-TR_FILTER = NoDefectsFilter()
-VAL_FILTER = NoDefectsFilter()
+#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
+#FUSER = SimpleFuser()
+
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
+FUSER = BalancedFuser(LABEL_PROVIDER, None)
+#TR_FILTER = NoDefectsFilter()
+#VAL_FILTER = NoDefectsFilter()
+TR_FILTER = None
+VAL_FILTER = None

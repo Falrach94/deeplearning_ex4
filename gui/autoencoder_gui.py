@@ -1,13 +1,17 @@
 import copy
 
+import cv2
 import numpy as np
 import torch
 import torchmetrics
+import torchvision as tv
+
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSignal
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from skimage import filters
+
 
 from gui.Slider import Slider
 from utils.gui_tools import add_hlayout
@@ -26,7 +30,7 @@ class AEWindow(QtWidgets.QMainWindow):
 
         input = np.array(input)
         output = np.array(output)
-        kernel_size = 9
+        kernel_size = 5
         MEAN = 0.59685254
         STD = 0.16043035
         max_val = MEAN/STD
@@ -40,12 +44,25 @@ class AEWindow(QtWidgets.QMainWindow):
         image_tensor = torch.Tensor(input).mean(dim=0)[None, None, :, :]
         clean_tensor = torch.Tensor(output).mean(dim=0)[None, None, :, :]
 
+
+       # image_tensor = tv.transforms.GaussianBlur(15)(image_tensor)
+
         dif = ssim(image_tensor, clean_tensor)
+
+        kernel = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]])[None, None,:,:].float()
+        image_tensor = torch.nn.functional.conv2d(image_tensor, kernel, padding=1)
+      #  input = np.repeat(np.array(image_tensor[0]), 3, axis=0)
 
         #dif = np.mean(np.power(input-output, 2), axis=0)
         #dif = abs(dif - dif.min()) / (dif.max() - dif.min())
-        t = 1
-        dif = dif[1][0, :, t:300+t, t:300+t]
+        t = 3
+
+        dif = dif[1][0]
+        dif = tv.transforms.Resize((300, 300))(dif)
+
+
+
+        #dif = dif[1][0, :, t:300+t, t:300+t]
         dif = np.array(dif.repeat(3, 1, 1))
 
         threshold = filters.threshold_otsu(dif)

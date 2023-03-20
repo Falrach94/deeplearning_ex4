@@ -207,15 +207,56 @@ class TestDecoder(torch.nn.Module):
 
 class ResNetAutoEncoder(torch.nn.Module):
 
+    def _make_upsample_block(self, in_channels, inter_cnt, out_channels, fct=nn.ReLU(inplace=True)):
+        return nn.Sequential(
+            nn.ConvTranspose2d(in_channels, inter_cnt, kernel_size=3, stride=2),
+            nn.BatchNorm2d(inter_cnt),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(inter_cnt, out_channels, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(out_channels),
+            fct
+        )
+
     def __init__(self, sparse_cnt=128, load=False):
         super().__init__()
 
-        self.encoder = Encoder(sparse_cnt)
-        self.bottleneck = Bottleneck(sparse_cnt)
-        self.decoder = TestDecoder()
-        self.classifier = nn.Sequential(nn.Linear(sparse_cnt, 2),
-                                        nn.Sigmoid())
-        self._sparse_output = False
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1), #150
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(64, 16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(16, 32, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 16, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(16),
+            nn.ReLU(inplace=True),
+        )
+        self.bottleneck = nn.Sequential(
+            nn.Linear(75*75*16, 500),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True),
+            nn.Linear(500, 75*75*16),
+            nn.Dropout(p=0.5),
+            nn.ReLU(inplace=True)
+        )
+        self.decoder = nn.Sequential(
+            self._make_upsample_block(16, 64, 32),
+            self._make_upsample_block(32, 64, 3, nn.Sigmoid()),
+        )
+
+        #self.encoder = Encoder(sparse_cnt)
+        #self.bottleneck = Bottleneck(sparse_cnt)
+
+        #self.decoder = TestDecoder()
+        #self.classifier = nn.Sequential(nn.Linear(sparse_cnt, 2),
+        #                                nn.Sigmoid())
+        #self._sparse_output = False
 
         if load:
             state = torch.load(BEST_MODEL_PATH)
@@ -230,7 +271,9 @@ class ResNetAutoEncoder(torch.nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
+        x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
+        x = x.view(x.size(0), 16, 75, 75)
         x = self.decoder(x)
 
         mean = 0.59685254

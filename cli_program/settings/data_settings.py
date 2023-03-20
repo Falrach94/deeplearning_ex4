@@ -8,6 +8,7 @@ from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_
 
 DATA_PATH = 'assets/data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
+#DATA_PATH = 'assets/data_seg.csv'
 
 CSV_SEPERATOR = ','
 

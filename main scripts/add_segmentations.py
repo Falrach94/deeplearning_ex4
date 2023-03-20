@@ -14,7 +14,8 @@ from model.NNModels.AutoEncoder import ResNetAutoEncoder
 from model.NNModels.autoenc.SegmentationModel import SegmentationModel
 from utils.console_util import print_progress_bar, ScreenBuilder
 
-IMAGE_OUTPUT_PATH = "assets/seg_images/"
+REL_PATH = 'seg_images/'
+IMAGE_OUTPUT_PATH = "assets/" + REL_PATH
 CSV_OUTPUT_PATH = "assets/data_seg.csv"
 
 model = SegmentationModel()
@@ -41,6 +42,11 @@ sb = ScreenBuilder()
 if not os.path.isdir(IMAGE_OUTPUT_PATH):
     os.mkdir(IMAGE_OUTPUT_PATH)
 
+t = df_org['filename'].str[-12:]
+
+df_org['filename'] = REL_PATH + df_org['filename'].str[-12:]
+df_org.to_csv(CSV_OUTPUT_PATH, index=False)
+
 print_progress_bar('progress', 0, len(data['dl']), '', sb=sb)
 for i, (x, y) in enumerate(data['dl']):
     x = x.cuda()
@@ -54,7 +60,4 @@ for i, (x, y) in enumerate(data['dl']):
     for im, path in zip(images, y):
         path = IMAGE_OUTPUT_PATH + path[-12:]
         imsave(path, np.round(255*im).astype(np.uint8))
-
-df_org['filename'] = IMAGE_OUTPUT_PATH + df_org['filename'][-12:]
-df_org.to_csv(CSV_OUTPUT_PATH, index=False)
 

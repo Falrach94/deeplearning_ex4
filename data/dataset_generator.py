@@ -16,7 +16,7 @@ def _create_dataset(data,
 
     df = augmenter.add_augmentations_to_df(data)
     if filter is not None:
-        df = filter.filter(data)
+        df = filter.filter(df)
 
 
     dataset = SimpleDataset(df,

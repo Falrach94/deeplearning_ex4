@@ -2,6 +2,7 @@ import torchvision as tv
 from torchvision.transforms import InterpolationMode
 
 from data.augment_fuser import BalancedFuser, SimpleFuser
+from data.augment_generator import CustomAugmentor
 from data.data_filter import AugmentFilter, NoDefectsFilter
 from data.label_provider import SimpleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
@@ -32,11 +33,12 @@ AUGMENTATIONS = [
 ]
 
 AUGMENTATIONS = [
-    lambda x: mirror_and_rotate(x, False, False, 1),
-    lambda x: mirror_and_rotate(x, False, False, 2),
-    lambda x: mirror_and_rotate(x, False, False, 3),
+#    lambda x: mirror_and_rotate(x, False, False, 1),
+#    lambda x: mirror_and_rotate(x, False, False, 2),
+#    lambda x: mirror_and_rotate(x, False, False, 3),
     lambda x: mirror_and_rotate(x, True, False, 0),
     lambda x: mirror_and_rotate(x, False, True, 0),
+    lambda x: mirror_and_rotate(x, True, True, 0),
 ]
 #AUGMENTATIONS = [
 #    lambda x: mirror_and_rotate(x, False, False, 1),
@@ -64,6 +66,8 @@ AUGMENTATIONS = [
 TR_MEAN = [0.59685254, 0.59685254, 0.59685254]
 TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
+
+
 TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
                                        tv.transforms.GaussianBlur(5),
@@ -75,12 +79,14 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),
                                         tv.transforms.Normalize(TR_MEAN, TR_STD),])
 
-#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
-#FUSER = SimpleFuser()
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
+FUSER = SimpleFuser()
 
-LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
-FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
-#TR_FILTER = NoDefectsFilter()
-#VAL_FILTER = NoDefectsFilter()
-TR_FILTER = None
-VAL_FILTER = None
+#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
+#FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
+TR_FILTER = NoDefectsFilter()
+VAL_FILTER = NoDefectsFilter()
+#TR_FILTER = None
+#VAL_FILTER = None
+
+AUGMENTER = CustomAugmentor(FUSER, AUGMENTATIONS)

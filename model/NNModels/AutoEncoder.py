@@ -64,16 +64,10 @@ class Encoder(nn.Module):
         ]
         self.feature_extraction = nn.Sequential(*layers)
 
-        layers = [
-            nn.AdaptiveAvgPool2d((1, 1)),
-            nn.Flatten(),
-        ]
-        self.output_layer = nn.Sequential(*layers)
-
     def forward(self, x):
         x = self.initial_conv(x)
         x = self.feature_extraction(x)
-        x = self.output_layer(x)
+        #x = self.output_layer(x)
         return x
 
     @staticmethod
@@ -89,39 +83,53 @@ class Bottleneck(nn.Module):
     def __init__(self, sparse_cnt):
         super().__init__()
 
+        self.bottleneck = nn.Sequential(
+            nn.Linear(512*10*10, 512),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+            nn.Linear(512, 256 * 9 * 9),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5)
+        )
+
         self.last_activation = None
 
-        self.bottleneck = nn.Sequential(
-            nn.Linear(512, sparse_cnt),
-            nn.ReLU(inplace=True),
-        )
-        self.expander = nn.Sequential(
-            nn.Linear(sparse_cnt, 512),
-            nn.ReLU(inplace=True)
-        )
+      #  layers = [
+      #      nn.AdaptiveAvgPool2d((1, 1)),
+      #      nn.Flatten(),
+      #  ]
+      #  self.output_layer = nn.Sequential(*layers)
+
+      #  self.bottleneck = nn.Sequential(
+      #      nn.Linear(512, sparse_cnt),
+      #      nn.ReLU(inplace=True),
+      #  )
+      #  self.expander = nn.Sequential(
+      #      nn.Linear(sparse_cnt, 512),
+      #      nn.ReLU(inplace=True)
+      #  )
 
         self._sparse_output = False
 
-    def sparse(self):
-        self._sparse_output = True
-
-    def autoencode(self):
-        self._sparse_output = False
 
     def forward(self, x):
+
+        x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
+        x = x.view(x.size(0), 256, 9, 9)
 
-        self.last_activation = x
+        #self.last_activation = x
 
-        if not self._sparse_output:
-            x = self.expander(x)
-        return x, self.last_activation
+        #if not self._sparse_output:
+        #    x = self.expander(x)
+        #return x, self.last_activation
+        return x
 
 class TestDecoder(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.fc = nn.Linear(512, 256*9*9)
+        self.fc = nn.Sequential()
 
         self.conv1 = nn.Sequential(
             nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
@@ -186,8 +194,7 @@ class TestDecoder(torch.nn.Module):
         self.sig = nn.Sigmoid()
 
     def forward(self, x):
-        x = self.fc(x)
-        x = x.view(x.size(0), 256, 9, 9)
+        #x = self.fc(x)
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
@@ -223,11 +230,8 @@ class ResNetAutoEncoder(torch.nn.Module):
 
     def forward(self, x):
         x = self.encoder(x)
-        x, x_s = self.bottleneck(x)
-#        if not self._sparse_output:
-
+        x = self.bottleneck(x)
         x = self.decoder(x)
-       # y_s = self.classifier(x_s)
 
         mean = 0.59685254
         std = 0.16043035

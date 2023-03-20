@@ -27,9 +27,14 @@ class AEWindow(QtWidgets.QMainWindow):
         input = np.array(input)
         output = np.array(output)
         kernel_size = 9
+        MEAN = 0.59685254
+        STD = 0.16043035
+        max_val = MEAN/STD
+
         ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
                                                              kernel_size=(kernel_size, kernel_size),
                                                              reduction='none',
+                                                             data_range=2*max_val,
                                                              return_full_image=True)
 
         image_tensor = torch.Tensor(input).mean(dim=0)[None, None, :, :]
@@ -127,10 +132,12 @@ class AEWindow(QtWidgets.QMainWindow):
 
         # layout
         main_layout.addWidget(self.image_canvas)
-        label_layout, _ = add_hlayout(main_layout)
+        label_layout, panel = add_hlayout(main_layout)
+        panel.setFixedHeight(50)
         label_layout.addWidget(self.label_cracked)
         label_layout.addWidget(self.label_inactive)
-        button_layout, _ = add_hlayout(main_layout)
+        button_layout, panel = add_hlayout(main_layout)
+        panel.setFixedHeight(50)
         button_layout.addWidget(button_prev)
         button_layout.addWidget(button_next)
         button_layout.addWidget(button_refresh)

@@ -35,9 +35,8 @@ class Program:
         self._prepare_training()
 
     def _prepare_data(self):
-        augmentor = CustomAugmentor(FUSER, AUGMENTATIONS)
         self.image_provider = AugmentedImageLoader(image_path_col='filename',
-                                                   augmentor=augmentor)
+                                                   augmentor=AUGMENTER)
         df = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
         df = LABEL_PROVIDER.label_dataframe(df)
 
@@ -46,14 +45,14 @@ class Program:
             split=HOLDOUT_SPLIT,
             image_provider=self.image_provider,
             label_provider=LABEL_PROVIDER,
-            augmentor=augmentor,
+            augmentor=AUGMENTER,
             tr_transform=TR_TRANSFORMS,
             val_transform=VAL_TRANSFORMS,
             batch_size=BATCH_SIZE,
             tr_filter=TR_FILTER,
             val_filter=VAL_FILTER
         )
-        self.data['raw'] = SimpleDataset(augmentor.add_augmentations_to_df(df, True),
+        self.data['raw'] = SimpleDataset(AUGMENTER.add_augmentations_to_df(df, True),
                                transforms=VAL_TRANSFORMS,
                                image_provider=self.image_provider,
                                label_provider=LABEL_PROVIDER)

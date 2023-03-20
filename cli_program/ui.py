@@ -68,7 +68,7 @@ class CLInterface:
         builder = TableBuilderEx(self.sb, name='loss')
         builder.add_line('epoch', 'training loss', 'validation loss', 'mean f1')
         for i, (loss_tr, loss_val, metric) in enumerate(zip(loss['train'], loss['val'], loss['metric'])):
-            builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['mean'], 4))
+            builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['classic']['mean'], 4))
         builder.print()
 
     def prepare_ui(self, data):

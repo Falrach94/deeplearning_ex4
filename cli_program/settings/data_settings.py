@@ -6,9 +6,9 @@ from data.data_filter import AugmentFilter, NoDefectsFilter
 from data.label_provider import SimpleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
-#DATA_PATH = 'assets/data.csv'
+DATA_PATH = 'assets/data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
-DATA_PATH = 'assets/data_seg.csv'
+#DATA_PATH = 'assets/data_seg.csv'
 
 CSV_SEPERATOR = ','
 

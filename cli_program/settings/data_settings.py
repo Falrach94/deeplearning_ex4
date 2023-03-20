@@ -71,7 +71,7 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
 #FUSER = SimpleFuser()
 
 LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
-FUSER = BalancedFuser(LABEL_PROVIDER, None)
+FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 #TR_FILTER = NoDefectsFilter()
 #VAL_FILTER = NoDefectsFilter()
 TR_FILTER = None

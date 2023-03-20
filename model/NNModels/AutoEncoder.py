@@ -89,7 +89,7 @@ class Bottleneck(nn.Module):
         self.bottleneck = nn.Sequential(
             nn.AdaptiveAvgPool2d((1,1)),
             nn.Flatten(),
-            nn.Linear(512, 128 * 18 * 18),
+            nn.Linear(512, 128 * 9 * 9),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5)
         )
@@ -252,10 +252,11 @@ class ResNetAutoEncoder(torch.nn.Module):
         self.bottleneck = Bottleneck(128)
 
         self.decoder = nn.Sequential(
-            self._make_upsample_block(128, 128, 0, 0), #18 -> 37
-            self._make_upsample_block(128, 64, 0, 0), # 37->75
-            self._make_upsample_block(64, 32, 1, 1), # 75->150
-            self._make_upsample_block(32, 3, 1, 1, nn.Sigmoid()), #150-300
+            self._make_upsample_block(128, 128, 1, 1), #9 -> 18
+            self._make_upsample_block(128, 64, 0, 0), #18 -> 37
+            self._make_upsample_block(64, 32, 0, 0), # 37->75
+            self._make_upsample_block(32, 16, 1, 1), # 75->150
+            self._make_upsample_block(16, 3, 1, 1, nn.Sigmoid()), #150-300
         )
 
         self.encoder = Encoder()
@@ -283,7 +284,7 @@ class ResNetAutoEncoder(torch.nn.Module):
         x = self.encoder(x)
         #x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
-        x = x.view(x.size(0), 128, 18, 18)
+        x = x.view(x.size(0), 128, 9, 9)
         x = self.decoder(x)
 
         mean = 0.59685254

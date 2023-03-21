@@ -272,11 +272,11 @@ class Decoder2(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.l1 = UpsampleBlock(512, 512, 0, 1, 0)  # 10 -> 19
-        self.l2 = UpsampleBlock(512, 256, 0, 1, 0)  # 19 -> 37
-        self.l3 = UpsampleBlock(256, 128, 0, 0, 0)  # 37->75
-        self.l4 = UpsampleBlock(128, 64, 0, 1, 1)  # 75->150
-        self.l5 = UpsampleBlock(64, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
+        self.l1 = UpsampleBlock(512, 256, 0, 1, 0)  # 10 -> 19
+        self.l2 = UpsampleBlock(256, 128, 0, 1, 0)  # 19 -> 37
+        self.l3 = UpsampleBlock(128, 64, 0, 0, 0)  # 37->75
+        self.l4 = UpsampleBlock(64, 32, 0, 1, 1)  # 75->150
+        self.l5 = UpsampleBlock(32, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
 
         self.skip_con = nn.Conv2d(256, 256, 2)
 
@@ -323,6 +323,10 @@ class ResNetAutoEncoder(torch.nn.Module):
         self.decoder = Decoder2()
 
         self.encoder = Encoder()
+
+        print('encoder', sum(p.numel() for p in self.encoder.parameters()))
+        print('bottleneck', sum(p.numel() for p in self.bottleneck.parameters()))
+        print('decoder', sum(p.numel() for p in self.decoder.parameters()))
 
         #self.encoder = Encoder(sparse_cnt)
         #self.bottleneck = Bottleneck(sparse_cnt)

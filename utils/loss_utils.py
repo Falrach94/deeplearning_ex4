@@ -11,7 +11,7 @@ def calc_BCE_loss(input, pred, label, metrics):
     return torch.nn.functional.binary_cross_entropy(pred, label)
 
 def calc_MSE_loss(input, pred, label, metrics):
-    return torch.nn.functional.mse_loss(pred, label)
+    return torch.nn.functional.mse_loss(pred, input[:,0:1,:,:])
 
 #def calc_SSIM_loss(input, pred, label, metrics):
 #    return torchgeometry

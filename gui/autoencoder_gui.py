@@ -30,7 +30,7 @@ class AEWindow(QtWidgets.QMainWindow):
 
         input = np.array(input)
         output = np.array(output)
-        kernel_size = 5
+        kernel_size = 15
         MEAN = 0.59685254
         STD = 0.16043035
         max_val = MEAN/STD
@@ -40,7 +40,7 @@ class AEWindow(QtWidgets.QMainWindow):
                                                              reduction='none',
                                                              data_range=2*max_val,
                                                              return_full_image=True)
-
+        output = output.repeat(3, axis=0)
         input = (input - input.min()) / (input.max() - input.min())
         output = (output - output.min()) / (output.max() - output.min())
 

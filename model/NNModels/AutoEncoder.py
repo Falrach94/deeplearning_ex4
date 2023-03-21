@@ -323,9 +323,9 @@ class ResNetAutoEncoder(torch.nn.Module):
 
         self.encoder = Encoder()
 
-        print('encoder', sum(p.numel() for p in self.encoder.parameters()))
-        print('bottleneck', sum(p.numel() for p in self.bottleneck.parameters()))
-        print('decoder', sum(p.numel() for p in self.decoder.parameters()))
+       # print('encoder', sum(p.numel() for p in self.encoder.parameters()))
+       # print('bottleneck', sum(p.numel() for p in self.bottleneck.parameters()))
+       # print('decoder', sum(p.numel() for p in self.decoder.parameters()))
 
         #self.encoder = Encoder(sparse_cnt)
         #self.bottleneck = Bottleneck(sparse_cnt)

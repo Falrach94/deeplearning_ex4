@@ -70,9 +70,9 @@ class AEWindow(QtWidgets.QMainWindow):
         #dif = dif[1][0, :, t:300+t, t:300+t]
         dif = np.array(dif.repeat(3, 1, 1))
 
-        dif = (dif - dif.min()) / (dif.max() - dif.min())
-        threshold = 0.2
-        #threshold = filters.threshold_otsu(dif)
+        #dif = (dif - dif.min()) / (dif.max() - dif.min())
+       # threshold = 0.2
+        threshold = filters.threshold_otsu(dif)
 
         dif_idx = dif < threshold
         dif = dif_idx.astype(np.float)

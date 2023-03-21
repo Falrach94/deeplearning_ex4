@@ -26,8 +26,7 @@ class SSIMCalculator:
         self.ssim = SSIM(window_size=5, max_val=max_val, reduction='mean').cuda()
 
     def calc(self, input, pred, label, metrics):
-
-        return self.ssim(pred, input)
+        return self.ssim(pred, label)
         #return self.ssim(torch.mean(pred, dim=1, keepdim=True), input[:, 0:1, :, :])
 
 

@@ -276,7 +276,7 @@ class Decoder2(nn.Module):
         self.l2 = UpsampleBlock(256, 128, 0, 1, 0)  # 19 -> 37
         self.l3 = UpsampleBlock(128, 64, 0, 0, 0)  # 37->75
         self.l4 = UpsampleBlock(64, 32, 0, 1, 1)  # 75->150
-        self.l5 = UpsampleBlock(32, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
+        self.l5 = UpsampleBlock(32, 1, 0, 1, 1, nn.Sigmoid())  # 150-300
 
 
     def forward(self, x, skip):
@@ -345,6 +345,9 @@ class ResNetAutoEncoder(torch.nn.Module):
         x = self.bottleneck(x)
 #        x = x.view(x.size(0), 128, 9, 9)
         x = self.decoder(x, skip)
+
+        #x = x.view(x.size(0), 300, 300)
+
 
         mean = 0.59685254
         std = 0.16043035

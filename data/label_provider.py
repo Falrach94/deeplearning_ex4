@@ -36,7 +36,7 @@ class SimpleLabeler:
         if self.output_mode == self.OM_NAME:
             return df.loc[idx, 'filename']
         if self.output_mode == self.OM_AUTOENCODE:
-            return x
+            return x[0:1, :, :]
         return self.get_label_from_row(df.iloc[idx])
 
     def get_label_from_row(self, row):

@@ -338,13 +338,6 @@ class ResNetAutoEncoder(torch.nn.Module):
         if load:
             state = torch.load(BEST_MODEL_PATH)
             self.load_state_dict(state)
-    def sparse(self):
-        self._sparse_output = True
-        self.bottleneck.sparse()
-
-    def autoencode(self):
-        self._sparse_output = False
-        self.bottleneck.autoencode()
 
     def forward(self, x):
         x, skip = self.encoder(x)

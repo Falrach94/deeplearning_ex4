@@ -94,8 +94,7 @@ class Program:
         self._losses['train'] += [loss['train']]
         self._losses['val'] += [loss['val']]
         self._losses['metric'] += [metrics]
-        model = ResNetAutoEncoder()
-        export(model, MODEL.state_dict(), EXPORT_PATH, self.cli.sb)
+        torch.save(MODEL.state_dict(), BEST_MODEL_PATH)
 
         metrics = self._losses['metric'] if metrics is not None else None
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))

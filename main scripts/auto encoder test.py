@@ -88,7 +88,7 @@ class Presenter(QObject):
 
         # --- setup training -----
         self.initialize_display_model()
-        self.model = ResNetAutoEncoder(256, load=True)
+        self.model = ResNetAutoEncoder(load=True)
         #self.model = ScrambledAutoEncoder()
 
         #self.initialize_training_data()
@@ -104,7 +104,7 @@ class Presenter(QObject):
 #        reader = SmallDataReader(memorize_all=True)
  #       self.display_data = reader.all
         self.display_data = pd.read_csv('assets/val_data.csv', sep=';')
-        self.display_model = ResNetAutoEncoder(256, load=True)
+        self.display_model = ResNetAutoEncoder(load=True)
 
         #state_dict = torch.load(load_path)
         #self.display_model.load_state_dict(state_dict)

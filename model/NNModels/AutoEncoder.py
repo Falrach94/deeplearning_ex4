@@ -95,7 +95,7 @@ class Encoder(nn.Module):
 
 class Bottleneck(nn.Module):
 
-    def __init__(self, sparse_cnt):
+    def __init__(self):
         super().__init__()
 
         self.bottleneck = nn.Sequential(
@@ -290,7 +290,7 @@ class Decoder2(nn.Module):
 class ResNetAutoEncoder(torch.nn.Module):
 
 
-    def __init__(self, sparse_cnt=128, load=False):
+    def __init__(self, load=False):
         super().__init__()
 
         '''
@@ -317,7 +317,7 @@ class ResNetAutoEncoder(torch.nn.Module):
             nn.Dropout(p=0.5),
             nn.ReLU(inplace=True)
         )'''
-        self.bottleneck = Bottleneck(128)
+        self.bottleneck = Bottleneck()
 
         self.decoder = Decoder2()
 

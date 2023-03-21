@@ -35,10 +35,10 @@ class AEWindow(QtWidgets.QMainWindow):
         STD = 0.16043035
         max_val = MEAN/STD
 
-        ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
+        ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=True,
                                                              kernel_size=(kernel_size, kernel_size),
                                                              reduction='none',
-                                                             data_range=2*max_val,
+                                                            # data_range=2*max_val,
                                                              return_full_image=True)
         output = output.repeat(3, axis=0)
         input = (input - input.min()) / (input.max() - input.min())

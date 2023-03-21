@@ -23,10 +23,10 @@ class SSIMCalculator:
         std = 0.16043035
         max_val = np.abs(mean/std)
 
-        self.ssim = SSIM(window_size=5, max_val=max_val, reduction='mean').cuda()
+        self.ssim = SSIM(window_size=5, max_val=2*max_val, reduction='mean').cuda()
 
     def calc(self, input, pred, label, metrics):
-        return self.ssim(pred, label)
+        return self.ssim(pred, input[:,0:1,:,:])
         #return self.ssim(torch.mean(pred, dim=1, keepdim=True), input[:, 0:1, :, :])
 
 

@@ -99,12 +99,21 @@ class Bottleneck(nn.Module):
         super().__init__()
 
         self.bottleneck = nn.Sequential(
-            nn.AdaptiveAvgPool2d((1,1)),
-            nn.Flatten(),
-            nn.Linear(512, 128 * 9 * 9),
+            nn.Conv2d(512, 8, kernel_size=1, stride=1),
+            nn.BatchNorm2d(8),
             nn.ReLU(inplace=True),
-            nn.Dropout(p=0.5)
+            nn.Conv2d(8, 512, kernel_size=1, stride=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(inplace=True),
         )
+
+     #   self.bottleneck = nn.Sequential(
+     #       nn.AdaptiveAvgPool2d((1,1)),
+     #       nn.Flatten(),
+     #       nn.Linear(512, 128 * 9 * 9),
+     #       nn.ReLU(inplace=True),
+     #       nn.Dropout(p=0.5)
+     #   )
 
         for module in self.modules():
             if isinstance(module, nn.Linear):
@@ -263,16 +272,16 @@ class Decoder2(nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.l1 = UpsampleBlock(128, 256, 256, 0, 0)  # 9 -> 19
-        self.l2 = UpsampleBlock(256, 128, 0, 1, 0)  # 19 -> 37
-        self.l3 = UpsampleBlock(128, 64, 0, 0, 0)  # 37->75
-        self.l4 = UpsampleBlock(64, 32, 0, 1, 1)  # 75->150
-        self.l5 = UpsampleBlock(32, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
+        self.l1 = UpsampleBlock(512, 512, 0, 1, 0)  # 10 -> 19
+        self.l2 = UpsampleBlock(512, 256, 0, 1, 0)  # 19 -> 37
+        self.l3 = UpsampleBlock(256, 128, 0, 0, 0)  # 37->75
+        self.l4 = UpsampleBlock(128, 64, 0, 1, 1)  # 75->150
+        self.l5 = UpsampleBlock(64, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
 
         self.skip_con = nn.Conv2d(256, 256, 2)
 
     def forward(self, x, skip):
-        x = self.l1(x, skip)
+        x = self.l1(x)
         x = self.l2(x)
         x = self.l3(x)
         x = self.l4(x)
@@ -338,7 +347,7 @@ class ResNetAutoEncoder(torch.nn.Module):
         x, skip = self.encoder(x)
         #x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
-        x = x.view(x.size(0), 128, 9, 9)
+#        x = x.view(x.size(0), 128, 9, 9)
         x = self.decoder(x, skip)
 
         mean = 0.59685254

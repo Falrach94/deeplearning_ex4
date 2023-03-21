@@ -41,6 +41,10 @@ class AEWindow(QtWidgets.QMainWindow):
                                                              data_range=2*max_val,
                                                              return_full_image=True)
 
+        input = (input - input.min()) / (input.max() - input.min())
+        output = (output - output.min()) / (output.max() - output.min())
+
+
         image_tensor = torch.Tensor(input).mean(dim=0)[None, None, :, :]
         clean_tensor = torch.Tensor(output).mean(dim=0)[None, None, :, :]
 
@@ -48,9 +52,10 @@ class AEWindow(QtWidgets.QMainWindow):
        # image_tensor = tv.transforms.GaussianBlur(15)(image_tensor)
 
         dif = ssim(image_tensor, clean_tensor)
+      #  dif = torch.abs(image_tensor - clean_tensor)[0]
 
-        kernel = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]])[None, None,:,:].float()
-        image_tensor = torch.nn.functional.conv2d(image_tensor, kernel, padding=1)
+#        kernel = torch.tensor([[0, 1, 0], [1, -4, 1], [0, 1, 0]])[None, None,:,:].float()
+#        image_tensor = torch.nn.functional.conv2d(image_tensor, kernel, padding=1)
       #  input = np.repeat(np.array(image_tensor[0]), 3, axis=0)
 
         #dif = np.mean(np.power(input-output, 2), axis=0)
@@ -65,12 +70,13 @@ class AEWindow(QtWidgets.QMainWindow):
         #dif = dif[1][0, :, t:300+t, t:300+t]
         dif = np.array(dif.repeat(3, 1, 1))
 
-        threshold = filters.threshold_otsu(dif)
+        dif = (dif - dif.min()) / (dif.max() - dif.min())
+        threshold = 0.2
+        #threshold = filters.threshold_otsu(dif)
+
         dif_idx = dif < threshold
         dif = dif_idx.astype(np.float)
 
-        input = (input - input.min()) / (input.max() - input.min())
-        output = (output - output.min()) / (output.max() - output.min())
 
         combined = copy.deepcopy(input)
         combined[~dif_idx] = 0

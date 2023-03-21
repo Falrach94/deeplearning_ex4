@@ -95,7 +95,7 @@ class Program:
         self._losses['val'] += [loss['val']]
         self._losses['metric'] += [metrics]
         model = ResNetAutoEncoder()
-        export(model, MODEL.state_dict(), EXPORT_PATH, sb)
+        export(model, MODEL.state_dict(), EXPORT_PATH, self.cli.sb)
 
         metrics = self._losses['metric'] if metrics is not None else None
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))

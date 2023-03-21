@@ -278,7 +278,6 @@ class Decoder2(nn.Module):
         self.l4 = UpsampleBlock(64, 32, 0, 1, 1)  # 75->150
         self.l5 = UpsampleBlock(32, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
 
-        self.skip_con = nn.Conv2d(256, 256, 2)
 
     def forward(self, x, skip):
         x = self.l1(x)

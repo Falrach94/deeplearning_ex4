@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import init
 
 from cli_program.settings.behaviour_settings import BEST_MODEL_PATH
 
@@ -55,23 +56,34 @@ class Encoder(nn.Module):
                                           nn.ReLU(inplace=True),
                                           nn.MaxPool2d(kernel_size=3, stride=2))  # 147x147->144x144 -> 72x72 -> 73x73
 
+        self.l1 = self._make_layer(64, 64, 3)  # 73x73 -> 73x73
+        self.l2 = self._make_layer(64, 128, 4)  # 71x71 -> 35x35
+        self.l3 = self._make_layer(128, 256, 6)  # 35x35 -> 17x17
+        self.l4 = self._make_layer(256, 512, 3)  # 17x17 -> 10x10
+
         # ResNet34
-        layers = [
-            self._make_layer(64, 64, 3),  # 71x71 -> 71x71
-            self._make_layer(64, 128, 4),  # 71x71 -> 35x35
-            self._make_layer(128, 256, 6),  # 35x35 -> 17x17
-            self._make_layer(256, 512, 3)  # 17x17 -> 10x10
-        ]
-        self.feature_extraction = nn.Sequential(*layers)
+#        layers = [
+#            self.l1,
+#            self.l2,
+#            self.l3,
+#            self.l4
+#        ]
+       # self.feature_extraction = nn.Sequential(*layers)
 
  #       self.output_layer = nn.Sequential(
  #       )
 
     def forward(self, x):
         x = self.initial_conv(x)
-        x = self.feature_extraction(x)
+        skip1 = self.l1(x)
+        skip2 = self.l2(skip1)
+        skip3 = self.l3(skip2)
+        skip4 = self.l4(skip3)
+        return skip4, skip3
+
+        #x = self.feature_extraction(x)
 #        x = self.output_layer(x)
-        return x
+        #return x
 
     @staticmethod
     def _make_layer(in_channels, out_channels, reps):
@@ -93,6 +105,10 @@ class Bottleneck(nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5)
         )
+
+        for module in self.modules():
+            if isinstance(module, nn.Linear):
+                init.xavier_uniform_(module.weight)
 
         self.last_activation = None
 
@@ -206,21 +222,65 @@ class TestDecoder(torch.nn.Module):
         return x
 
 
-
-class ResNetAutoEncoder(torch.nn.Module):
-
-    def _make_upsample_block(self, in_channels, out_channels, padding, out_padding, fct=nn.ReLU(inplace=True)):
-        return nn.Sequential(
-            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=3, stride=2, padding=padding, output_padding=out_padding),
+class UpsampleBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, skip_channels, padding, out_padding, fct=nn.ReLU(inplace=True)):
+        super().__init__()
+        self.upsample = nn.Sequential(
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=3, stride=2, padding=padding,
+                               output_padding=out_padding),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
+        )
+
+        if skip_channels == 0:
+            self.skip = None
+        else:
+            self.skip = nn.Sequential(
+                nn.Conv2d(skip_channels, skip_channels, kernel_size=1, stride=1),
+                nn.BatchNorm2d(skip_channels),
+                nn.ReLU(inplace=True)
+            )
+
+        self.filter = nn.Sequential(
+            nn.Conv2d(out_channels+skip_channels, out_channels, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channels),
             fct
         )
+
+    def forward(self, x, skip=None):
+        x = self.upsample(x)
+        if skip is not None:
+            skip = self.skip(skip)
+            x = torch.concat((x, skip), dim=1)
+        x = self.filter(x)
+        return x
+
+class Decoder2(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+        self.l1 = UpsampleBlock(128, 256, 256, 0, 0)  # 9 -> 19
+        self.l2 = UpsampleBlock(256, 128, 0, 1, 0)  # 19 -> 37
+        self.l3 = UpsampleBlock(128, 64, 0, 0, 0)  # 37->75
+        self.l4 = UpsampleBlock(64, 32, 0, 1, 1)  # 75->150
+        self.l5 = UpsampleBlock(32, 3, 0, 1, 1, nn.Sigmoid())  # 150-300
+
+        self.skip_con = nn.Conv2d(256, 256, 2)
+
+    def forward(self, x, skip):
+        x = self.l1(x, skip)
+        x = self.l2(x)
+        x = self.l3(x)
+        x = self.l4(x)
+        x = self.l5(x)
+        return x
+
+class ResNetAutoEncoder(torch.nn.Module):
+
 
     def __init__(self, sparse_cnt=128, load=False):
         super().__init__()
@@ -251,13 +311,7 @@ class ResNetAutoEncoder(torch.nn.Module):
         )'''
         self.bottleneck = Bottleneck(128)
 
-        self.decoder = nn.Sequential(
-            self._make_upsample_block(128, 128, 1, 1), #9 -> 18
-            self._make_upsample_block(128, 64, 0, 0), #18 -> 37
-            self._make_upsample_block(64, 32, 0, 0), # 37->75
-            self._make_upsample_block(32, 16, 1, 1), # 75->150
-            self._make_upsample_block(16, 3, 1, 1, nn.Sigmoid()), #150-300
-        )
+        self.decoder = Decoder2()
 
         self.encoder = Encoder()
 
@@ -281,11 +335,11 @@ class ResNetAutoEncoder(torch.nn.Module):
         self.bottleneck.autoencode()
 
     def forward(self, x):
-        x = self.encoder(x)
+        x, skip = self.encoder(x)
         #x = x.view(x.size(0), -1)
         x = self.bottleneck(x)
         x = x.view(x.size(0), 128, 9, 9)
-        x = self.decoder(x)
+        x = self.decoder(x, skip)
 
         mean = 0.59685254
         std = 0.16043035

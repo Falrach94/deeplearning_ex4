@@ -59,3 +59,38 @@ class SimpleLabeler:
     @staticmethod
     def _get_df_labels_id(data, col_names):
         return np.sum([(2**i)*data[col].astype('int') for i, col in enumerate(col_names)], axis=0)
+
+
+class SingleLabeler(SimpleLabeler):
+    OM_IDX = 'idx'
+    OM_ONE_HOT = 'one_hot'
+    OM_RAW = 'raw'
+    OM_AUTOENCODE = 'auto'
+    OM_NAME = 'name'
+
+    def __init__(self, *col_names, output_mode='raw'):
+        super().__init__(*col_names, output_mode=output_mode)
+
+    def label_dataframe(self, df):
+        label_series = self._get_df_labels(df, self.col_names)
+        label_series_id = self._get_df_labels_id(df, self.col_names)
+        df['label'] = label_series
+        df['label_id'] = label_series_id
+        return df
+
+    def class_count(self, raw):
+        if raw:
+            return 1
+        else:
+            return 2
+
+    @staticmethod
+    def _get_df_labels(data, col_names):
+        float_labels = [data[col].astype('float') for col in col_names]
+        col_sum = np.sum(float_labels, axis=0)
+
+        return (col_sum > 0).astype('float')
+
+    @staticmethod
+    def _get_df_labels_id(data, col_names):
+        return SingleLabeler._get_df_labels(data, col_names).astype('int')

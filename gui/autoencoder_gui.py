@@ -30,15 +30,15 @@ class AEWindow(QtWidgets.QMainWindow):
 
         input = np.array(input)
         output = np.array(output)
-        kernel_size = 15
+        kernel_size = 5
         MEAN = 0.59685254
         STD = 0.16043035
-        max_val = MEAN/STD
+        max_val = 1/STD
 
-        ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=True,
+        ssim = torchmetrics.StructuralSimilarityIndexMeasure(gaussian_kernel=False,
                                                              kernel_size=(kernel_size, kernel_size),
                                                              reduction='none',
-                                                            # data_range=2*max_val,
+                                                             #data_range=max_val,
                                                              return_full_image=True)
         output = output.repeat(3, axis=0)
         input = (input - input.min()) / (input.max() - input.min())
@@ -63,12 +63,40 @@ class AEWindow(QtWidgets.QMainWindow):
         t = 3
 
         dif = dif[1][0]
-        dif = tv.transforms.Resize((300, 300))(dif)
+        dif = tv.transforms.CenterCrop((300, 300))(dif)
+        #dif = tv.transforms.Resize((300, 300))(dif)
 
 
 
         #dif = dif[1][0, :, t:300+t, t:300+t]
         dif = np.array(dif.repeat(3, 1, 1))
+
+        dif_im = dif.copy()
+#        dif_im = ((dif_im - dif_im.min())/(dif_im.max() - dif_im.min()))
+        dif_im = (dif_im+1.5)/3
+
+        off = 0.3
+
+        center_width = 0.2
+        overlap = 0.1
+
+        left = 0.5 - center_width / 2 + overlap + off
+        right = 0.5 + center_width/2 - overlap + off
+
+        z_l = 0.5 - center_width/2 - overlap + off
+        z_r = 0.5 + center_width/2 + overlap + off
+
+        dif_im[0] = 1-np.minimum(dif_im[0], left)/left
+        dif_im[1] = np.maximum(dif_im[1]-right, 0)/(1-right)
+        dif_im[2] = np.maximum(np.minimum(dif_im[2], z_r)-z_l, 0)/(center_width+2*overlap)
+
+        dif_im[2] = np.sin(np.pi*dif_im[2]) #-(dif_im[2]*(dif_im[2]-1))
+        #dif_im[2] = 0
+       # dif_im[0,:,:] = np.maximum(-dif_im[0,:,:], 0)
+       # dif_im[1,:,:] = np.maximum(dif_im[1,:,:], 0)
+
+       # c = dif_im[2,:,:]
+       # dif_im[2,:,:] = 0.1# (c-c.min())/(c.max()-c.min())
 
         #dif = (dif - dif.min()) / (dif.max() - dif.min())
        # threshold = 0.2
@@ -104,6 +132,8 @@ class AEWindow(QtWidgets.QMainWindow):
         self.ax_image_m.imshow(mark.transpose((1, 2, 0)))
         self.ax_av.clear()
         self.ax_av.imshow(av.transpose((1, 2, 0)))
+        self.ax_dif_im.clear()
+        self.ax_dif_im.imshow(dif_im.transpose((1, 2, 0)))
         self.image_canvas.draw()
 
        # print(input.min(), input.max())
@@ -130,12 +160,13 @@ class AEWindow(QtWidgets.QMainWindow):
 
         self.canvas = None
         self.image_figure = Figure()
-        self.ax_image = self.image_figure.add_subplot(3, 2, 1)
-        self.ax_image_m = self.image_figure.add_subplot(3, 2, 5)
-        self.ax_pp_image = self.image_figure.add_subplot(3, 2, 3)
-        self.ax_dif_image = self.image_figure.add_subplot(3, 2, 2)
-        self.ax_comb_image = self.image_figure.add_subplot(3, 2, 4)
-        self.ax_av = self.image_figure.add_subplot(3, 2, 6)
+        self.ax_image = self.image_figure.add_subplot(4, 2, 1)
+        self.ax_image_m = self.image_figure.add_subplot(4, 2, 5)
+        self.ax_pp_image = self.image_figure.add_subplot(4, 2, 3)
+        self.ax_dif_image = self.image_figure.add_subplot(4, 2, 2)
+        self.ax_comb_image = self.image_figure.add_subplot(4, 2, 4)
+        self.ax_av = self.image_figure.add_subplot(4, 2, 6)
+        self.ax_dif_im = self.image_figure.add_subplot(4, 2, 7)
 
         self.loss_figure = Figure()
         self.ax_loss = self.loss_figure.add_subplot(1, 1, 1)

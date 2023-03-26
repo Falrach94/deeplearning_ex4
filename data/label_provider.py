@@ -69,7 +69,7 @@ class SingleLabeler(SimpleLabeler):
     def label_dataframe(self, df):
         label_series = self._get_df_labels(df, self.col_names)
         label_series_id = self._get_df_labels_id(df, self.col_names)
-        df['label'] = label_series
+        df['label'] = label_series#[:, None]
         df['label_id'] = label_series_id
         return df
 
@@ -84,7 +84,7 @@ class SingleLabeler(SimpleLabeler):
         float_labels = [data[col].astype('float') for col in col_names]
         col_sum = np.sum(float_labels, axis=0)
 
-        return (col_sum > 0).astype('float')
+        return (col_sum > 0).astype('float')[:, None]
 
     @staticmethod
     def _get_df_labels_id(data, col_names):

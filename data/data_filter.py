@@ -21,3 +21,10 @@ class NoDefectsFilter:
         df_cat = split_df_by_category(df)
         return df_cat[0].reset_index(drop=True)
 
+
+class SmallSetFilter:
+    def __init__(self, size):
+        self.size = size
+
+    def filter(self, df):
+        return df.sample(frac=self.size).reset_index(drop=True)

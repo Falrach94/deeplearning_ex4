@@ -106,7 +106,7 @@ class Program:
                                  optim=OPTIMIZER_FACTORY.create(model.parameters()),
                                  tr_dl=self.data['tr']['dl'],
                                  val_dl=self.data['val']['dl'],
-                                 batch_size=BATCH_SIZE,
+                                 val_cnt=len(self.data['val']['dataset']),
                                  label_cnt=LABEL_PROVIDER.class_count(True))
 
         self._losses = {'train': [], 'val': [], 'metric': []}

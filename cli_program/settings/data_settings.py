@@ -3,7 +3,7 @@ from torchvision.transforms import InterpolationMode
 
 from data.augment_fuser import BalancedFuser, SimpleFuser
 from data.augment_generator import CustomAugmentor
-from data.data_filter import AugmentFilter, NoDefectsFilter
+from data.data_filter import AugmentFilter, NoDefectsFilter, SmallSetFilter
 from data.label_provider import SimpleLabeler, SingleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
@@ -91,7 +91,7 @@ FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
 #TR_FILTER = NoDefectsFilter()
 #VAL_FILTER = NoDefectsFilter()
-TR_FILTER = None
+TR_FILTER = None# SmallSetFilter(0.05)
 VAL_FILTER = None
 
 AUGMENTER = CustomAugmentor(FUSER, AUGMENTATIONS)

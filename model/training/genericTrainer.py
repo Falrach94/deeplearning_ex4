@@ -121,7 +121,6 @@ class GenericTrainer:
         self._train_dl = None
         self._val_test_dl = None
         self._val_sample_cnt = 0
-        self._batch_size = 0
 
         self.use_cuda = cuda
 
@@ -139,14 +138,13 @@ class GenericTrainer:
         self.epoch_callback = None
         self.epoch = 0
 
-    def set_session(self, model, optim, tr_dl, val_dl, batch_size, label_cnt):
+    def set_session(self, model, optim, tr_dl, val_dl, val_cnt, label_cnt):
         self.epoch = 0
         self._model = model
         self._optim = optim
         self._train_dl = tr_dl
         self._val_test_dl = val_dl
-        self._val_sample_cnt = len(val_dl) * batch_size
-        self._batch_size = batch_size
+        self._val_sample_cnt = val_cnt
         self._label_cnt = label_cnt
 
         self.last_metric = None
@@ -213,6 +211,9 @@ class GenericTrainer:
                 if start_time is None:
                     start_time = time.time_ns()
 
+                if len(y.shape) == 1:
+                    y = y[:, None]
+
                 if self.use_cuda:
                     x = x.cuda()
                     y = y.cuda()
@@ -223,7 +224,7 @@ class GenericTrainer:
                 loss += self.val_loss_fct(x, step_prediction, y, self.last_metric)
 
                 if self.metric_calculator is not None:
-                    j = i*self._batch_size
+                    j = i*step_prediction.shape[0]
                     if type(step_prediction) is tuple:
                         predictions[j:j+y.shape[0]] = step_prediction[1]
                     else:

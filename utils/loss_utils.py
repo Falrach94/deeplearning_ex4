@@ -8,7 +8,7 @@ from model.training.losses.asl_loss import WeightedAsymmetricLossOptimized, Asym
 
 
 def calc_BCE_loss(input, pred, label, metrics):
-    return torch.nn.functional.binary_cross_entropy(pred, label)
+    return torch.nn.functional.binary_cross_entropy(pred.float(), label.float())
 
 def calc_MSE_loss(input, pred, label, metrics):
     return torch.nn.functional.mse_loss(pred, input[:,0:1,:,:])

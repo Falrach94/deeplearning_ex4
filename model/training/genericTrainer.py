@@ -170,6 +170,9 @@ class GenericTrainer:
             if start_time is None:
                 start_time = time.time_ns()
 
+            if len(y.shape) == 1:
+                y = y[:, None]
+
             x = x.cuda()
             y = y.cuda()
             self._optim.zero_grad()

@@ -41,7 +41,7 @@ class SimpleLabeler:
 
     def get_label_from_row(self, row):
         if self.output_mode == self.OM_RAW:
-            return torch.Tensor(row['label'])
+            return torch.tensor(row['label'])
 
         label = row['label_id']
         if self.output_mode == self.OM_IDX:
@@ -62,11 +62,6 @@ class SimpleLabeler:
 
 
 class SingleLabeler(SimpleLabeler):
-    OM_IDX = 'idx'
-    OM_ONE_HOT = 'one_hot'
-    OM_RAW = 'raw'
-    OM_AUTOENCODE = 'auto'
-    OM_NAME = 'name'
 
     def __init__(self, *col_names, output_mode='raw'):
         super().__init__(*col_names, output_mode=output_mode)

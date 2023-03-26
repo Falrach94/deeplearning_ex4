@@ -73,7 +73,7 @@ class CLInterface:
                 if metric['classical'] is not None:
                     builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['classical']['mean'], 4))
                 else:
-                    builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), '-')
+                    builder.add_line(i+1, round(loss_tr, 4), round(loss_val, 4), round(metric['mean'],4))
         else:
             builder.add_line('epoch', 'training loss', 'validation loss')
             for i, (loss_tr, loss_val) in enumerate(zip(loss['train'], loss['val'])):

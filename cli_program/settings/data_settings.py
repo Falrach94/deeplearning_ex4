@@ -85,7 +85,7 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
 #LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
 #FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
-LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
+LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
 FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
 

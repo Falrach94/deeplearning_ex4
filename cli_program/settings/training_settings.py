@@ -1,6 +1,6 @@
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from utils.loss_utils import AdamFactory, ASLCalculator, calc_BCE_loss, select_best_metric, calc_MSE_loss, \
-    WeightedASLCalculator, SSIMCalculator
+    WeightedASLCalculator, SSIMCalculator, Single_ASLCalculator
 from utils.stat_tools import calc_multi_f1, calc_f1_m, calc_f1_pure
 
 # training
@@ -19,7 +19,8 @@ GAMMA_NEG = 4
 GAMMA_POS = 1
 CLIP = 0.05
 
-LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
+#LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
+LOSS_CALCULATOR = Single_ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
 #LOSS_CALCULATOR = WeightedASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
 #LOSS_CALCULATOR = SSIMCalculator()
 

@@ -4,7 +4,7 @@ from torchgeometry.losses import SSIM
 
 #import torchmetrics
 
-from model.training.losses.asl_loss import WeightedAsymmetricLossOptimized, AsymmetricLossOptimized
+from model.training.losses.asl_loss import WeightedAsymmetricLossOptimized, AsymmetricLossOptimized, ASLSingleLabel
 
 
 def calc_BCE_loss(input, pred, label, metrics):
@@ -33,6 +33,12 @@ class SSIMCalculator:
 class ASLCalculator:
     def __init__(self, g_n, g_p, clip):
         self.loss = AsymmetricLossOptimized(g_n, g_p, clip).cuda()
+
+    def calc(self, input, pred, label, metrics):
+        return self.loss(pred, label)
+class Single_ASLCalculator:
+    def __init__(self, g_n, g_p, clip):
+        self.loss = ASLSingleLabel(gamma_pos=g_p, gamma_neg=g_p, eps=clip).cuda()
 
     def calc(self, input, pred, label, metrics):
         return self.loss(pred, label)

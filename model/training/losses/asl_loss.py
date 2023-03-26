@@ -187,7 +187,7 @@ class ASLSingleLabel(nn.Module):
         '''
         target = torch.flatten(target)
         num_classes = inputs.size()[-1]
-        log_preds = self.logsoftmax(inputs)
+        log_preds = inputs#self.logsoftmax(inputs)
         self.targets_classes = torch.zeros_like(inputs).scatter_(1, target.long().unsqueeze(1), 1)
 
         # ASL weights

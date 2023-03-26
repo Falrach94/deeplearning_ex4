@@ -16,7 +16,7 @@ CSV_SEPERATOR = ','
 #LABEL_COLUMNS = ['inactive']
 LABEL_COLUMNS = ['crack', 'inactive']
 
-HOLDOUT_SPLIT = 0.05
+HOLDOUT_SPLIT = 0.2
 
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, False, 1),

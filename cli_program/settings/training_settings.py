@@ -28,4 +28,5 @@ VALIDATION_LOSS = LOSS_CALCULATOR.calc
 
 # metric calculation
 METRIC_CALC = calc_f1_m
+METRIC_CALC = calc_f1_m
 BEST_METRIC_SELECTOR = select_best_metric

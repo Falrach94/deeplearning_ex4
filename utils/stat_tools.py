@@ -114,7 +114,10 @@ def calc_f1_from_4class(pred, label):
 
 def calc_f1_m(pred, label):
 
-    classical_stats = calc_f1_from_4class(pred, label)
+    if pred.shape[0] == 4:
+        classical_stats = calc_f1_from_4class(pred, label)
+    else:
+        classical_stats = None
 
     pred = pred > 0.5
     label = label > 0.5

@@ -1,7 +1,7 @@
 from model.NNModels.ResNet34_pre import ResNet34_Pretrained
 from utils.loss_utils import AdamFactory, ASLCalculator, calc_BCE_loss, select_best_metric, calc_MSE_loss, \
     WeightedASLCalculator, SSIMCalculator, Single_ASLCalculator
-from utils.stat_tools import calc_multi_f1, calc_f1_m, calc_f1_pure
+from utils.stat_tools import calc_multi_f1, calc_f1_m
 
 # training
 MAX_EPOCH = 100
@@ -28,5 +28,5 @@ TRAINING_LOSS = calc_BCE_loss# LOSS_CALCULATOR.calc
 VALIDATION_LOSS = calc_BCE_loss #LOSS_CALCULATOR.calc
 
 # metric calculation
-METRIC_CALC = calc_f1_pure
+METRIC_CALC = calc_f1_m
 BEST_METRIC_SELECTOR = select_best_metric

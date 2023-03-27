@@ -115,12 +115,13 @@ class CLInterface:
                          '')
         if metrics is not None:
             builder.new_block()
-            builder.add_line(f'label', 'f1', 'precision', 'recall', 'tp', 'tn', 'fp', 'fn')
+            builder.add_line(f'label', 'f1', 'precision', 'recall', 'accuracy', 'tp', 'tn', 'fp', 'fn')
             for i, m in enumerate(metrics['stats']):
                 builder.add_line(f'{i}:',
                                  f'{round(m["f1"], 4)}',
                                  f'{round(m["precision"], 4)}',
                                  f'{round(m["recall"], 4)}',
+                                 f'{round(m["accuracy"], 4)}',
                                  f'{m["tp"]}',
                                  f'{m["tn"]}',
                                  f'{m["fp"]}',

@@ -14,7 +14,8 @@ def _create_dataset(data,
                     filter,
                     shuffle=True):
 
-    df = augmenter.add_augmentations_to_df(data)
+    if augmenter is not None:
+        df = augmenter.add_augmentations_to_df(data)
     if filter is not None:
         df = filter.filter(df)
 

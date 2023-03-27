@@ -38,7 +38,7 @@ class BalancedFuser:
         #oversample underrepresented classes
         if self.oversample:
             df_cat = split_df_by_category(df)
-            remaining_cnt = [target_cnt - len(frame) for frame in df_cat]
+            remaining_cnt = [0 if len(frame) == 0 else target_cnt - len(frame) for frame in df_cat]
             df_os = [df_c.sample(cnt, replace=True) for cnt, df_c in zip(remaining_cnt, df_cat)]
             df_os = [frame for frame in df_os if len(frame) != 0]
             df = pd.concat((df, *df_os))

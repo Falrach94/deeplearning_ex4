@@ -39,6 +39,7 @@ class Program:
                                                    augmentor=AUGMENTER)
         df = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
         df = LABEL_PROVIDER.label_dataframe(df)
+        df = OnlyDefectsFilter.filter(df)
 
         self.data = create_single_split_datasets(
             data=df,

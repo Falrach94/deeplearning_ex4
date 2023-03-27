@@ -10,8 +10,10 @@ from model.training.losses.asl_loss import WeightedAsymmetricLossOptimized, Asym
 def calc_BCE_loss(input, pred, label, metrics):
     return torch.nn.functional.binary_cross_entropy(pred.float(), label.float())
 
-def calc_MSE_loss(input, pred, label, metrics):
+def calc_MSE_AE_loss(input, pred, label, metrics):
     return torch.nn.functional.mse_loss(pred, input[:,0:1,:,:])
+def calc_MSE_loss(input, pred, label, metrics):
+    return torch.nn.functional.mse_loss(pred, label)
 
 #def calc_SSIM_loss(input, pred, label, metrics):
 #    return torchgeometry

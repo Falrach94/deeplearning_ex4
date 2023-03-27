@@ -28,3 +28,8 @@ class SmallSetFilter:
 
     def filter(self, df):
         return df.sample(frac=self.size).reset_index(drop=True)
+
+class OnlyDefectsFilter:
+    @staticmethod
+    def filter(df):
+        return df[(df.inactive != 0) | (df.crack != 0)].sample(frac=1).reset_index(drop=True)

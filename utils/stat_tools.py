@@ -104,7 +104,7 @@ def calc_stats(bool_pred, bool_label):
     fp = fp.sum(dim=0)
     fn = fn.sum(dim=0)
 
-    accuracy = [(tpv + tnv) / (bool_pred.shape[0]) for tpv, tnv in zip(tp, tn)]
+    accuracy = [((tpv + tnv) / (bool_pred.shape[0])).item() for tpv, tnv in zip(tp, tn)]
 
     precision = [np.nan if tpv+fpv == 0 else (tpv/(tpv+fpv)).item()
                  for tpv, fpv in zip(tp, fp)]

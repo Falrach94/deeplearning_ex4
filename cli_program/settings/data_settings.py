@@ -3,7 +3,7 @@ from torchvision.transforms import InterpolationMode
 
 from data.augment_fuser import BalancedFuser, SimpleFuser
 from data.augment_generator import CustomAugmentor
-from data.data_filter import AugmentFilter, NoDefectsFilter, SmallSetFilter
+from data.data_filter import AugmentFilter, NoDefectsFilter, SmallSetFilter, OnlyDefectsFilter
 from data.label_provider import SimpleLabeler, SingleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
@@ -16,7 +16,7 @@ CSV_SEPERATOR = ','
 #LABEL_COLUMNS = ['inactive']
 LABEL_COLUMNS = ['crack', 'inactive']
 
-HOLDOUT_SPLIT = 0.2
+HOLDOUT_SPLIT = 0.1
 
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, False, 1),
@@ -82,16 +82,19 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
 #LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
 #FUSER = SimpleFuser()
 
-#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='one_hot')
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
 #FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
-LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
-FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
+#LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
+FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=True)
 
 
 #TR_FILTER = NoDefectsFilter()
 #VAL_FILTER = NoDefectsFilter()
 TR_FILTER = None# SmallSetFilter(0.05)
 VAL_FILTER = None
+
+TR_FILTER = OnlyDefectsFilter()# SmallSetFilter(0.05)
+VAL_FILTER = OnlyDefectsFilter()
 
 AUGMENTER = CustomAugmentor(FUSER, AUGMENTATIONS)

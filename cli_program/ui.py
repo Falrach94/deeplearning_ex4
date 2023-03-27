@@ -113,7 +113,7 @@ class CLInterface:
                          f'tr {round(loss["train"][-1], 5)}',
                          f'val {round(loss["val"][-1], 5)}',
                          '')
-        
+
         if metrics is not None:
             builder.new_block()
             builder.add_line(f'label', 'f1', 'precision', 'recall', 'accuracy', 'tp', 'tn', 'fp', 'fn')
@@ -129,6 +129,7 @@ class CLInterface:
                                  f'{m["fn"]}')
             builder.add_line(f'mean:',
                              f'{round(metrics["mean"], 4)}',
+                             f'',
                              f'',
                              f'',
                              f'',

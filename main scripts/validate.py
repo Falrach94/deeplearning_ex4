@@ -32,7 +32,7 @@ df_dist = df.copy()
 df_dist = dist_label_provider.label_dataframe(df_dist)
 data_dist = create_dataset(df_dist, image_loader, dist_label_provider, None, VAL_TRANSFORMS, BATCH_SIZE, None)
 
-model = InceptionV3()
+model = InceptionV3().cuda()
 model.load_state_dict(torch.load(BEST_MODEL_PATH))
 #model = ResNet34Combined(DIST_PATH, DEF_PATH).cuda()
 label_provider = SimpleLabeler('crack', 'inactive')

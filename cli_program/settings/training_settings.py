@@ -15,7 +15,7 @@ OPTIMIZER_FACTORY = AdamFactory(decay=DECAY, lr=LR)
 
 # loss fct
 GAMMA_NEG = 4
-GAMMA_POS = 1
+GAMMA_POS = 4
 CLIP = 0.1
 
 LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)

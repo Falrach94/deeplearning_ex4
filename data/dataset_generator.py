@@ -5,7 +5,7 @@ from data.data_splitter import k_fold_split
 from data.simple_dataset import SimpleDataset
 from model.config import WORKER_THREADS
 
-def _create_dataset(data,
+def _create_dataset(df,
                     image_provider,
                     label_provider,
                     augmenter,
@@ -15,7 +15,7 @@ def _create_dataset(data,
                     shuffle=True):
 
     if augmenter is not None:
-        df = augmenter.add_augmentations_to_df(data)
+        df = augmenter.add_augmentations_to_df(df)
     if filter is not None:
         df = filter.filter(df)
 

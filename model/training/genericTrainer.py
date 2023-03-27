@@ -249,11 +249,12 @@ class GenericTrainer:
 
         self.last_metric = metrics
 
-        # finished validation loop
-        self.batch_callback(len(self._val_test_dl),
-                            len(self._val_test_dl),
-                            (time.time_ns() - start_time) / 10 ** 9,
-                            False)
+        if self.batch_callback is not None:
+            # finished validation loop
+            self.batch_callback(len(self._val_test_dl),
+                                len(self._val_test_dl),
+                                (time.time_ns() - start_time) / 10 ** 9,
+                                False)
 
         av_loss = loss / len(self._val_test_dl)
 

@@ -33,3 +33,8 @@ class OnlyDefectsFilter:
     @staticmethod
     def filter(df):
         return df[(df.inactive != 0) | (df.crack != 0)].sample(frac=1).reset_index(drop=True)
+
+class NoAugsFilter:
+    @staticmethod
+    def filter(df):
+        return df[df.aug == 0].sample(frac=1).reset_index(drop=True)

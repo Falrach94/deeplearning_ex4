@@ -6,7 +6,7 @@ from model.NNModels.ResNet34_pre import ResNet34Sig, ResNet34Combined
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 
 #MODEL = ResNet34Combined(DIST_PATH, DEF_PATH)
-MODEL = ResNet34Sig(1)
+MODEL = ResNet34Sig(2)
 #MODEL = ResNetAutoEncoder()
 #MODEL = InceptionV3()
 #MODEL = ResNet50v2_Pretrained()

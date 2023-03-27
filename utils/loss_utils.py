@@ -40,7 +40,7 @@ class ASLCalculator:
         return self.loss(pred, label)
 class Single_ASLCalculator:
     def __init__(self, g_n, g_p, clip):
-        self.loss = ASLSingleLabel(gamma_pos=g_p, gamma_neg=g_p, eps=clip).cuda()
+        self.loss = ASLSingleLabel(gamma_pos=g_p, gamma_neg=g_n, eps=clip).cuda()
 
     def calc(self, input, pred, label, metrics):
         return self.loss(pred, label)

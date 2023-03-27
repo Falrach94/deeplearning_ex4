@@ -24,7 +24,7 @@ df_def = OnlyDefectsFilter.filter(df_def)
 data_def = create_dataset(df_def, image_loader, def_label_provider, None, VAL_TRANSFORMS, BATCH_SIZE, None)
 
 
-model_dist = ResNet34Sig(1, DIST_PATH).cuda()
+model_dist = ResNet34Sig(1, DIST_PATH, multi_layer=False).cuda()
 dist_label_provider = SingleLabeler('crack', 'inactive')
 df_dist = df.copy()
 df_dist = dist_label_provider.label_dataframe(df_dist)

@@ -89,7 +89,7 @@ class ResNet34Combined(nn.Module):
     def __init__(self, distinction_path, defect_path):
         super().__init__()
 
-        self.dist = ResNet34Sig(1, distinction_path)
+        self.dist = ResNet34Sig(1, distinction_path, multi_layer=False)
         self.defect = ResNet34Sig(2, defect_path)
 
         self.dist.requires_grad_(False)

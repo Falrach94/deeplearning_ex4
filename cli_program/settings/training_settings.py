@@ -6,7 +6,7 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 MAX_EPOCH = 100
 BATCH_SIZE = 16
 PATIENCE = 10
-WINDOW = 5
+WINDOW = 10
 
 # optimizer
 LR = 0.00003
@@ -26,7 +26,7 @@ LOSS_CALCULATOR = ASLCalculator(GAMMA_NEG, GAMMA_POS, CLIP)
 #TRAINING_LOSS = calc_BCE_loss
 TRAINING_LOSS = LOSS_CALCULATOR.calc
 #VALIDATION_LOSS = calc_BCE_loss
-VALIDATION_LOSS = calc_MSE_loss
+VALIDATION_LOSS = LOSS_CALCULATOR.calc
 
 # metric calculation
 METRIC_CALC = calc_f1_m

@@ -84,10 +84,10 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
 #LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
 #FUSER = SimpleFuser()
 
-#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
 #FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
-LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
+#LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
 FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=True)
 
 

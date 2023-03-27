@@ -4,7 +4,7 @@ from model.NNModels.InceptionResnetV2 import InceptionV3
 from model.NNModels.ResNet34_pre import ResNet34Sig
 from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
 
-MODEL = ResNet34Sig(2)
+MODEL = ResNet34Sig(1)
 #MODEL = ResNetAutoEncoder()
 #MODEL = InceptionV3()
 #MODEL = ResNet50v2_Pretrained()

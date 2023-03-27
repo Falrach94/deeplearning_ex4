@@ -75,3 +75,19 @@ class ResNet34SoftMax(ResNet34Base):
             for module in self.fc.modules():
                 if isinstance(module, nn.Linear):
                     init.xavier_uniform_(module.weight)
+
+
+class ResNet34Combined(nn.Module):
+
+    def __init__(self, distinction_path, defect_path):
+        super().__init__()
+
+        self.dist = ResNet34Sig(1, distinction_path)
+        self.defect = ResNet34Sig(2, defect_path)
+
+    def forward(self, x):
+        is_defect = self.dist(x)
+        x = self.defect(x)
+        x[is_defect < 0.5, :] = 0
+
+        return x

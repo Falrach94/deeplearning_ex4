@@ -88,7 +88,7 @@ LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
 #FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
 #LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
-FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=True)
+FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
 
 #TR_FILTER = NoDefectsFilter()

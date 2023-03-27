@@ -7,7 +7,8 @@ from data.data_filter import AugmentFilter, NoDefectsFilter, SmallSetFilter, Onl
 from data.label_provider import SimpleLabeler, SingleLabeler
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
-DATA_PATH = 'assets/tr_data.csv'
+DATA_PATH = 'assets/data.csv'
+#DATA_PATH = 'assets/tr_data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
 #DATA_PATH = 'assets/data_seg.csv'
 
@@ -16,7 +17,7 @@ CSV_SEPERATOR = ','
 #LABEL_COLUMNS = ['inactive']
 LABEL_COLUMNS = ['crack', 'inactive']
 
-HOLDOUT_SPLIT = 0.1
+HOLDOUT_SPLIT = 0.15
 
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, False, 1),

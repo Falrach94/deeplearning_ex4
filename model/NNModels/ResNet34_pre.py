@@ -36,16 +36,23 @@ class ResNet34Base(ResNet):
 
 
 class ResNet34Sig(ResNet34Base):
-    def __init__(self, out_cnt, pre_path=None):
+    def __init__(self, out_cnt, pre_path=None, multi_layer=True):
         super().__init__(load_weights=(pre_path is None))
 
-        self.fc = nn.Sequential(
-            nn.Linear(512, 256),
-            nn.Dropout(p=0.5),
-            nn.ReLU(inplace=True),
-            nn.Linear(256, out_cnt),
-            nn.Sigmoid()
-        )
+        if multi_layer:
+            self.fc = nn.Sequential(
+                nn.Linear(512, 256),
+                nn.Dropout(p=0.5),
+                nn.ReLU(inplace=True),
+                nn.Linear(256, out_cnt),
+                nn.Sigmoid()
+            )
+        else:
+            self.fc = nn.Sequential(
+                nn.Linear(512, out_cnt),
+                nn.Sigmoid()
+            )
+
 
         if pre_path is not None:
             state = torch.load(pre_path)

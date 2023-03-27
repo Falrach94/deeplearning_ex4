@@ -2,7 +2,10 @@ import torch
 from torch import nn
 
 def export(model: nn.Module, state, path, sb):
-    sb.print_line('starting export')
+    if sb is not None:
+        sb.print_line('starting export')
+    else:
+        print('starting export')
 
     was_cuda = next(model.parameters()).is_cuda
 

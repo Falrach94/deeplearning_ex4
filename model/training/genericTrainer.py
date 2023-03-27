@@ -178,8 +178,8 @@ class GenericTrainer:
             self._optim.zero_grad()
             prediction = self._model(x)
             loss = self.loss_fct(x, prediction, y, self.last_metric)
-           # loss.backward()
-           # self._optim.step()
+            loss.backward()
+            self._optim.step()
             total_loss += loss
 
             if self.batch_callback is not None:

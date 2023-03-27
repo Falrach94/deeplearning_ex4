@@ -84,10 +84,13 @@ class GenericTrainer:
             if self.best_metric_selector is not None:
                 val, update = self.best_metric_selector(metrics, best_metric_val)
                 if update:
+                    best_loss = loss['val']
                     best_metric_val = val
-                    best_metric_model = copy.deepcopy(self._model.state_dict())
-
-            if self.early_stop_criterion is None:
+                    best_metric = metrics
+               #     best_metric_model = copy.deepcopy(self._model.state_dict())
+                    best_model = copy.deepcopy(self._model.state_dict())
+                    best_epoch = i
+            elif self.early_stop_criterion is None:
                 crit = loss['val']
                 update = crit < best_crit_val
             else:

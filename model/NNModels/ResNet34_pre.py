@@ -85,9 +85,13 @@ class ResNet34Combined(nn.Module):
         self.dist = ResNet34Sig(1, distinction_path)
         self.defect = ResNet34Sig(2, defect_path)
 
+        self.dist.requires_grad_(False)
+        self.defect.requires_grad_(False)
+
     def forward(self, x):
         is_defect = self.dist(x)
+        is_defect = is_defect.repeat(1, 2)
         x = self.defect(x)
-        x[is_defect < 0.5, :] = 0
+        x[is_defect < 0.5] = 0
 
         return x

@@ -16,7 +16,7 @@ CSV_SEPERATOR = ','
 #LABEL_COLUMNS = ['inactive']
 LABEL_COLUMNS = ['crack', 'inactive']
 
-HOLDOUT_SPLIT = 0.1
+HOLDOUT_SPLIT = 0.2
 
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, False, 1),
@@ -82,10 +82,10 @@ VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
 #LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='auto')
 #FUSER = SimpleFuser()
 
-#LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
+LABEL_PROVIDER = SimpleLabeler(*LABEL_COLUMNS, output_mode='raw')
 #FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=False)
 
-LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
+#LABEL_PROVIDER = SingleLabeler(*LABEL_COLUMNS, output_mode='raw')
 FUSER = BalancedFuser(LABEL_PROVIDER, None, oversample=True)
 
 

@@ -2,13 +2,13 @@ import numpy as np
 import torch.nn
 
 from cli_program.settings.behaviour_settings import BASE_MODEL_PATH
-from model.NNModels.ResNet34_pre import ResNet34_Pretrained
+from model.NNModels.ResNet34_pre import ResNet34SoftMax
 
 
-class ResNet34_4to2(ResNet34_Pretrained):
+class ResNet34_4to2(ResNet34SoftMax):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(4)
 
         state = torch.load(BASE_MODEL_PATH)
         self.load_state_dict(state)

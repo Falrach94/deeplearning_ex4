@@ -177,8 +177,17 @@ class GenericTrainer:
             y = y.cuda()
             self._optim.zero_grad()
             prediction = self._model(x)
-            loss = self.loss_fct(x, prediction, y, self.last_metric)
-            loss.backward()
+            if len(prediction) == 2:
+                loss = self.loss_fct(x, prediction[0], y, self.last_metric)
+                loss += self.loss_fct(x, prediction[1], y, self.last_metric)
+                loss.backward()
+
+            else:
+
+                loss = self.loss_fct(x, prediction, y, self.last_metric)
+                loss.backward()
+
+
             self._optim.step()
             total_loss += loss
 

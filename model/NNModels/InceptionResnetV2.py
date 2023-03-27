@@ -11,8 +11,12 @@ class InceptionV3(nn.Module):
         self.model = tv.models.inception_v3(weights=tv.models.Inception_V3_Weights.DEFAULT)
 
         self.model.fc = nn.Sequential(
-            nn.Linear(2048, 4),
-            nn.Softmax(dim=1)
+            nn.Linear(2048, 2),
+            nn.Sigmoid()
+        )
+        self.model.AuxLogits.fc = nn.Sequential(
+            nn.Linear(768, 2),
+            nn.Sigmoid()
         )
 
         for module in self.model.fc.modules():

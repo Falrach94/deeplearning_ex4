@@ -41,6 +41,7 @@ class ResNet34Sig(ResNet34Base):
 
         if multi_layer:
             self.fc = nn.Sequential(
+                nn.Dropout(p=0.5),
                 nn.Linear(512, 256),
                 nn.Dropout(p=0.5),
                 nn.ReLU(inplace=True),

@@ -15,6 +15,7 @@ from utils.loss_utils import calc_MSE_loss
 from utils.stat_tools import calc_f1_m
 
 df = pd.read_csv('assets/val_data.csv')
+df_tr = pd.read_csv('assets/tr_data.csv')
 image_loader = ImageLoader(image_path_col='filename')
 
 
@@ -37,7 +38,9 @@ model.load_state_dict(torch.load(BEST_MODEL_PATH))
 #model = ResNet34Combined(DIST_PATH, DEF_PATH).cuda()
 label_provider = SimpleLabeler('crack', 'inactive')
 df = label_provider.label_dataframe(df)
+df_tr = label_provider.label_dataframe(df_tr)
 data = create_dataset(df, image_loader, label_provider, None, VAL_TRANSFORMS, BATCH_SIZE, None)
+data_tr = create_dataset(df_tr, image_loader, label_provider, None, VAL_TRANSFORMS, BATCH_SIZE, None)
 
 
 trainer = GenericTrainer()
@@ -53,3 +56,4 @@ def validate(model, dl, val_len, label_cnt, name):
 #validate(model_dist, data_dist['dl'], len(data_dist['dataset']), 1, 'dist')
 #validate(model_def, data_def['dl'], len(data_def['dataset']), 2, 'def')
 validate(model, data['dl'], len(data['dataset']), 2, 'comb')
+validate(model, data_tr['dl'], len(data_tr['dataset']), 2, 'comb')

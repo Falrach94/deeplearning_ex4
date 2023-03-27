@@ -41,13 +41,12 @@ trainer = GenericTrainer()
 trainer.set_validation_loss_calculator(calc_MSE_loss)
 trainer.set_metric_calculator(calc_f1_m)
 
+def validate(model, dl, val_len, label_cnt, name):
+    trainer.set_session(model, None, None, dl, val_len, label_cnt)
+    loss, time, stats = trainer.val_test()
+    print(name)
+    print(stats)
 
-trainer.set_session(model_dist, None, None, data_dist['dl'], len(data_dist['dataset']), 1)
-print('dist', trainer.val_test())
-
-trainer.set_session(model_def, None, None, data_def['dl'], len(data_def['dataset']), 2)
-print('def', trainer.val_test())
-
-trainer.set_session(model, None, None, data['dl'], len(data['dataset']), 2)
-print(trainer.val_test())
-
+validate(model_dist, data_dist['dl'], len(data_dist['dataset']), 1, 'dist')
+validate(model_def, data_def['dl'], len(data_def['dataset']), 2, 'def')
+validate(model, data['dl'], len(data['dataset']), 2, 'comb')

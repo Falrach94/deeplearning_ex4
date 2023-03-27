@@ -6,7 +6,8 @@ def export(model: nn.Module, state, path, sb):
 
     was_cuda = next(model.parameters()).is_cuda
 
-    model.load_state_dict(state)
+    if state is not None:
+        model.load_state_dict(state)
 
     model.cpu()
     model.eval()
@@ -27,7 +28,10 @@ def export(model: nn.Module, state, path, sb):
     if was_cuda:
         model.cuda()
 
-    sb.print_line(f'export finished ("{path}")')
+    if sb is not None:
+        sb.print_line(f'export finished ("{path}")')
+    else:
+        print(f'export finished ("{path}")')
 
 
 def mirror_and_rotate(x, hor, ver, rot):

@@ -1,7 +1,7 @@
 import pandas as pd
 import torch
 
-from cli_program.settings.behaviour_settings import DIST_PATH, DEF_PATH, BEST_MODEL_PATH
+from cli_program.settings.behaviour_settings import DIST_PATH, DEF_PATH, BEST_MODEL_PATH, EXPORT_PATH
 from cli_program.settings.data_settings import VAL_TRANSFORMS
 from cli_program.settings.training_settings import BATCH_SIZE, LOSS_CALCULATOR
 from data.data_filter import OnlyDefectsFilter
@@ -13,6 +13,7 @@ from model.NNModels.ResNet34_pre import ResNet34Combined, ResNet34Sig
 from model.training.genericTrainer import GenericTrainer
 from utils.loss_utils import calc_MSE_loss
 from utils.stat_tools import calc_f1_m
+from utils.utils import export
 
 df = pd.read_csv('assets/val_data.csv')
 df_tr = pd.read_csv('assets/tr_data.csv')
@@ -57,3 +58,5 @@ validate(model_dist, data_dist['dl'], len(data_dist['dataset']), 1, 'dist')
 validate(model_def, data_def['dl'], len(data_def['dataset']), 2, 'def')
 validate(model, data['dl'], len(data['dataset']), 2, 'comb')
 #validate(model, data_tr['dl'], len(data_tr['dataset']), 2, 'comb')
+
+export(model, None, EXPORT_PATH, None)

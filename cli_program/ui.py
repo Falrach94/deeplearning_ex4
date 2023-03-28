@@ -172,7 +172,146 @@ class CLInterface:
                            f'~{round(approx_rem, 1)} s remaining (~{round(tpb,2)} s/batch)',
                            sb=self.sb, name='tr_prog' if training else 'val_prog')
 
+    def _kfold_epoch_update(self, epoch, loss, time, metrics_list, best, total_time):
+
+        metrics = metrics_list[-1] if metrics_list is not None else None
+        builder = TableBuilderEx(self.sb, name='epoch')
+        builder.add_line(f'epoch: {epoch + 1}',
+                         f'runtime: {total_time[0]} min {total_time[1]} sec',
+                         '')
+        builder.add_line(f'epoch time: {round(time["total"], 1)} s',
+                         f'tr time: {round(time["train"], 1)} s',
+                         f'val time: {round(time["val"], 1)} s')
+        builder.new_block()
+        builder.add_line(f'loss',
+                         f'tr {round(loss["train"][-1], 5)}',
+                         f'val {round(loss["val"][-1], 5)}',
+                         '')
+
+        if metrics is not None:
+            builder.new_block()
+            builder.add_line(f'label', 'f1', 'precision', 'recall', 'accuracy', 'tp', 'tn', 'fp', 'fn')
+            for i, m in enumerate(metrics['stats']):
+                builder.add_line(f'{i}:',
+                                 f'{round(m["f1"], 4)}',
+                                 f'{round(m["precision"], 4)}',
+                                 f'{round(m["recall"], 4)}',
+                                 f'{round(m["accuracy"], 4)}',
+                                 f'{m["tp"]}',
+                                 f'{m["tn"]}',
+                                 f'{m["fp"]}',
+                                 f'{m["fn"]}')
+            builder.add_line(f'mean:',
+                             f'{round(metrics["mean"], 4)}',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'',
+                             f'')
+
+            classical = metrics["classical"]
+            if classical is not None:
+                builder.add_line(f'crack:',
+                                 f'{round(classical["stats"][0]["f1"], 4)}',
+                                 f'{round(classical["stats"][0]["precision"], 4)}',
+                                 f'{round(classical["stats"][0]["recall"], 4)}',
+                                 f'{classical["stats"][0]["tp"]}',
+                                 f'{classical["stats"][0]["tn"]}',
+                                 f'{classical["stats"][0]["fp"]}',
+                                 f'{classical["stats"][0]["fn"]}')
+                builder.add_line(f'inactive:',
+                                 f'{round(classical["stats"][1]["f1"], 4)}',
+                                 f'{round(classical["stats"][1]["precision"], 4)}',
+                                 f'{round(classical["stats"][1]["recall"], 4)}',
+                                 f'{classical["stats"][1]["tp"]}',
+                                 f'{classical["stats"][1]["tn"]}',
+                                 f'{classical["stats"][1]["fp"]}',
+                                 f'{classical["stats"][1]["fn"]}')
+                builder.add_line(f'mean:',
+                                 f'{round(classical["mean"], 4)}',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'')
+
+                # builder.add_line(f'f1',
+                #                 f'crack {round(metrics["crack"]["f1"], 4)}',
+                #                 f'inactive {round(metrics["inactive"]["f1"], 4)}',
+                #                 f'mean {round(metrics["mean"], 4)}')
+
+        if best['epoch'] is not None:
+            builder.new_block()
+            builder.add_line(f'best epoch {best["epoch"] + 1}',
+                             f'loss: {round(best["loss"], 5)}',
+                             '',
+                             '')
+            if metrics is not None:
+                builder.new_block()
+                builder.add_line(f'label', 'f1', 'precision', 'recall', 'tp', 'tn', 'fp', 'fn')
+                for i, m in enumerate(best['metric']['stats']):
+                    builder.add_line(f'{i}:',
+                                     f'{round(m["f1"], 4)}',
+                                     f'{round(m["precision"], 4)}',
+                                     f'{round(m["recall"], 4)}',
+                                     f'{m["tp"]}',
+                                     f'{m["tn"]}',
+                                     f'{m["fp"]}',
+                                     f'{m["fn"]}')
+
+                builder.add_line(f'mean:',
+                                 f'{round(best["metric"]["mean"], 4)}',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'',
+                                 f'')
+
+                classical = best['metric']["classical"]
+                if classical is not None:
+                    builder.add_line(f'crack:',
+                                     f'{round(classical["stats"][0]["f1"], 4)}',
+                                     f'{round(classical["stats"][0]["precision"], 4)}',
+                                     f'{round(classical["stats"][0]["recall"], 4)}',
+                                     f'{classical["stats"][0]["tp"]}',
+                                     f'{classical["stats"][0]["tn"]}',
+                                     f'{classical["stats"][0]["fp"]}',
+                                     f'{classical["stats"][0]["fn"]}')
+                    builder.add_line(f'inactive:',
+                                     f'{round(classical["stats"][1]["f1"], 4)}',
+                                     f'{round(classical["stats"][1]["precision"], 4)}',
+                                     f'{round(classical["stats"][1]["recall"], 4)}',
+                                     f'{classical["stats"][1]["tp"]}',
+                                     f'{classical["stats"][1]["tn"]}',
+                                     f'{classical["stats"][1]["fp"]}',
+                                     f'{classical["stats"][1]["fn"]}')
+                    builder.add_line(f'mean:',
+                                     f'{round(classical["mean"], 4)}',
+                                     f'',
+                                     f'',
+                                     f'',
+                                     f'',
+                                     f'',
+                                     f'')
+        #                builder.add_line(f'f1',
+        #                                 f'crack {round(best["metric"]["crack"]["f1"], 4)}',
+        #                                 f'inactive {round(best["metric"]["inactive"]["f1"], 4)}',
+        #                                 f'mean {round(best["metric"]["mean"], 4)}')
+
+        builder.print()
+
+
     def epoch_update(self, epoch, loss, time, metrics_list, best, total_time):
+
+        self._kfold_epoch_update(self, epoch, loss, time, metrics_list, best, total_time)
+
+
+
+    def _split_epoch_update(self, epoch, loss, time, metrics_list, best, total_time):
 
         metrics = metrics_list[-1] if metrics_list is not None else None
         builder = TableBuilderEx(self.sb, name='epoch')

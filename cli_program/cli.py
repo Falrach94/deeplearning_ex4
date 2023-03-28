@@ -59,7 +59,7 @@ class Program:
         self._losses['train'] += [loss['train']]
         self._losses['val'] += [loss['val']]
         self._losses['metric'] += [metrics]
-        torch.save(self.state['model'].state_dict(), self.config['path']['ckp'])
+      #  torch.save(self.state['model'].state_dict(), self.config['path']['ckp'])
 
         metrics = self._losses['metric'] if metrics is not None else None
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))

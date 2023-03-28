@@ -31,7 +31,7 @@ class BaseAugmentor:
         #create dataframe with augments
         augmented_df = [df.copy() for _ in range(self.cnt)]
         for i, df_aug in enumerate(augmented_df):
-            df_aug[self.col_name] = i
+            df_aug[self.col_name] = i+1
         augmented_df = pd.concat(augmented_df).reset_index()
 
         #fuse original df with augmentations
@@ -49,7 +49,7 @@ class BaseAugmentor:
         if aug_idx == 0:
             return base_image
         else:
-            return self._calc_augmentation(base_image, aug_idx)
+            return self._calc_augmentation(base_image, aug_idx-1)
 
     def _calc_augmentation(self, image, aug):
         raise NotImplementedError()
@@ -57,7 +57,7 @@ class BaseAugmentor:
 
 class CustomAugmentor(BaseAugmentor):
     def __init__(self, fuser, augments=DEFAULT_AUGMENTS):
-        super().__init__(augment_cnt=len(augments), col_name='aug', fuser=fuser)
+        super().__init__(augment_cnt=0 if augments is None else len(augments), col_name='aug', fuser=fuser)
 
         self.augmentation_dict = augments
 

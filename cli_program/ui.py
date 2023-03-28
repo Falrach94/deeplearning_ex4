@@ -127,13 +127,15 @@ class CLInterface:
 
         tb.print()
 
-    def print_kfold_table(self, k, loss, f1, reset_loc):
+    def print_kfold_table(self, data, k, loss, f1, reset_loc):
         tb = TableBuilderEx(self.sb, 'kfold_table')
 
-        tb.add_line('#', 'loss', 'f1')
+        tb.add_line('#', 'val size', 'tr size', 'loss', 'f1')
 
         for i in range(k):
             tb.add_line(i+1,
+                        len(data[i]['val']['dataset']),
+                        len(data[i]['tr']['dataset']),
                         '-' if len(loss) <= i else loss[i],
                         '-' if len(f1) <= i else f1[i])
 

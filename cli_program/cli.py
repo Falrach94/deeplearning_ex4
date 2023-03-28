@@ -81,7 +81,8 @@ class Program:
         self.cli.print_eval_table(modifications, stats)
         save_eval_stats('assets/eval.csv', modifications, stats)
 
-        self.cli.print_kfold_table(self.config['behaviour']['config']['k'],
+        self.cli.print_kfold_table(self.state['data']['folds'],
+                                   self.config['behaviour']['config']['k'],
                                    [], [], reset_loc=True)
 
         for i, config in enumerate(updater):
@@ -96,7 +97,8 @@ class Program:
                 _, loss, f1 = self._perform_training()
                 mean_loss += [loss]
                 mean_f1 += [f1]
-                self.cli.print_kfold_table(self.config['behaviour']['config']['k'],
+                self.cli.print_kfold_table(self.state['data']['folds'],
+                                           self.config['behaviour']['config']['k'],
                                            mean_loss, mean_f1)
 
 

@@ -86,14 +86,14 @@ class Program:
                                    [], [], reset_loc=True)
 
         for i, config in enumerate(updater):
-            self.state['model'] = initialize_model_state(config)
-            self.state['training'] = initialize_training_state(self.state, config)
 
             mean_loss = []
             mean_f1 = []
 
             self.cli.reset_progress_bars()
             for fold in self.state['data']['folds']:
+                self.state['model'] = initialize_model_state(config)
+                self.state['training'] = initialize_training_state(self.state, config)
                 self.state['data']['split'] = fold
                 _, loss, f1 = self._perform_training()
                 mean_loss += [loss]

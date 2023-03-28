@@ -128,10 +128,10 @@ class TableBuilderEx:
             + line + ' '*(self.max_line_len-len(line))\
             + self.vl
 
-    def print(self):
+    def print(self, reset_loc=False):
 
         if self.name is not None:
-            if self.sb.has_mark(self.name):
+            if (not reset_loc) and self.sb.has_mark(self.name):
                 self.sb.goto_mark(self.name)
             else:
                 self.sb.mark_line(self.name)
@@ -150,7 +150,7 @@ class TableBuilderEx:
 
 
 def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
-                       sb: ScreenBuilder = None, name='bar'):
+                       sb: ScreenBuilder = None, name='bar', reset_loc=False):
 
     perc = i/cnt
     filled = round(perc*bar_length)
@@ -161,7 +161,7 @@ def print_progress_bar(prefix, i, cnt, suffix, fill_char='█', bar_length=50,
     if sb is None:
         print(txt, end='', flush=True)
     else:
-        if not sb.has_mark(name):
+        if reset_loc or (not sb.has_mark(name)):
             sb.mark_line(name)
         else:
             sb.goto_mark(name)

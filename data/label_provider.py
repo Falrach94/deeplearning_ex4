@@ -89,3 +89,20 @@ class SingleLabeler(SimpleLabeler):
     @staticmethod
     def _get_df_labels_id(data, col_names):
         return SingleLabeler._get_df_labels(data, col_names).astype('int')
+
+
+class LabelerTypes:
+    SIMPLE = 'simple'
+    SINGLE = 'single'
+
+
+class LabelerFactory:
+    @staticmethod
+    def create(type, state, config):
+        if type == LabelerTypes.SIMPLE:
+            return SimpleLabeler(*config['cols'], output_mode=config['om'])
+        elif type == LabelerTypes.SINGLE:
+            return SingleLabeler(*config['cols'], output_mode=config['om'])
+
+        raise NotImplemented('labeler type not recognized')
+

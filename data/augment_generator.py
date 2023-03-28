@@ -64,3 +64,16 @@ class CustomAugmentor(BaseAugmentor):
     def _calc_augmentation(self, image, aug):
         return self.augmentation_dict[aug](image)
 
+
+class AugmenterTypes:
+    CUSTOM = 'custom'
+
+
+class AugmenterFactory:
+    @staticmethod
+    def create(type, state, config):
+        if type == AugmenterTypes.CUSTOM:
+            return CustomAugmentor(state['fuser'], config['augments'])
+
+        raise NotImplementedError(f'fuser type  {type} not recognized')
+

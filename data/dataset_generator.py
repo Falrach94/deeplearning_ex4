@@ -82,12 +82,14 @@ def create_k_fold_datasets(data, k,
                            image_provider, label_provider,
                            augmentor,
                            tr_transform, val_transform,
-                           batch_size):
+                           batch_size,
+                           tr_filter, val_filter):
     return [_create_datasets(fold['tr'], fold['val'],
                              image_provider, label_provider,
                              augmentor,
                              tr_transform, val_transform,
-                             batch_size)
+                             batch_size,
+                             tr_filter, val_filter)
             for fold in k_fold_split(data, k)]
 
 

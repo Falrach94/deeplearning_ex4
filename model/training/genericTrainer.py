@@ -77,7 +77,6 @@ class GenericTrainer:
         best_loss = None
 
         best_metric_val = None
-        best_metric_model = None
 
         for i in range(max_epoch):
             loss, time, metrics = self.single_epoch_with_eval()
@@ -108,7 +107,7 @@ class GenericTrainer:
                 if i - best_epoch > window:
                     break
 
-        return best_model, best_metric_model
+        return best_model, best_loss, best_crit_val
 
 
     # --- setup ------------------

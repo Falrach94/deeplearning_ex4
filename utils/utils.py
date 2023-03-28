@@ -1,5 +1,9 @@
+import pandas as pd
 import torch
 from torch import nn
+
+from data.utils import combine
+
 
 def export(model: nn.Module, state, path, sb):
     if sb is not None:
@@ -58,3 +62,12 @@ def mirror_vertical(x):
 def rotate90deg(x, k):
     x = torch.rot90(x, k, dims=(1, 2))
     return x
+
+
+def save_eval_stats(path, mods: list, vals: list):
+    cols = ['#'] + [mod.keys[-1] for mod in mods] + ['loss', 'f1']
+    combs = combine([mod.range for mod in mods])
+    values = [[i] + c + list(v) for i, (c, v) in enumerate(zip(combs, vals))]
+
+    df = pd.DataFrame(columns=cols, data=values)
+    df.to_csv(path, index=False)

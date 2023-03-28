@@ -2,20 +2,21 @@ import pandas as pd
 
 from data.utils import get_distribution, split_df_by_category
 
-
 class SimpleFuser:
     @staticmethod
     def fuse(df, df_augs):
         return pd.concat((df, df_augs)).sample(frac=1).reset_index(drop=True)
+
 
 class RejectAugmentsFuser:
     @staticmethod
     def fuse(df, df_augs):
         return df.sample(frac=1).reset_index(drop=True)
 
+
 class BalancedFuser:
 
-    def __init__(self, label_provider, target_per_category, oversample=True):
+    def __init__(self, label_provider, oversample=True):
         self.label_provider = label_provider
         self.oversample = oversample
     def fuse(self, df, df_augs):
@@ -46,3 +47,25 @@ class BalancedFuser:
         df = df.sample(frac=1).reset_index(drop=True)
 
         return df
+
+
+class FuserTypes:
+    SIMPLE = 'simple'
+    REJECT_AUGMENTS = 'reject_augments'
+    BALANCED = 'balanced'
+
+
+class FuserFactory:
+    @staticmethod
+    def create(type, state, config):
+        if type is None:
+            return None
+        elif type == FuserTypes.SIMPLE:
+            return SimpleFuser()
+        elif type == FuserTypes.REJECT_AUGMENTS:
+            return RejectAugmentsFuser()
+        elif type == FuserTypes.BALANCED:
+            return BalancedFuser(state['labeler'], config['oversampling'])
+
+        raise NotImplementedError(f'fuser type {type} not recognized')
+

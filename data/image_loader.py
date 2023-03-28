@@ -71,4 +71,22 @@ class AugmentedImageLoader(CachedImageLoader):
         return image
 
 
+class ImageLoaderTypes:
+    Basic = 'basic'
+    Cached = 'cached'
+    Augmented = 'augmented'
+
+
+class ImageLoaderFactory:
+    @staticmethod
+    def create(type, state, config):
+        if type == ImageLoaderTypes.Basic:
+            return ImageLoader(image_path_col=config['col'])
+        elif type == ImageLoaderTypes.Cached:
+            return CachedImageLoader(config['col'])
+        elif type == ImageLoaderTypes.Augmented:
+            return AugmentedImageLoader(image_path_col=config['col'],
+                                        augmentor=state['augmenter'])
+
+        raise NotImplemented('loss type not recognized')
 

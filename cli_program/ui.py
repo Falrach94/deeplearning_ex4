@@ -1,6 +1,7 @@
 from cli_program.settings.behaviour_settings import EXPORT_PATH, BEST_MODEL_PATH
 from cli_program.settings.data_settings import *
 from cli_program.settings.training_settings import *
+from data.utils import combine
 from model.config import WORKER_THREADS
 from utils.console_util import ScreenBuilder, print_progress_bar, TableBuilderEx
 
@@ -19,10 +20,10 @@ class CLInterface:
         max_val = max(dist)
         table.add_line('', *[f'{val} ({round(100*val/cnt, 1)} %, 1:{(round(max_val/val, 1)) if val != 0 else "-"})' for val in dist])
 
-    def print_settings(self, data):
-        tr_set = data['tr']['dataset']
-        val_set = data['val']['dataset']
-        raw_set = data['raw']
+    def print_split_config(self, data):
+        tr_set = data['split']['tr']['dataset']
+        val_set = data['split']['val']['dataset']
+        raw_set = data['raw']['dataset']
 
         raw_stats = raw_set.get_categories()
         val_stats = val_set.get_categories()
@@ -48,11 +49,44 @@ class CLInterface:
 
         table.new_block()
         table.add_line('optimizer', 'lr', 'weight decay')
-        table.add_line(type(OPTIMIZER_FACTORY), LR, DECAY)
+      #  table.add_line(type(OPTIMIZER_FACTORY), LR, DECAY)
 
         table.new_block()
         table.add_line('loss fct', 'gamma_neg', 'gamma_pos', 'clip')
-        table.add_line(type(LOSS_CALCULATOR), GAMMA_NEG, GAMMA_POS, CLIP)
+      #  table.add_line(type(LOSS_CALCULATOR), GAMMA_NEG, GAMMA_POS, CLIP)
+
+        table.new_block()
+        table.add_line('training', 'max epoch', 'patience', 'window', 'batch size')
+        table.add_line('', MAX_EPOCH, PATIENCE, WINDOW, BATCH_SIZE)
+
+        table.new_block()
+        table.add_line('general', 'checkpoint path', 'export path', 'worker cnt')
+        table.add_line('', BEST_MODEL_PATH, EXPORT_PATH, WORKER_THREADS)
+
+        table.print()
+
+
+    def print_kfold_settings(self, data):
+
+        raw_set = data['raw']['dataset']
+
+        raw_stats = raw_set.get_categories()
+
+        table = TableBuilderEx(self.sb, 'settings')
+        table.add_line('Data:', 'dataset', 'labels', 'size')
+        table.add_line('', DATA_PATH, LABEL_COLUMNS, len(raw_set))
+
+        table.new_block()
+        table.add_line('raw distribution:', *[f'label {i}' for i in range(len(raw_stats))])
+        self._make_label_distribution_line(table, raw_stats)
+
+        table.new_block()
+        table.add_line('optimizer', 'lr', 'weight decay')
+      #  table.add_line(type(OPTIMIZER_FACTORY), LR, DECAY)
+
+        table.new_block()
+        table.add_line('loss fct', 'gamma_neg', 'gamma_pos', 'clip')
+      #  table.add_line(type(LOSS_CALCULATOR), GAMMA_NEG, GAMMA_POS, CLIP)
 
         table.new_block()
         table.add_line('training', 'max epoch', 'patience', 'window', 'batch size')
@@ -81,8 +115,34 @@ class CLInterface:
 
         builder.print()
 
-    def prepare_ui(self, data):
-        self.print_settings(data)
+    def print_eval_table(self, modifications, stats):
+        tb = TableBuilderEx(self.sb)
+
+        configurations = combine([mod.range for mod in modifications])
+
+        tb.add_line('#', *[mod.keys[-1] for mod in modifications], 'loss', 'f1')
+
+        for i, (conf, vals) in enumerate(zip(configurations, stats)):
+            tb.add_line(i, *conf, *vals)
+
+        tb.print()
+
+    def print_kfold_table(self, k, loss, f1, reset_loc):
+        tb = TableBuilderEx(self.sb, 'kfold_table')
+
+        tb.add_line('#', 'loss', 'f1')
+
+        for i in range(k):
+            tb.add_line(i+1,
+                        '-' if len(loss) <= i else loss[i],
+                        '-' if len(f1) <= i else f1[i])
+
+        tb.print(reset_loc)
+
+
+    def prepare_ui(self, state, config):
+        self.print_kfold_settings(state['data'])
+
         print_progress_bar(f'epoch ? - training',
                            0, 1,
                            f'',
@@ -91,6 +151,18 @@ class CLInterface:
                            0, 1,
                            f'',
                            sb=self.sb, name='val_prog')
+
+    def reset_progress_bars(self):
+
+        print_progress_bar(f'epoch ? - training',
+                           0, 1,
+                           f'',
+                           sb=self.sb, name='tr_prog', reset_loc=True)
+        print_progress_bar(f'epoch ? - validation',
+                           0, 1,
+                           f'',
+                           sb=self.sb, name='val_prog', reset_loc=True)
+
 
     def batch_update(self, epoch, training, batch_ix, batch_cnt, tpb, approx_rem):
         print_progress_bar(f'epoch {epoch} - {"training" if training else "validation"}',

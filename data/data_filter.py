@@ -38,3 +38,24 @@ class NoAugsFilter:
     @staticmethod
     def filter(df):
         return df[df.aug == 0].sample(frac=1).reset_index(drop=True)
+
+
+class FilterTypes:
+    NO_AUGS = 'no_augs'
+    ONLY_DEFECTS = 'only_defects'
+    SMALL_SET = 'small_set'
+
+
+class FilterFactory:
+    @staticmethod
+    def create(type, state, config):
+        if type is None:
+            return None
+        elif type == FilterTypes.NO_AUGS:
+            return NoAugsFilter()
+        elif type == FilterTypes.SMALL_SET:
+            return SmallSetFilter(size=config['size'])
+        elif type == FilterTypes.ONLY_DEFECTS:
+            return OnlyDefectsFilter()
+
+        raise NotImplementedError(f'filter type {type} not recognized')

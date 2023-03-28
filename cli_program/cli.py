@@ -1,79 +1,43 @@
+import copy
 import time
 
+import numpy as np
+import pandas as pd
 import torch
 
-from cli_program.settings.behaviour_settings import BEST_MODEL_PATH, EXPORT_PATH
-from cli_program.settings.data_settings import *
-from cli_program.settings.model_settings import *
-from cli_program.settings.training_settings import *
+from cli_program.config_updater import ConfigUpdater, ConfigUpdateField
+from cli_program.settings.behaviour_settings import Modes
+from cli_program.settings.config_init import initialize_state, initialize_training_state
+from cli_program.settings.configurations import default_config
+
 from cli_program.ui import CLInterface
-from data.augment_generator import CustomAugmentor
-from data.dataset_generator import create_single_split_datasets
-from data.data_reader import CSVReader
-from data.image_loader import AugmentedImageLoader
-from data.label_provider import SimpleLabeler
-from data.simple_dataset import SimpleDataset
 from model.training.genericTrainer import GenericTrainer
 from utils.averageApproximator import AverageApproximator
-from utils.utils import export
+from utils.utils import export, save_eval_stats
 
 
 class Program:
     def __init__(self):
-        self.data = None
         self.trainer = None
-        self.cli = CLInterface()
-
         self._start_time = None
-
+        self._losses = None
         self._approx = [AverageApproximator(), AverageApproximator()]
 
-        self._losses = None# {'train': [], 'val': []}
+        self.config = default_config()
+        self.state = initialize_state(self.config)
 
-        self._prepare_data()
-        self._prepare_ui()
-        self._prepare_training()
+        self.cli = CLInterface()
+        self.cli.prepare_ui(self.state, self.config)
 
-    def _prepare_data(self):
-        self.image_provider = AugmentedImageLoader(image_path_col='filename',
-                                                   augmentor=AUGMENTER)
-        df = CSVReader(path=DATA_PATH, seperator=CSV_SEPERATOR).get()
-        df = LABEL_PROVIDER.label_dataframe(df)
-       # df = OnlyDefectsFilter.filter(df)
-
-        self.data = create_single_split_datasets(
-            data=df,
-            split=HOLDOUT_SPLIT,
-            image_provider=self.image_provider,
-            label_provider=LABEL_PROVIDER,
-            augmentor=AUGMENTER,
-            tr_transform=TR_TRANSFORMS,
-            val_transform=VAL_TRANSFORMS,
-            batch_size=BATCH_SIZE,
-            tr_filter=TR_FILTER,
-            val_filter=VAL_FILTER
-        )
-        self.data['raw'] = SimpleDataset(AUGMENTER.add_augmentations_to_df(df, True),
-                               transforms=VAL_TRANSFORMS,
-                               image_provider=self.image_provider,
-                               label_provider=LABEL_PROVIDER)
-
-        #dist = self.data['tr']['dataset'].get_categories()
-        #total = sum(dist)
-        #weights = [total/d if d != 0 else 0 for d in dist]
-        #LOSS_CALCULATOR.set_weights(torch.tensor(weights).cuda())
-
-    def _prepare_ui(self):
-        self.cli.prepare_ui(self.data)
 
     def _prepare_training(self):
         self.trainer = GenericTrainer()
         self.trainer.set_batch_callback(self._batch_callback)
         self.trainer.set_epoch_callback(self._epoch_callback)
-        self.trainer.set_training_loss_calculator(TRAINING_LOSS)
-        self.trainer.set_validation_loss_calculator(VALIDATION_LOSS)
-        self.trainer.set_metric_calculator(METRIC_CALC)
-        self.trainer.set_metric_selector(BEST_METRIC_SELECTOR)
+        self.trainer.set_training_loss_calculator(self.state['training']['loss']['tr'].calc)
+        self.trainer.set_validation_loss_calculator(self.state['training']['loss']['val'].calc)
+        self.trainer.set_metric_calculator(self.config['training']['metric']['calculator'])
+        self.trainer.set_metric_selector(self.config['training']['metric']['selector'])
         self.trainer.set_stopping_criterium(None)
 
     def _batch_callback(self, batch_ix, batch_cnt, time, training):
@@ -95,30 +59,81 @@ class Program:
         self._losses['train'] += [loss['train']]
         self._losses['val'] += [loss['val']]
         self._losses['metric'] += [metrics]
-        torch.save(MODEL.state_dict(), BEST_MODEL_PATH)
+        torch.save(self.state['model'].state_dict(), self.config['path']['ckp'])
 
         metrics = self._losses['metric'] if metrics is not None else None
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))
 
-    def perform_training(self):
+    def _run_split_training(self):
+        model_state = self._perform_training()
+
+        torch.save(model_state, self.path['ckp'])
+        export(self.state['model'], model_state, self.path['export'], self.cli.sb)
+
+
+    def _run_kfold_evaluation(self):
+
+        modifications = self.config['behaviour']['config']['updates']
+        updater = ConfigUpdater(self.config, modifications)
+
+        stats = np.zeros((len(updater), 2))
+
+        self.cli.print_eval_table(modifications, stats)
+        save_eval_stats('assets/eval.csv', modifications, stats)
+
+        self.cli.print_kfold_table(self.config['behaviour']['config']['k'],
+                                   [], [], reset_loc=True)
+
+        for i, config in enumerate(updater):
+            self.state['training'] = initialize_training_state(self.state, config)
+
+            mean_loss = []
+            mean_f1 = []
+
+            for fold in self.state['data']['folds']:
+                self.state['data']['split'] = fold
+                self.cli.reset_progress_bars()
+                _, loss, f1 = self._perform_training()
+                mean_loss += [loss]
+                mean_f1 += [f1]
+                self.cli.print_kfold_table(self.config['behaviour']['config']['k'],
+                                           mean_loss, mean_f1)
+
+
+            stats[i, 0] = np.mean(mean_loss)
+            stats[i, 1] = np.mean(mean_f1)
+
+            self.cli.print_eval_table(modifications, stats)
+            save_eval_stats('assets/eval.csv', modifications, stats)
+
+    def run(self):
+        switch = {
+            Modes.Split: self._run_split_training,
+            Modes.KFold: self._run_kfold_evaluation
+        }
+        switch[self.config['behaviour']['mode']]()
+
+    def _perform_training(self):
         self._start_time = time.time_ns()
-        model = MODEL.cuda()
+        self._prepare_training()
+        model = self.state['model'].cuda()
+        data = self.state['data']['split']
+
         self.trainer.set_session(model=model,
-                                 optim=OPTIMIZER_FACTORY.create(model.parameters()),
-                                 tr_dl=self.data['tr']['dl'],
-                                 val_dl=self.data['val']['dl'],
-                                 val_cnt=len(self.data['val']['dataset']),
-                                 label_cnt=LABEL_PROVIDER.class_count(True))
+                                 optim=self.state['training']['optimizer'],
+                                 tr_dl=data['tr']['dl'],
+                                 val_dl=data['val']['dl'],
+                                 val_cnt=len(data['val']['dataset']),
+                                 label_cnt=self.state['data_processor']['labeler'].class_count(True))
 
         self._losses = {'train': [], 'val': [], 'metric': []}
-        best_model_state, _ = self.trainer.train_with_early_stopping(MAX_EPOCH, PATIENCE, WINDOW)
-        model.load_state_dict(best_model_state)
-
-        torch.save(best_model_state, BEST_MODEL_PATH)
-        export(model, best_model_state, EXPORT_PATH, self.cli.sb)
+        best_model_state, best_loss, best_metric = self.trainer.train_with_early_stopping(self.config['training']['config']['max_epoch'],
+                                                                     self.config['training']['config']['patience'],
+                                                                     self.config['training']['config']['window'])
+        return best_model_state, best_loss, best_metric
 
 
 if __name__ == '__main__':
     print('')
     prog = Program()
-    prog.perform_training()
+    prog.run()

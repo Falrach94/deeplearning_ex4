@@ -23,3 +23,18 @@ def split_df_by_category(df):
     id_col = 'label_id'
     cat_cnt = max(df[id_col])+1
     return [df[df[id_col]==i] for i in range(cat_cnt)]
+
+
+def as_list(v):
+    return v if isinstance(v, list) else [v]
+
+
+def combine(list):
+    res = [[]]
+    for l in list:
+        right = res
+        res = []
+        for y in l:
+            for x in right:
+                res.append(as_list(x) + as_list(y))
+    return res

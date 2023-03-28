@@ -1,13 +1,11 @@
-from cli_program.settings.behaviour_settings import DEF_PATH, DIST_PATH
-from cli_program.settings.data_settings import LABEL_COLUMNS
-from model.NNModels.AutoEncoder import ResNetAutoEncoder
-from model.NNModels.InceptionResnetV2 import InceptionV3
-from model.NNModels.ResNet34_pre import ResNet34Sig, ResNet34Combined
-from model.NNModels.ResNet50v2_pre import ResNet50v2_Pretrained
+from data.model_factory import ModelTypes
 
-#MODEL = ResNet34Combined(DIST_PATH, DEF_PATH)
-MODEL = ResNet34Sig(2, multi_layer=True)
-#MODEL = ResNetAutoEncoder()
-#MODEL = InceptionV3()
-#MODEL = ResNet50v2_Pretrained()
+MODEL_TYPE = ModelTypes.ResNet34_Sig
+LABEL_CNT = 2
+MULTI_LAYER = True
+MODEL_CONFIG = {
+    'out_cnt': LABEL_CNT,
+    'multi_layer': MULTI_LAYER
+}
+
 

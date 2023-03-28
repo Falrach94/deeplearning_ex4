@@ -7,7 +7,7 @@ import torch
 
 from cli_program.config_updater import ConfigUpdater, ConfigUpdateField
 from cli_program.settings.behaviour_settings import Modes
-from cli_program.settings.config_init import initialize_state, initialize_training_state
+from cli_program.settings.config_init import initialize_state, initialize_training_state, initialize_model_state
 from cli_program.settings.configurations import default_config
 
 from cli_program.ui import CLInterface
@@ -86,14 +86,15 @@ class Program:
                                    [], [], reset_loc=True)
 
         for i, config in enumerate(updater):
+            self.state['model'] = initialize_model_state(config)
             self.state['training'] = initialize_training_state(self.state, config)
 
             mean_loss = []
             mean_f1 = []
 
+            self.cli.reset_progress_bars()
             for fold in self.state['data']['folds']:
                 self.state['data']['split'] = fold
-                self.cli.reset_progress_bars()
                 _, loss, f1 = self._perform_training()
                 mean_loss += [loss]
                 mean_f1 += [f1]

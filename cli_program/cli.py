@@ -99,7 +99,8 @@ class Program:
                 mean_f1 += [f1]
                 self.cli.print_kfold_table(self.state['data']['folds'],
                                            self.config['behaviour']['config']['k'],
-                                           mean_loss, mean_f1)
+                                           mean_loss, mean_f1,
+                                           reset_loc=False)
 
 
             stats[i, 0] = np.mean(mean_loss)

@@ -307,7 +307,7 @@ class CLInterface:
 
     def epoch_update(self, epoch, loss, time, metrics_list, best, total_time):
 
-        self._kfold_epoch_update(self, epoch, loss, time, metrics_list, best, total_time)
+        self._kfold_epoch_update(epoch, loss, time, metrics_list, best, total_time)
 
 
 

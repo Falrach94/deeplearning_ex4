@@ -65,7 +65,7 @@ def rotate90deg(x, k):
 
 
 def save_eval_stats(path, mods: list, vals: list):
-    cols = ['#'] + [mod.keys[-1] for mod in mods] + ['loss', 'f1']
+    cols = ['#'] + [mod.keys[-1] for mod in mods] + ['loss', 'loss_std', 'f1', 'f1_mean']
     combs = combine([mod.range for mod in mods])
     values = [[i] + c + list(v) for i, (c, v) in enumerate(zip(combs, vals))]
 

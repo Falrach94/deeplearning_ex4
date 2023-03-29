@@ -62,7 +62,8 @@ class ScreenBuilder:
         self.goto_line(self.marks[name])
 
     def remove_mark(self, name):
-        self.marks.pop(name)
+        if name in self.marks:
+            self.marks.pop(name)
 
     def has_mark(self, name):
         return name in self.marks

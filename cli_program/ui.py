@@ -120,7 +120,7 @@ class CLInterface:
 
         configurations = combine([mod.range for mod in modifications])
 
-        tb.add_line('#', *[mod.keys[-1] for mod in modifications], 'loss', 'f1')
+        tb.add_line('#', *[mod.keys[-1] for mod in modifications], 'loss', 'loss_std', 'f1', 'f1_std')
 
         for i, (conf, vals) in enumerate(zip(configurations, stats)):
             tb.add_line(i, *conf, *vals)

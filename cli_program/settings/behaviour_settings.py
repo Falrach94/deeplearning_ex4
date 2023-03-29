@@ -1,3 +1,5 @@
+import numpy as np
+
 from cli_program.config_updater import ConfigUpdateField
 
 DIST_PATH = 'assets/dist_model.ckp'
@@ -18,7 +20,7 @@ class Modes:
 K = 5
 
 CONFIG_UPDATES = [
-    ConfigUpdateField(['training', 'loss', 'tr', 'config', 'gn'], list(range(1,3,0.2)))
+    ConfigUpdateField(['training', 'loss', 'tr', 'config', 'gn'], list(np.arange(1,3,0.2)))
 ]
 
 MODE_CONFIG = {

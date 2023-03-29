@@ -76,7 +76,7 @@ class Program:
         modifications = self.config['behaviour']['config']['updates']
         updater = ConfigUpdater(self.config, modifications)
 
-        stats = np.zeros((len(updater), 2))
+        stats = np.zeros((len(updater), 4))
 
         self.cli.print_eval_table(modifications, stats)
         save_eval_stats('assets/eval.csv', modifications, stats)
@@ -107,7 +107,9 @@ class Program:
 
 
             stats[i, 0] = np.mean(mean_loss)
-            stats[i, 1] = np.mean(mean_f1)
+            stats[i, 1] = np.std(mean_loss)
+            stats[i, 2] = np.mean(mean_f1)
+            stats[i, 3] = np.std(mean_f1)
 
             self.cli.print_eval_table(modifications, stats)
             save_eval_stats('assets/eval.csv', modifications, stats)

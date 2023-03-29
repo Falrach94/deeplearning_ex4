@@ -91,6 +91,8 @@ class Program:
             mean_f1 = []
 
             self.cli.reset_progress_bars()
+            self.cli.sb.remove_mark('epoch')
+
             for fold in self.state['data']['folds']:
                 self.state['model'] = initialize_model_state(config)
                 self.state['training'] = initialize_training_state(self.state, config)

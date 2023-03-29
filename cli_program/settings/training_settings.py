@@ -20,7 +20,7 @@ OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 # loss fct
 TR_LOSS_TYPE = LossTypes.ASL
 GAMMA_NEG = 4
-GAMMA_POS = 1
+GAMMA_POS = 0
 CLIP = 0.1
 TR_LOSS_CONFIG = {
     'gn': GAMMA_NEG,

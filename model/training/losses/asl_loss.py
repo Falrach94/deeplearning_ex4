@@ -160,7 +160,11 @@ class WeightedAsymmetricLossOptimized(nn.Module):
                 torch.set_grad_enabled(True)
             self.loss *= self.asymmetric_w
 
-        self.loss *= self.weights
+        col = torch.arange(0, y.shape[1]-1)[None, :].cuda().repeat(y.shape[0], 1)
+        powers = torch.pow(2, col)
+        class_ix = torch.sum(y*powers, dim=1, dtype=torch.long)
+        w = self.weights[class_ix]
+        self.loss *= w[:,None]
 
         return -self.loss.sum()
 

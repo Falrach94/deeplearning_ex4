@@ -22,7 +22,7 @@ def get_distribution(df, label_provider):
 def split_df_by_category(df):
     id_col = 'label_id'
     cat_cnt = max(df[id_col])+1
-    return [df[df[id_col]==i] for i in range(cat_cnt)]
+    return [df[df[id_col]==i].reset_index(drop=True) for i in range(cat_cnt)]
 
 
 def as_list(v):

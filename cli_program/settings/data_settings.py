@@ -66,6 +66,11 @@ AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, False, True, 2),
     lambda x: mirror_and_rotate(x, False, True, 3),
 ]
+AUGMENTATIONS = [
+    lambda x: mirror_and_rotate(x, True, False, 0),
+    lambda x: mirror_and_rotate(x, False, True, 0),
+    lambda x: mirror_and_rotate(x, True, True, 0)
+]
 AUGMENTER_CONFIG = {
     'augments': AUGMENTATIONS
 }

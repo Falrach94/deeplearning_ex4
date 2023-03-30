@@ -128,9 +128,9 @@ def initialize_data(state, config):
 
 def initialize_state(config):
     state = dict()
-    state['model'] = initialize_model_state(config)
-    state['training'] = initialize_training_state(state, config)
     state['data_processor'] = initialize_data_processor_state(config)
     state['data'] = initialize_data(state, config)
+    state['model'] = initialize_model_state(config)
+    state['training'] = initialize_training_state(state, config)
     return state
 

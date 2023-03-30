@@ -94,9 +94,9 @@ class Program:
             self.cli.sb.remove_mark('epoch')
 
             for fold in self.state['data']['folds']:
+                self.state['data']['split'] = fold
                 self.state['model'] = initialize_model_state(config)
                 self.state['training'] = initialize_training_state(self.state, config)
-                self.state['data']['split'] = fold
                 _, loss, f1 = self._perform_training()
                 mean_loss += [loss]
                 mean_f1 += [f1]

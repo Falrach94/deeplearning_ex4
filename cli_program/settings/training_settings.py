@@ -18,19 +18,24 @@ OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 
 
 # loss fct
-TR_LOSS_TYPE = LossTypes.ASL
+TR_LOSS_TYPE = LossTypes.ASL_WEIGHTED
 GAMMA_NEG = 2
 GAMMA_POS = 0
 CLIP = 0.1
 TR_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,
-    'clip': CLIP
+    'clip': CLIP,
+    'set_type': 'tr'
 }
 
-VAL_LOSS_TYPE = None
-VAL_LOSS_CONFIG = None
-
+VAL_LOSS_TYPE = LossTypes.ASL_WEIGHTED
+VAL_LOSS_CONFIG = {
+    'gn': GAMMA_NEG,
+    'gp': GAMMA_POS,
+    'clip': CLIP,
+    'set_type': 'val'
+}
 # metric calculation
 METRIC_CALC = calc_f1_m
 BEST_METRIC_SELECTOR = select_best_metric

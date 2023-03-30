@@ -32,7 +32,7 @@ class BaseAugmentor:
         augmented_df = [df.copy() for _ in range(self.cnt)]
         for i, df_aug in enumerate(augmented_df):
             df_aug[self.col_name] = i+1
-        augmented_df = pd.concat(augmented_df).reset_index()
+        augmented_df = pd.concat(augmented_df).reset_index(drop=True)
 
         #fuse original df with augmentations
         df = self.fuser.fuse(df, augmented_df)

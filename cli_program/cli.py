@@ -67,8 +67,8 @@ class Program:
     def _run_split_training(self):
         model_state = self._perform_training()
 
-        torch.save(model_state, self.path['ckp'])
-        export(self.state['model'], model_state, self.path['export'], self.cli.sb)
+        torch.save(model_state, self.config['path']['ckp'])
+        export(self.state['model'], model_state, self.config['path']['export'], self.cli.sb)
 
 
     def _run_kfold_evaluation(self):

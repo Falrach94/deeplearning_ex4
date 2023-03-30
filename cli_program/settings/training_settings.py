@@ -6,13 +6,13 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 
 # training
 MAX_EPOCH = 100
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 PATIENCE = 10
 WINDOW = 5
 
 # optimizer
 OPTIMIZER_TYPE = OptimizerTypes.ADAM
-LR = 0.0001
+LR = 0.00003
 DECAY = 0.00001
 OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 

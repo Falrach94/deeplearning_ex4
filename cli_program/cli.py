@@ -68,6 +68,9 @@ class Program:
         self._losses['train'] += [loss['train']]
         self._losses['val'] += [loss['val']]
         self._losses['metric'] += [metrics]
+
+        torch.save(self._losses, self.config['path']['stats'])
+
       #  torch.save(self.state['model'].state_dict(), self.config['path']['ckp'])
 
         metrics = self._losses['metric'] if metrics is not None else None
@@ -80,7 +83,6 @@ class Program:
         export(self.state['model'],
                model_state,
                self.config['path']['export'], self.cli.sb)
-
 
     def _run_kfold_evaluation(self):
 
@@ -120,7 +122,6 @@ class Program:
                                            self.config['behaviour']['config']['k'],
                                            mean_loss, mean_f1,
                                            reset_loc=False)
-
 
             stats[i, 0] = np.mean(mean_loss)
             stats[i, 1] = np.std(mean_loss)

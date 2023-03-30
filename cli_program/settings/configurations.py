@@ -45,6 +45,7 @@ def default_config():
 
     config['path']['ckp'] = BEST_MODEL_PATH
     config['path']['export'] = EXPORT_PATH
+    config['path']['stats'] = STATS_PATH
 
     config['model']['type'] = MODEL_TYPE
     config['model']['config'] = MODEL_CONFIG

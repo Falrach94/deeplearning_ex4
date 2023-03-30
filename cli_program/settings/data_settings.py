@@ -24,7 +24,7 @@ TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
 TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
-                                       tv.transforms.GaussianBlur(7),
+                                       tv.transforms.GaussianBlur(5),
  #                                      tv.transforms.RandomAutocontrast(),
                                        tv.transforms.RandomAdjustSharpness(0.8),
                                       # tv.transforms.RandomSolarize(),
@@ -78,7 +78,6 @@ AUGMENTATIONS = [
 AUGMENTATIONS = [
     lambda x: mirror_and_rotate(x, True, False, 0),
     lambda x: mirror_and_rotate(x, False, True, 0),
-    lambda x: mirror_and_rotate(x, True, True, 0),
     lambda x: mirror_and_rotate(x, False, False, 1),
     lambda x: mirror_and_rotate(x, False, False, 2),
     lambda x: mirror_and_rotate(x, False, False, 3),

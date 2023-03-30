@@ -5,6 +5,7 @@ from cli_program.config_updater import ConfigUpdateField
 DIST_PATH = 'assets/dist_model.ckp'
 DEF_PATH = 'assets/def_model.ckp'
 
+STATS_PATH = 'assets/stats.stats'
 
 BEST_MODEL_PATH = DIST_PATH #'assets/best_model.ckp'
 BASE_MODEL_PATH = 'assets/base_model.ckp'

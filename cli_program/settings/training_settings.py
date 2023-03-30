@@ -8,7 +8,7 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 MAX_EPOCH = 100
 BATCH_SIZE = 16
 PATIENCE = 10
-WINDOW = 5
+WINDOW = 10
 
 # optimizer
 OPTIMIZER_TYPE = OptimizerTypes.ADAM

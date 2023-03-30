@@ -20,7 +20,8 @@ class Modes:
 K = 5
 
 CONFIG_UPDATES = [
-    ConfigUpdateField(['training', 'loss', 'tr', 'config', 'gn'], [2])
+    ConfigUpdateField(['training', 'loss', 'tr', 'config', 'gn'], list(range(0,5))),
+    ConfigUpdateField(['training', 'loss', 'tr', 'config', 'gp'], list(range(0,5)))
 ]
 
 MODE_CONFIG = {

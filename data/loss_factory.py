@@ -27,14 +27,28 @@ class MSECalculator:
 
 
 class BCECalculator:
-    @staticmethod
-    def calc(input, pred, label, metrics):
-        return torch.nn.functional.binary_cross_entropy(pred.float(), label.float())
+    def __init__(self, weights=None):
+        self.weights=weights
 
+    def calc(self, input, pred, label, metrics):
+        loss = torch.nn.functional.binary_cross_entropy(pred.float(),
+                                                        label.float(),
+                                                        reduction='none')
+
+        col = torch.arange(0, label.shape[1]-1)[None, :].cuda().repeat(label.shape[0], 1)
+        powers = torch.pow(2, col)
+        class_ix = torch.sum(label*powers, dim=1, dtype=torch.long)
+        w = self.weights[class_ix]
+        loss *= w[:, None]
+
+        if self.weights is not None:
+            pass
+        return torch.mean(loss)
 
 class LossTypes:
     MSE = 'MSE',
     BCE = 'BCE',
+    BCE_WEIGHTED = 'BCE_WEIGHTED',
     ASL = 'ASL',
     ASL_WEIGHTED = 'ASL_Weighted'
 
@@ -55,6 +69,14 @@ class LossFactory:
             return ASLWeightedCalculator(config['gn'], config['gp'], config['clip'], weights)
         elif type == LossTypes.BCE:
             return BCECalculator()
+        elif type == LossTypes.BCE_WEIGHTED:
+            set_type = config['set_type']
+            if 'split' not in state['data']:
+                return None
+            dataset = state['data']['split'][set_type]['dataset']
+            dist = torch.tensor(dataset.get_categories()).cuda()
+            weights = 1/dist
+            return BCECalculator(weights)
         elif type == LossTypes.MSE:
             return MSECalculator()
 

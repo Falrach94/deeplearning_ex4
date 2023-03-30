@@ -1,4 +1,6 @@
 import torchvision as tv
+from torchvision.transforms import InterpolationMode
+
 from data.augment_fuser import BalancedFuser, SimpleFuser, FuserTypes
 from data.augment_generator import CustomAugmentor, AugmenterTypes
 from data.data_filter import NoAugsFilter, FilterTypes

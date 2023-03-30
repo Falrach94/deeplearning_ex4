@@ -27,7 +27,8 @@ def _create_dataset(df,
     dl = DataLoader(dataset,
                     batch_size=batch_size,
                     shuffle=shuffle,
-                    num_workers=WORKER_THREADS)
+                    num_workers=WORKER_THREADS,
+                    persistent_workers=True)
 
     return {'dataset': dataset, 'dl': dl}
 

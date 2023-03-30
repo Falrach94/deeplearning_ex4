@@ -35,14 +35,13 @@ class BCECalculator:
                                                         label.float(),
                                                         reduction='none')
 
-        col = torch.arange(0, label.shape[1]-1)[None, :].cuda().repeat(label.shape[0], 1)
-        powers = torch.pow(2, col)
-        class_ix = torch.sum(label*powers, dim=1, dtype=torch.long)
-        w = self.weights[class_ix]
-        loss *= w[:, None]
-
         if self.weights is not None:
-            pass
+            col = torch.arange(0, label.shape[1]-1)[None, :].cuda().repeat(label.shape[0], 1)
+            powers = torch.pow(2, col)
+            class_ix = torch.sum(label*powers, dim=1, dtype=torch.long)
+            w = self.weights[class_ix]
+            loss *= w[:, None]
+
         return torch.mean(loss)
 
 class LossTypes:

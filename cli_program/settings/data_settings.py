@@ -23,9 +23,9 @@ TR_STD = [0.16043035, 0.16043035, 0.16043035]
 
 TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                        tv.transforms.ToTensor(),
- #                                      tv.transforms.GaussianBlur(7),
+                                       tv.transforms.GaussianBlur(7),
  #                                      tv.transforms.RandomAutocontrast(),
- #                                      tv.transforms.RandomAdjustSharpness(0.8),
+                                       tv.transforms.RandomAdjustSharpness(0.8),
                                       # tv.transforms.RandomSolarize(),
                                        tv.transforms.Normalize(TR_MEAN, TR_STD),
                                        tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
@@ -82,7 +82,7 @@ AUGMENTER_CONFIG = {
 }
 
 
-VAL_FILTER_TYPE = FilterTypes.NO_AUGS
+VAL_FILTER_TYPE = None #FilterTypes.NO_AUGS
 VAL_FILTER_CONFIG = None
 TR_FILTER_TYPE = None#FilterTypes.NO_AUGS #FilterTypes.SMALL_SET
 TR_FILTER_CONFIG = None #{'size': 0.05}

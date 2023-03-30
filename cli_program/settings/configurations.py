@@ -29,6 +29,7 @@ def create_empty_config():
     config['training']['loss'] = dict()
     config['training']['loss']['tr'] = dict()
     config['training']['loss']['val'] = dict()
+    config['training']['loss']['aux'] = dict()
 
     config['path'] = dict()
 
@@ -79,6 +80,8 @@ def default_config():
     config['training']['loss']['tr']['config'] = TR_LOSS_CONFIG
     config['training']['loss']['val']['type'] = VAL_LOSS_TYPE
     config['training']['loss']['val']['config'] = VAL_LOSS_CONFIG
+    config['training']['loss']['aux']['type'] = AUX_LOSS_TYPE
+    config['training']['loss']['aux']['config'] = AUX_LOSS_CONFIG
 
     config['training']['config']['max_epoch'] = MAX_EPOCH
     config['training']['config']['patience'] = PATIENCE

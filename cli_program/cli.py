@@ -31,9 +31,14 @@ class Program:
 
 
     def _prepare_training(self):
+        aux_loss = self.state['training']['loss'].get('aux')
+        if aux_loss is not None:
+            self.state['data_processor']['labeler'].set_output_aux(True)
+
         self.trainer = GenericTrainer()
         self.trainer.set_batch_callback(self._batch_callback)
         self.trainer.set_epoch_callback(self._epoch_callback)
+        self.trainer.set_aux_loss_calculator(None if aux_loss is None else aux_loss.calc)
         self.trainer.set_training_loss_calculator(self.state['training']['loss']['tr'].calc)
         self.trainer.set_validation_loss_calculator(self.state['training']['loss']['val'].calc)
         self.trainer.set_metric_calculator(self.config['training']['metric']['calculator'])

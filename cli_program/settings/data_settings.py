@@ -40,12 +40,13 @@ IMAGE_LOADER_CONFIG = {
 }
 
 
-LABELER_TYPE = LabelerTypes.SIMPLE
+LABELER_TYPE = LabelerTypes.AUX
 LABEL_COLUMNS = ['crack', 'inactive']
 LABELER_OM = 'raw'
 LABELER_CONFIG = {
     'cols': LABEL_COLUMNS,
-    'om': LABELER_OM
+    'om': LABELER_OM,
+    'aux': 'aux_label'
 }
 
 

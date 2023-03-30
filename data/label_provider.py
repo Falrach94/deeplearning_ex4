@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torch.nn.functional import one_hot
 
 
 class SimpleLabeler:
@@ -61,6 +62,26 @@ class SimpleLabeler:
         return np.sum([(2**i)*data[col].astype('int') for i, col in enumerate(col_names)], axis=0)
 
 
+class AuxLabeler(SimpleLabeler):
+    def __init__(self, col_names, aux_col, output_mode='raw'):
+        super().__init__(*col_names, output_mode=output_mode)
+        self.aux_col = aux_col
+
+        self.output_aux = False
+
+    def set_output_aux(self, v):
+        self.output_aux = v
+
+    def get_label_from_row(self, row):
+        label = super().get_label_from_row(row)
+
+        if self.output_aux:
+            aux_idx = int(row[self.aux_col])
+            aux_label = one_hot(torch.tensor(aux_idx),
+                                4).float()
+            return label, aux_label
+        return label
+
 class SingleLabeler(SimpleLabeler):
 
     def __init__(self, *col_names, output_mode='raw'):
@@ -94,6 +115,7 @@ class SingleLabeler(SimpleLabeler):
 class LabelerTypes:
     SIMPLE = 'simple'
     SINGLE = 'single'
+    AUX = 'aux'
 
 
 class LabelerFactory:
@@ -103,6 +125,8 @@ class LabelerFactory:
             return SimpleLabeler(*config['cols'], output_mode=config['om'])
         elif type == LabelerTypes.SINGLE:
             return SingleLabeler(*config['cols'], output_mode=config['om'])
+        elif type == LabelerTypes.AUX:
+            return AuxLabeler(config['cols'], config['aux'], output_mode=config['om'])
 
         raise NotImplemented('labeler type not recognized')
 

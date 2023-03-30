@@ -17,6 +17,9 @@ class GenericTrainer:
     def set_epoch_callback(self, callback):
         self.epoch_callback = callback
 
+    def set_aux_loss_calculator(self, fct):
+        self.aux_loss = fct
+
     def set_training_loss_calculator(self, fct):
         self.loss_fct = fct
 
@@ -125,8 +128,9 @@ class GenericTrainer:
 
         self.abort_fit = False
 
-        self.loss_fct = self.calc_loss
-        self.val_loss_fct = self.calc_loss
+        self.aux_loss = None
+        self.loss_fct = None
+        self.val_loss_fct = None
 
         self.early_stop_criterion = None
         self.best_metric_selector = None
@@ -135,7 +139,13 @@ class GenericTrainer:
         self.epoch_callback = None
         self.epoch = 0
 
-    def set_session(self, model, optim, tr_dl, val_dl, val_cnt, label_cnt):
+    def use_aux(self):
+        return self.aux_loss is not None
+
+    def set_session(self, model, optim,
+                    tr_dl, val_dl,
+                    val_cnt,
+                    label_cnt):
         self.epoch = 0
         self._model = model
         self._optim = optim
@@ -167,22 +177,32 @@ class GenericTrainer:
             if start_time is None:
                 start_time = time.time_ns()
 
+            if self.use_aux():
+                y_aux = y[1].cuda()
+                y = y[0]
+
             if len(y.shape) == 1:
                 y = y[:, None]
 
             x = x.cuda()
             y = y.cuda()
+
             self._optim.zero_grad()
             prediction = self._model(x)
-            if len(prediction) == 2:
-                loss = self.loss_fct(x, prediction[0], y, self.last_metric)
-                loss += self.loss_fct(x, prediction[1], y, self.last_metric)
-                loss.backward()
+          #  if len(prediction) == 2:
+          #      loss = self.loss_fct(x, prediction[0], y, self.last_metric)
+          #      loss += self.loss_fct(x, prediction[1], y, self.last_metric)
+          #      loss.backward()
+          #  else:
+            loss = self.loss_fct(x, prediction, y, self.last_metric)
 
-            else:
+            if self.use_aux():
+                loss += self.aux_loss(x,
+                                      self._model.aux_prediction,
+                                      y_aux,
+                                      self.last_metric)
 
-                loss = self.loss_fct(x, prediction, y, self.last_metric)
-                loss.backward()
+            loss.backward()
 
 
             self._optim.step()

@@ -37,6 +37,11 @@ def initialize_training_state(state, config):
                                                            state,
                                                            training_config['loss']['val']['config'])
 
+    if training_config['loss']['aux']['type'] is not None:
+        training_state['loss']['aux'] = LossFactory.create(training_config['loss']['aux']['type'],
+                                                           state,
+                                                           training_config['loss']['aux']['config'])
+
     return training_state
 
 

@@ -36,6 +36,14 @@ VAL_LOSS_CONFIG = {
     'clip': CLIP,
     'set_type': 'val'
 }
+
+AUX_LOSS_TYPE = LossTypes.ASL
+AUX_LOSS_CONFIG = {
+    'gn': GAMMA_NEG,
+    'gp': GAMMA_POS,
+    'clip': CLIP,
+}
+
 # metric calculation
 METRIC_CALC = calc_f1_m
 BEST_METRIC_SELECTOR = select_best_metric

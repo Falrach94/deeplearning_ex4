@@ -1,6 +1,7 @@
 import pandas as pd
 import torch
 
+from data.augment_fuser import SimpleFuser
 
 DEFAULT_AUGMENTS = [
     torch.fliplr,
@@ -54,7 +55,6 @@ class BaseAugmentor:
     def _calc_augmentation(self, image, aug):
         raise NotImplementedError()
 
-
 class CustomAugmentor(BaseAugmentor):
     def __init__(self, fuser, augments=DEFAULT_AUGMENTS):
         super().__init__(augment_cnt=0 if augments is None else len(augments), col_name='aug', fuser=fuser)
@@ -63,6 +63,11 @@ class CustomAugmentor(BaseAugmentor):
 
     def _calc_augmentation(self, image, aug):
         return self.augmentation_dict[aug](image)
+
+
+class IdentityAugmenter(CustomAugmentor):
+    def __init__(self):
+        super().__init__(fuser=None, augments=None)
 
 
 class AugmenterTypes:

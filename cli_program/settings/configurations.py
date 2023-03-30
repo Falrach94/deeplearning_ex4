@@ -15,6 +15,7 @@ def create_empty_config():
     config['data']['csv'] = dict()
     config['data']['fuser'] = dict()
     config['data']['labeler'] = dict()
+    config['data']['extra_labeler'] = dict()
     config['data']['augmenter'] = dict()
     config['data']['image_loader'] = dict()
     config['data']['filter'] = dict()
@@ -50,12 +51,16 @@ def default_config():
 
     config['data']['csv']['path'] = DATA_PATH
     config['data']['csv']['seperator'] = CSV_SEPERATOR
+    config['data']['csv']['extra_path'] = EXTRA_PATH
 
     config['data']['transform']['tr'] = TR_TRANSFORMS
     config['data']['transform']['val'] = VAL_TRANSFORMS
 
     config['data']['labeler']['type'] = LABELER_TYPE
     config['data']['labeler']['config'] = LABELER_CONFIG
+
+    config['data']['extra_labeler']['type'] = EXTRA_LABELER_TYPE
+    config['data']['extra_labeler']['config'] = EXTRA_LABELER_CONFIG
 
     config['data']['fuser']['type'] = FUSER_TYPE
     config['data']['fuser']['config'] = FUSER_CONFIG

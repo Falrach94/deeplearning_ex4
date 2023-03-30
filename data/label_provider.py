@@ -82,6 +82,20 @@ class AuxLabeler(SimpleLabeler):
             return label, aux_label
         return label
 
+class IndexToOneHotLabeler():
+    def __init__(self, col, cnt):
+        self.col = col
+        self.cnt = cnt
+
+    def get_label(self, df, idx, x):
+        label_idx = df.loc[idx, self.col]
+        label_idx = torch.tensor(label_idx, dtype=torch.long)
+        return one_hot(label_idx, self.cnt).float()
+
+    def label_dataframe(self, df):
+        return df
+
+
 class SingleLabeler(SimpleLabeler):
 
     def __init__(self, *col_names, output_mode='raw'):
@@ -116,7 +130,7 @@ class LabelerTypes:
     SIMPLE = 'simple'
     SINGLE = 'single'
     AUX = 'aux'
-
+    INDEX_TO_ONEHOT = 'indexed'
 
 class LabelerFactory:
     @staticmethod
@@ -127,6 +141,8 @@ class LabelerFactory:
             return SingleLabeler(*config['cols'], output_mode=config['om'])
         elif type == LabelerTypes.AUX:
             return AuxLabeler(config['cols'], config['aux'], output_mode=config['om'])
+        elif type == LabelerTypes.INDEX_TO_ONEHOT:
+            return IndexToOneHotLabeler(config['col'], config['cnt'])
 
         raise NotImplemented('labeler type not recognized')
 

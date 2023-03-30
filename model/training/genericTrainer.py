@@ -132,12 +132,20 @@ class GenericTrainer:
         self.loss_fct = None
         self.val_loss_fct = None
 
+        self._aux_dl = None
+
         self.early_stop_criterion = None
         self.best_metric_selector = None
         self.metric_calculator = None
         self.batch_callback = None
         self.epoch_callback = None
         self.epoch = 0
+
+    def set_extra_data(self, dl):
+        self._aux_dl = dl
+
+    def has_extra_aux(self):
+        return self._aux_dl is not None
 
     def use_aux(self):
         return self.aux_loss is not None
@@ -172,10 +180,29 @@ class GenericTrainer:
 
         total_loss = 0
 
-        start_time = None
+        start_time = time.time_ns()
+
+        if self.has_extra_aux():
+            for i, (x, y) in enumerate(self._aux_dl):
+                x = x.cuda()
+                y = y.cuda()
+                self._optim.zero_grad()
+                _ = self._model(x)
+                loss = self.aux_loss(x,
+                              self._model.aux_prediction,
+                              y,
+                              self.last_metric)
+
+                loss.backward()
+                self._optim.step()
+
+                if self.batch_callback is not None:
+                    self.batch_callback(i,
+                                        len(self._aux_dl),
+                                        (time.time_ns() - start_time) / 10 ** 9,
+                                        True)
+
         for i, (x, y) in enumerate(self._train_dl):
-            if start_time is None:
-                start_time = time.time_ns()
 
             if self.use_aux():
                 y_aux = y[1].cuda()
@@ -189,11 +216,6 @@ class GenericTrainer:
 
             self._optim.zero_grad()
             prediction = self._model(x)
-          #  if len(prediction) == 2:
-          #      loss = self.loss_fct(x, prediction[0], y, self.last_metric)
-          #      loss += self.loss_fct(x, prediction[1], y, self.last_metric)
-          #      loss.backward()
-          #  else:
             loss = self.loss_fct(x, prediction, y, self.last_metric)
 
             if self.use_aux():
@@ -203,8 +225,6 @@ class GenericTrainer:
                                       self.last_metric)
 
             loss.backward()
-
-
             self._optim.step()
             total_loss += loss
 

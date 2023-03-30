@@ -43,7 +43,6 @@ class CachedImageLoader(ImageLoader):
 
         return image
 
-    @staticmethod
     def _calc_key(self, df, idx):
         return df.loc[idx, self.image_path_col]
 

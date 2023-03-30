@@ -8,6 +8,7 @@ from data.image_loader import ImageLoaderTypes
 from data.label_provider import SimpleLabeler, SingleLabeler, LabelerTypes
 from utils.utils import mirror_horizontal, mirror_vertical, rotate90deg, mirror_and_rotate
 
+EXTRA_PATH = 'assets/data_ex.csv'
 DATA_PATH = 'assets/data.csv'
 #DATA_PATH = 'assets/tr_data.csv'
 #DATA_PATH = 'assets/elpv_data.csv'
@@ -39,6 +40,11 @@ IMAGE_LOADER_CONFIG = {
     'col': 'filename'
 }
 
+EXTRA_LABELER_TYPE = LabelerTypes.INDEX_TO_ONEHOT
+EXTRA_LABELER_CONFIG = {
+    'col': 'inactive',
+    'cnt': 4
+}
 
 LABELER_TYPE = LabelerTypes.AUX
 LABEL_COLUMNS = ['crack', 'inactive']

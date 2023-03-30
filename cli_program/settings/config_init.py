@@ -4,7 +4,7 @@ from data.augment_generator import AugmenterFactory
 from data.data_filter import FilterFactory
 from data.data_reader import CSVReader
 from data.dataset_generator import create_dataset, create_single_split_datasets, create_k_fold_datasets
-from data.image_loader import ImageLoaderFactory
+from data.image_loader import ImageLoaderFactory, ImageLoaderTypes
 from data.label_provider import LabelerFactory
 from data.loss_factory import LossFactory
 from data.model_factory import ModelFactory
@@ -54,6 +54,14 @@ def initialize_data_processor_state(config):
                                              state,
                                              data_config['labeler']['config'])
 
+    if data_config['extra_labeler']['type'] is not None:
+        state['extra_labeler'] = LabelerFactory.create(data_config['extra_labeler']['type'],
+                                                       state,
+                                                       data_config['extra_labeler']['config'])
+        state['extra_image_loader'] = ImageLoaderFactory.create(ImageLoaderTypes.Cached,
+                                                                state,
+                                                                {'col': 'filename'})
+
     state['fuser'] = FuserFactory.create(data_config['fuser']['type'],
                                          state,
                                          data_config['fuser']['config'])
@@ -82,13 +90,22 @@ def initialize_data(state, config):
 
     state = dict()
 
+    extra = data_config['extra_labeler']['type'] is not None
+
     # load data
     df = CSVReader(path=data_config['csv']['path'],
                    seperator=data_config['csv']['seperator']).get()
 
+    if extra:
+        extra_df = CSVReader(path=data_config['csv']['extra_path'],
+                             seperator=data_config['csv']['seperator']).get()
+
     # add labels
     labeled_df = proc_state['labeler'].label_dataframe(df)
     state['df'] = labeled_df
+
+    if extra:
+        labeled_ex_df = proc_state['extra_labeler'].label_dataframe(extra_df)
 
     # create datasets and dataloaders
     state['raw'] = create_dataset(data=labeled_df,
@@ -113,6 +130,17 @@ def initialize_data(state, config):
                 tr_filter=proc_state['filter']['tr'],
                 val_filter=proc_state['filter']['val']
             )
+        if extra:
+            state['extra'] = create_dataset(
+                data=labeled_ex_df,
+                image_provider=proc_state['extra_image_loader'],
+                label_provider=proc_state['extra_labeler'],
+                augmenter=None,
+                transform=data_config['transform']['tr'],
+                batch_size=config['training']['config']['batch_size'],
+                filter=None,
+                shuffle=True
+            )
     elif config['behaviour']['mode'] == Modes.KFold:
         state['folds'] = create_k_fold_datasets(
                 k=config['behaviour']['config']['k'],
@@ -126,7 +154,7 @@ def initialize_data(state, config):
                 tr_filter=proc_state['filter']['tr'],
                 val_filter=proc_state['filter']['val'])
     else:
-        raise NotImplementedError(f'mode {config["behaviour"]["mode"]} not recogizied')
+        raise NotImplementedError(f'mode {config["behaviour"]["mode"]} not recognized')
 
     return state
 

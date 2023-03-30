@@ -1,6 +1,7 @@
 from sklearn.model_selection import train_test_split
 from torch.utils.data.dataloader import DataLoader
 
+from data.augment_generator import IdentityAugmenter
 from data.data_splitter import k_fold_split
 from data.simple_dataset import SimpleDataset
 from data.utils import split_with_equal_categories
@@ -14,12 +15,13 @@ def _create_dataset(df,
                     batch_size,
                     filter,
                     shuffle=True):
+    if augmenter is None:
+        augmenter = IdentityAugmenter()
 
-    if augmenter is not None:
-        df = augmenter.add_augmentations_to_df(df)
+    df = augmenter.add_augmentations_to_df(df)
+
     if filter is not None:
         df = filter.filter(df)
-
 
     dataset = SimpleDataset(df,
                            transforms=transform,

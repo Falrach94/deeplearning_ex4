@@ -240,6 +240,8 @@ class GenericTrainer:
                 if start_time is None:
                     start_time = time.time_ns()
 
+                if self.use_aux():
+                    y = y[0]
                 if len(y.shape) == 1:
                     y = y[:, None]
 

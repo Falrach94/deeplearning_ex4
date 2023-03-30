@@ -5,9 +5,9 @@ from utils.loss_utils import AdamFactory, ASLCalculator, calc_BCE_loss, select_b
 from utils.stat_tools import calc_multi_f1, calc_f1_m
 
 # training
-MAX_EPOCH = 100
+MAX_EPOCH = 1000
 BATCH_SIZE = 4
-PATIENCE = 20
+PATIENCE = 200
 WINDOW = 20
 
 # optimizer

@@ -65,10 +65,12 @@ class Program:
         self.cli.epoch_update(epoch, self._losses, epoch_time, metrics, best, (total_time_min, total_time_s))
 
     def _run_split_training(self):
-        model_state = self._perform_training()
+        model_state, _, _ = self._perform_training()
 
         torch.save(model_state, self.config['path']['ckp'])
-        export(self.state['model'], model_state, self.config['path']['export'], self.cli.sb)
+        export(self.state['model'],
+               model_state,
+               self.config['path']['export'], self.cli.sb)
 
 
     def _run_kfold_evaluation(self):

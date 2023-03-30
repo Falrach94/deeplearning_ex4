@@ -34,7 +34,6 @@ class ResNet34Base(ResNet):
         x = self.fc(x)
         return x
 
-
 class ResNet34Sig(ResNet34Base):
     def __init__(self, out_cnt, pre_path=None, multi_layer=True):
         super().__init__(load_weights=(pre_path is None))
@@ -62,6 +61,17 @@ class ResNet34Sig(ResNet34Base):
             for module in self.fc.modules():
                 if isinstance(module, nn.Linear):
                     init.xavier_uniform_(module.weight)
+
+
+class ResNet34SigAux(ResNet34Sig):
+    def __init__(self, out_cnt, pre_path=None, multi_layer=True):
+        super().__init__(out_cnt, pre_path, multi_layer)
+
+        self.aux = nn.Sequential(
+            nn.Dropout(p=0.5),
+            nn.Linear(512, 4),
+            nn.Softmax()
+        )
 
 
 class ResNet34SoftMax(ResNet34Base):

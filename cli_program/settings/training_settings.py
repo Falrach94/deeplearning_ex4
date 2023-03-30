@@ -29,7 +29,7 @@ TR_LOSS_CONFIG = {
     'set_type': 'tr'
 }
 
-VAL_LOSS_TYPE = LossTypes.MSE
+VAL_LOSS_TYPE = LossTypes.ASL
 VAL_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,
@@ -37,7 +37,7 @@ VAL_LOSS_CONFIG = {
     'set_type': 'val'
 }
 
-AUX_LOSS_TYPE = LossTypes.ASL
+AUX_LOSS_TYPE = LossTypes.BCE
 AUX_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,

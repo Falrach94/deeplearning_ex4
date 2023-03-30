@@ -42,6 +42,7 @@ class ResNet50Sig(ResNet50Base):
 
         if multi_layer:
             self.fc = nn.Sequential(
+                nn.Dropout(p=0.5),
                 nn.Linear(2048, 1028),
                 nn.Dropout(p=0.5),
                 nn.ReLU(inplace=True),
@@ -64,16 +65,53 @@ class ResNet50Sig(ResNet50Base):
                     init.xavier_uniform_(module.weight)
 
 
+class ResNet50SigAux(ResNet50Sig):
+    def __init__(self, out_cnt, pre_path=None, multi_layer=True):
+
+        super().__init__(out_cnt, pre_path, multi_layer)
+
+        self.aux = nn.Sequential(
+            nn.Dropout(p=0.5),
+            nn.Linear(2048, 4),
+            nn.Softmax(dim=1)
+        )
+
+        if pre_path is None:
+            for module in self.aux.modules():
+                if isinstance(module, nn.Linear):
+                    init.xavier_uniform_(module.weight)
+
+        self.aux_prediction = None
+
+    def forward(self, x):
+
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+
+        self.aux_prediction = self.aux(x)
+
+        x = self.fc(x)
+        return x
 
 class ResNet50SoftMax(ResNet50Base):
     def __init__(self, out_cnt, pre_path=None):
         super().__init__(load_weights=(pre_path is None))
 
         self.fc = nn.Sequential(
-            nn.Linear(512, 256),
+            nn.Linear(2048, 1024),
             nn.Dropout(p=0.5),
             nn.ReLU(inplace=True),
-            nn.Linear(256, out_cnt),
+            nn.Linear(1024, out_cnt),
             nn.Softmax(dim=1)
         )
 

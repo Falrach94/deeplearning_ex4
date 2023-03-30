@@ -78,7 +78,7 @@ class AsymmetricLossOptimized(nn.Module):
         self.anti_targets = 1 - y
 
         # Calculating Probabilities
-        self.xs_pos = x#torch.sigmoid(x)
+        self.xs_pos = torch.sigmoid(x)
         self.xs_neg = 1.0 - self.xs_pos
 
         # Asymmetric Clipping
@@ -101,7 +101,7 @@ class AsymmetricLossOptimized(nn.Module):
                 torch.set_grad_enabled(True)
             self.loss *= self.asymmetric_w
 
-        return -self.loss.sum()
+        return -self.loss.mean()
 
 
 class WeightedAsymmetricLossOptimized(nn.Module):

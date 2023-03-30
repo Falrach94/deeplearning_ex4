@@ -3,6 +3,7 @@ from torch.utils.data.dataloader import DataLoader
 
 from data.data_splitter import k_fold_split
 from data.simple_dataset import SimpleDataset
+from data.utils import split_with_equal_categories
 from model.config import WORKER_THREADS
 
 def _create_dataset(df,
@@ -73,7 +74,9 @@ def create_single_split_datasets(data, split,
                                  tr_transform, val_transform,
                                  batch_size,
                                  tr_filter, val_filter):
-    tr_data, val_data = train_test_split(data, test_size=split)
+    tr_data, val_data = split_with_equal_categories(data,
+                                                    label_provider,
+                                                    split)# train_test_split(data, test_size=split)
     return _create_datasets(tr_data, val_data,
                             image_provider, label_provider,
                             augmentor,

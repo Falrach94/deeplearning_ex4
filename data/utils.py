@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 def get_distribution(df, label_provider):
@@ -38,3 +41,18 @@ def combine(list):
             for x in right:
                 res.append(as_list(x) + as_list(y))
     return res
+
+
+def split_with_equal_categories(df, labeler, split):
+    cnt = labeler.class_count(raw=False)
+
+    part_df = [df[df.label_id == i] for i in range(cnt)]
+    splits = np.array([train_test_split(pdf, test_size=split) for pdf in part_df], dtype=object)
+    tr_dfs = splits[:, 0]
+    val_dfs = splits[:, 1]
+
+    return pd.concat(tr_dfs).reset_index(drop=True),\
+        pd.concat(val_dfs).reset_index(drop=True)
+
+
+

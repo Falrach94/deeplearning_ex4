@@ -30,5 +30,5 @@ MODE_CONFIG = {
     'k': K,
     'updates': CONFIG_UPDATES
 }
-MODE = Modes.KFold
+MODE = Modes.Split
 

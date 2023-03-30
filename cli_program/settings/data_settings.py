@@ -26,7 +26,7 @@ TR_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
  #                                      tv.transforms.RandomAdjustSharpness(0.8),
                                       # tv.transforms.RandomSolarize(),
                                        tv.transforms.Normalize(TR_MEAN, TR_STD),
-#                                       tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
+                                       tv.transforms.RandomRotation(10, interpolation=InterpolationMode.BILINEAR),
                                        ])
 VAL_TRANSFORMS = tv.transforms.Compose([tv.transforms.ToPILImage(),
                                         tv.transforms.ToTensor(),

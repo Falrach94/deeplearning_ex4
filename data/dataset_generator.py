@@ -21,16 +21,13 @@ def _create_dataset(df,
 
 
     dataset = SimpleDataset(df,
-                           transforms=transform,    
+                           transforms=transform,
                            image_provider=image_provider,
                            label_provider=label_provider)
     dl = DataLoader(dataset,
                     batch_size=batch_size,
                     shuffle=shuffle,
-                    num_workers=WORKER_THREADS,
-                    persistent_workers=True,
-                    pin_memory=True,
-                    pin_memory_device='cuda')
+                    num_workers=WORKER_THREADS)
 
     return {'dataset': dataset, 'dl': dl}
 

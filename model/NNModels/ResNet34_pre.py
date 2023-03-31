@@ -93,8 +93,8 @@ class ResNet34SigAux(ResNet34Sig):
 
         x = x[:, :1, :, :]
 
-        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 3, -1, 1), padding=(self.padding, 0))
-        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 3, 1, -1), padding=(0, self.padding))
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, -1, 1), padding=(self.padding, 0))
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, 1, -1), padding=(0, self.padding))
 
         x = x.repeat(1, 3, 1, 1)
 

@@ -12,6 +12,11 @@ class SimpleDataset(Dataset):
         self.image_provider = image_provider
         self.transforms = transforms
 
+        self.add_idx = False
+
+    def set_add_idx(self, add_idx):
+        self.add_idx = add_idx
+
     def __len__(self):
         return len(self._data)
 
@@ -21,6 +26,8 @@ class SimpleDataset(Dataset):
         image = self.transforms(image)
         label = self.label_provider.get_label(self._data, idx, image)
 
+        if self.add_idx:
+            return image, (label, idx)
         return image, label
 
     def get_categories(self):

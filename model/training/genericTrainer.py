@@ -2,6 +2,7 @@ import copy
 import time
 import torch as t
 import torch.cuda
+from torch.utils.data.dataloader import DataLoader
 
 from cli_program.settings.behaviour_settings import BEST_MODEL_PATH, EXPORT_PATH
 from cli_program.ui import SINGLETON_SB
@@ -252,11 +253,13 @@ class GenericTrainer:
 
         loss = 0
 
+        self._val_test_dl.dataset.set_add_idx(True)
+
         self._model.eval()
         with t.no_grad():
             start_time = None
 
-            for i, (x, y) in enumerate(self._val_test_dl):
+            for i, (x, (y, ix)) in enumerate(self._val_test_dl):
                 if start_time is None:
                     start_time = time.time_ns()
 

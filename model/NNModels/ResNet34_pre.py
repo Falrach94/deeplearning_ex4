@@ -1,9 +1,10 @@
 import numpy as np
 import torch.nn
+import torchvision
 
 import torchvision as tv
 from torch import nn
-from torch.nn import init
+from torch.nn import init, Sequential
 from torchvision.models import ResNet
 from torchvision.models.resnet import BasicBlock
 
@@ -81,9 +82,13 @@ class ResNet34SigAux(ResNet34Sig):
 
         self.aux_prediction = None
 
+        self.filter = torchvision.transforms.GaussianBlur(5, sigma=(0.1, 2.0)).cuda()
+
     def forward(self, x):
 
-        x = ((x - x.min())/(x.max()-x.min())-0.5)*2
+        x = self.filter(x)
+
+      #  x = ((x - x.min())/(x.max()-x.min())-0.5)*2
 
         x = self.conv1(x)
         x = self.bn1(x)

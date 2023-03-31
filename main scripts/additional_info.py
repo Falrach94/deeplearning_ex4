@@ -2,6 +2,7 @@ import sys
 
 import pandas as pd
 import torch
+import torchvision
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
@@ -9,6 +10,7 @@ from imageio.v2 import imread
 from matplotlib.backends.backend_qt import MainWindow
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from torchvision.transforms import Compose
 
 from utils.gui_tools import add_hlayout
 
@@ -18,8 +20,15 @@ class Window(MainWindow):
     signal_change_im = pyqtSignal(int)
 
     def load_image(self, image, label, label_new, name):
+
+        t = Compose([torchvision.transforms.ToPILImage(),
+                     torchvision.transforms.GaussianBlur(5, sigma=(0.1, 2.0))])
+
+
         self.ax.clear()
+        self.ax2.clear()
         self.ax.imshow(image)
+        self.ax2.imshow(t(image))
         self.canvas.draw()
 
         self.label1.setChecked(label[1])
@@ -37,7 +46,7 @@ class Window(MainWindow):
 
         self.figure = Figure()
         self.canvas = FigureCanvasQTAgg(self.figure)
-        self.ax = self.figure.subplots()
+        self.ax, self.ax2 = self.figure.subplots(1,2)
 
         main_panel = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()

@@ -286,7 +286,6 @@ class GenericTrainer:
                     else:
                         predictions[j:j+y.shape[0]] = step_prediction
                     labels[j:j+y.shape[0]] = y
-                    print(ix)
                     ixs[j:j+y.shape[0]] = ix[:, None]
 
                 if self.batch_callback is not None:

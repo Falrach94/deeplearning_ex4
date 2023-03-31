@@ -58,7 +58,7 @@ class LossTypes:
 class LossFactory:
 
     @staticmethod
-    def calc_weights(self, set):
+    def calc_weights(set):
         dist = torch.tensor(set.get_categories()).cuda()
         beta = 0.999
         dist = (1 - torch.pow(beta, dist)) / (1 - beta)

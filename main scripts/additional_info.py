@@ -1,6 +1,7 @@
 import sys
 
 import pandas as pd
+import torch
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication
@@ -21,13 +22,15 @@ class Window(MainWindow):
         self.ax.imshow(image)
         self.canvas.draw()
 
-        self.label1.setText(f'crack: {label[1] == 1}')
-        self.label2.setText(f'inactive: {label[0] == 1}')
+        self.label1.setChecked(label[1])
+        self.label2.setChecked(label[0])
+#        self.label1.setText(f'crack: {label[1] == 1}')
+#        self.label2.setText(f'inactive: {label[0] == 1}')
 
         self.name.setText(name)
 
-        self.cb1.setChecked(label_new['dirty'])
-        self.cb2.setChecked(label_new['line'])
+        self.cb1.setChecked(label_new['crack'])
+        self.cb2.setChecked(label_new['inactive'])
 
     def __init__(self):
         super().__init__()
@@ -42,8 +45,8 @@ class Window(MainWindow):
         main_layout.addWidget(self.canvas)
 
         label_layout, panel = add_hlayout(main_layout)
-        self.label1 = QtWidgets.QLabel('crack: ')
-        self.label2 = QtWidgets.QLabel('inactive: ')
+        self.label1 = QtWidgets.QCheckBox('crack')
+        self.label2 = QtWidgets.QCheckBox('inactive')
         self.name = QtWidgets.QLabel('title: ')
         label_layout.addWidget(self.label1)
         label_layout.addWidget(self.label2)
@@ -51,8 +54,8 @@ class Window(MainWindow):
         panel.setFixedHeight(50)
 
         add_layout, panel = add_hlayout(main_layout)
-        self.cb1 = QtWidgets.QCheckBox('dirty')
-        self.cb2 = QtWidgets.QCheckBox('lines')
+        self.cb1 = QtWidgets.QCheckBox('pred crack')
+        self.cb2 = QtWidgets.QCheckBox('pred inactive')
         add_layout.addWidget(self.cb1)
         add_layout.addWidget(self.cb2)
         panel.setFixedHeight(50)
@@ -87,8 +90,30 @@ class Presenter(QObject):
         self.window.show()
 
         self.df = pd.read_csv('../assets/data.csv').reset_index()
+
+        stats = torch.load('../assets/stats.stats')
+        pred = stats['metric'][-1]['predictions'] > 0.5
+        label = stats['metric'][-1]['label'] > 0.5
+
+        df = pd.DataFrame(columns=['idx'], data=stats['metric'][-1]['idx'])
+        df['idx'] = df['idx'].astype(int)
+        df['p_c'] = pred[:, 0]
+        df['p_i'] = pred[:, 1]
+        df['crack'] = label[:, 0]
+        df['inactive'] = label[:, 1]
+        df['filename'] = df['idx'].astype(str)
+        df['filename'] = ('000' + df['filename']).str[-4:]
+        df['filename'] = 'images/cell' + df['filename'] + '.png'
+
+        self.df = df
+
         self.df['dirty'] = 0
         self.df['line'] = 0
+
+        sel = pred != label
+        sel = torch.sum(sel, dim=1)
+        sel = [v.item() for v in sel != 0]
+        self.df = self.df[sel].reset_index(drop=True)
 
         self.image_sig.connect(self.window.load_image)
         self.window.signal_change_im.connect(self.change_ix)
@@ -110,7 +135,7 @@ class Presenter(QObject):
         im = imread(path)
         name = self.df.loc[ix, 'filename'][-8:-4]
         label = [self.df.loc[ix, 'inactive'], self.df.loc[ix, 'crack']]
-        label_new = {'dirty': self.df.loc[ix, 'dirty'], 'line': self.df.loc[ix, 'line']}
+        label_new = {'inactive': self.df.loc[ix, 'p_i'], 'crack': self.df.loc[ix, 'p_c']}
         self.image_sig.emit(im, label, label_new, name)
 
 

@@ -90,13 +90,12 @@ class ResNet34SigAux(ResNet34Sig):
                                   dtype=torch.float)[:, 0].cuda()
 
     def cuda(self):
-        super().cuda()
         self.gauss = self.gauss.cuda()
+        return super().cuda()
 
     def cpu(self):
-        super().cpu()
         self.gauss = self.gauss.cpu()
-
+        return super().cpu()
 
     def forward(self, x):
 

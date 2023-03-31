@@ -286,7 +286,8 @@ class GenericTrainer:
                     else:
                         predictions[j:j+y.shape[0]] = step_prediction
                     labels[j:j+y.shape[0]] = y
-                    ixs[j:j+y.shape[0]] = ix
+                    print(ix)
+                    ixs[j:j+y.shape[0]] = ix[:, None]
 
                 if self.batch_callback is not None:
                     self.batch_callback(i,
@@ -298,6 +299,10 @@ class GenericTrainer:
 
         if self.metric_calculator is not None:
             metrics = self.metric_calculator(predictions, labels)
+            metrics['predictions'] = predictions.cpu().detach()
+            metrics['label'] = labels.cpu().detach()
+            metrics['idx'] = ixs
+
         else:
             metrics = None
 

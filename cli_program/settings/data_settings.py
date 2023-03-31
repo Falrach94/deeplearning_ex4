@@ -89,5 +89,5 @@ AUGMENTER_CONFIG = {
 
 VAL_FILTER_TYPE = None #FilterTypes.NO_AUGS
 VAL_FILTER_CONFIG = None
-TR_FILTER_TYPE = None#FilterTypes.NO_AUGS #FilterTypes.SMALL_SET
-TR_FILTER_CONFIG = None #{'size': 0.05}
+TR_FILTER_TYPE = FilterTypes.SMALL_SET #None#FilterTypes.NO_AUGS #
+TR_FILTER_CONFIG = {'size': 0.05}

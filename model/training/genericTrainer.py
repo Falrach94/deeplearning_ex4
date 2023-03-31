@@ -216,7 +216,6 @@ class GenericTrainer:
 
             self._optim.zero_grad()
             prediction = self._model(x)
-            x = torch.nn.functional.sigmoid(x)
             loss = self.loss_fct(x, prediction, y, self.last_metric)
 
             if self.use_aux():

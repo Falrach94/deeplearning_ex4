@@ -64,7 +64,12 @@ class LossFactory:
                 return None
             dataset = state['data']['split'][set_type]['dataset']
             dist = torch.tensor(dataset.get_categories()).cuda()
+            beta = 0.999
+            dist = (1 - torch.pow(beta, dist)) / (1-beta)
+
             weights = 1/dist
+
+
             return ASLWeightedCalculator(config['gn'], config['gp'], config['clip'], weights)
         elif type == LossTypes.BCE:
             return BCECalculator()

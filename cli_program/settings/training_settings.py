@@ -29,7 +29,7 @@ TR_LOSS_CONFIG = {
     'set_type': 'tr'
 }
 
-VAL_LOSS_TYPE = LossTypes.BCE_WEIGHTED
+VAL_LOSS_TYPE = LossTypes.BCE
 VAL_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,

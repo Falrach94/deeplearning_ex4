@@ -83,15 +83,16 @@ class ResNet34SigAux(ResNet34Sig):
 
         self.aux_prediction = None
 
-        ks = 5
-        padding = ks // 2
+        self.ks = 5
+        self.padding = self.ks // 2
         var = 1
-        self.gauss = torch.tensor(cv2.getGaussianKernel(ks, var), dtype=torch.float)[:,0]
+        self.gauss = torch.tensor(cv2.getGaussianKernel(self.ks, var),
+                                  dtype=torch.float)[:, 0].cuda()
 
     def forward(self, x):
 
-        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, -1, 1), padding=(padding, 0))
-        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, 1, -1), padding=(0, padding))
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, -1, 1), padding=(self.padding, 0))
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, 1, -1), padding=(0, self.padding))
 
 
 

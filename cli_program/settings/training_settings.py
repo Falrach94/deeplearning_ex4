@@ -6,19 +6,19 @@ from utils.stat_tools import calc_multi_f1, calc_f1_m
 
 # training
 MAX_EPOCH = 1000
-BATCH_SIZE = 4
-PATIENCE = 200
+BATCH_SIZE = 8
+PATIENCE = 20
 WINDOW = 20
 
 # optimizer
 OPTIMIZER_TYPE = OptimizerTypes.ADAM
-LR = 0.00003
+LR = 0.0001
 DECAY = 0.00001
 OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 
 
 # loss fct
-TR_LOSS_TYPE = LossTypes.ASL
+TR_LOSS_TYPE = LossTypes.BCE
 GAMMA_NEG = 2
 GAMMA_POS = 0
 CLIP = 0.1
@@ -29,7 +29,7 @@ TR_LOSS_CONFIG = {
     'set_type': 'tr'
 }
 
-VAL_LOSS_TYPE = LossTypes.ASL
+VAL_LOSS_TYPE = LossTypes.BCE
 VAL_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,

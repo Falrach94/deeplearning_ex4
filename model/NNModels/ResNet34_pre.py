@@ -83,6 +83,8 @@ class ResNet34SigAux(ResNet34Sig):
 
     def forward(self, x):
 
+        x = ((x - x.min())/(x.max()-x.min())-0.5)*2
+
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)

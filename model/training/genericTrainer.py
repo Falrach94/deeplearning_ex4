@@ -250,6 +250,8 @@ class GenericTrainer:
 
         predictions = torch.empty(self._val_sample_cnt, self._label_cnt)
         labels = torch.empty(self._val_sample_cnt, self._label_cnt)
+        ixs = torch.torch.empty(self._val_sample_cnt, 1)
+
 
         loss = 0
 
@@ -284,6 +286,7 @@ class GenericTrainer:
                     else:
                         predictions[j:j+y.shape[0]] = step_prediction
                     labels[j:j+y.shape[0]] = y
+                    ixs[j:j+y.shape[0]] = ix
 
                 if self.batch_callback is not None:
                     self.batch_callback(i,

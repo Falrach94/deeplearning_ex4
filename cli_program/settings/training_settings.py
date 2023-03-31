@@ -12,13 +12,13 @@ WINDOW = 20
 
 # optimizer
 OPTIMIZER_TYPE = OptimizerTypes.ADAM
-LR = 0.0001
+LR = 0.00005
 DECAY = 0.00001
 OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 
 
 # loss fct
-TR_LOSS_TYPE = LossTypes.ASL_WEIGHTED
+TR_LOSS_TYPE = LossTypes.ASL
 GAMMA_NEG = 2
 GAMMA_POS = 0
 CLIP = 0.1

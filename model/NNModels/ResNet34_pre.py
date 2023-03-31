@@ -107,10 +107,11 @@ class ResNet34SoftMax(ResNet34Base):
         super().__init__(load_weights=(pre_path is None))
 
         self.fc = nn.Sequential(
-            nn.Linear(512, 256),
+            nn.Dropout(p=0.5),
+            nn.Linear(512, 1024),
             nn.Dropout(p=0.5),
             nn.ReLU(inplace=True),
-            nn.Linear(256, out_cnt),
+            nn.Linear(1024, out_cnt),
             nn.Softmax(dim=1)
         )
 

@@ -31,7 +31,9 @@ class BCECalculator:
         self.weights=weights
 
     def calc(self, input, pred, label, metrics):
-        loss = torch.nn.functional.binary_cross_entropy_with_logits(pred.float(), label.float(), reduction='None')
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(pred.float(),
+                                                                    label.float(),
+                                                                    reduction='none')
 #        loss = torch.nn.functional.binary_cross_entropy(pred.float(),
 #                                                        label.float(),
 #                                                        reduction='none')

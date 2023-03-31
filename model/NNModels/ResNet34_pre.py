@@ -89,6 +89,15 @@ class ResNet34SigAux(ResNet34Sig):
         self.gauss = torch.tensor(cv2.getGaussianKernel(self.ks, var),
                                   dtype=torch.float)[:, 0].cuda()
 
+    def cuda(self):
+        super().cuda()
+        self.gauss = self.gauss.cuda()
+
+    def cpu(self):
+        super().cpu()
+        self.gauss = self.gauss.cpu()
+
+
     def forward(self, x):
 
         x = x[:, :1, :, :]

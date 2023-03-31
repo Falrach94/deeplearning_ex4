@@ -13,7 +13,7 @@ WINDOW = 20
 # optimizer
 OPTIMIZER_TYPE = OptimizerTypes.ADAM
 LR = 0.00005
-DECAY = 0.00001
+DECAY = 0.0001
 OPTIMIZER_CONFIG = {'lr': LR, 'decay': DECAY}
 
 

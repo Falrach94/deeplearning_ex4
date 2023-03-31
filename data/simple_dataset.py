@@ -27,7 +27,7 @@ class SimpleDataset(Dataset):
         label = self.label_provider.get_label(self._data, idx, image)
 
         if self.add_idx:
-            return image, (label, idx)
+            return image, (label, self._data.loc[idx, 'nbr'])
         return image, label
 
     def get_categories(self):

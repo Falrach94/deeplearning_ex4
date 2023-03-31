@@ -90,10 +90,8 @@ class Presenter(QObject):
         self.df['dirty'] = 0
         self.df['line'] = 0
 
-
         self.image_sig.connect(self.window.load_image)
         self.window.signal_change_im.connect(self.change_ix)
-
 
         self.cur_ix = 0
         self.load_image(self.cur_ix)

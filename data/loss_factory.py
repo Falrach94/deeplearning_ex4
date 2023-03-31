@@ -28,7 +28,7 @@ class MSECalculator:
 
 class BCECalculator:
     def __init__(self, weights=None):
-        self.weights=weights
+        self.weights = weights.cuda()
 
     def calc(self, input, pred, label, metrics):
        # loss = torch.nn.functional.binary_cross_entropy_with_logits(pred.float(),

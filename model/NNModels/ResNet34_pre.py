@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 import torch.nn
 import torchvision
@@ -82,11 +83,17 @@ class ResNet34SigAux(ResNet34Sig):
 
         self.aux_prediction = None
 
-        self.filter = torchvision.transforms.GaussianBlur(5, sigma=(0.1, 2.0)).cuda()
+        ks = 5
+        padding = ks // 2
+        var = 1
+        self.gauss = torch.tensor(cv2.getGaussianKernel(ks, var), dtype=torch.float)[:,0]
 
     def forward(self, x):
 
-        x = self.filter(x)
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, -1, 1), padding=(padding, 0))
+        x = torch.nn.functional.conv2d(x, weight=self.gauss.view(1, 1, 1, -1), padding=(0, padding))
+
+
 
       #  x = ((x - x.min())/(x.max()-x.min())-0.5)*2
 
@@ -129,6 +136,7 @@ class ResNet34SoftMax(ResNet34Base):
             for module in self.fc.modules():
                 if isinstance(module, nn.Linear):
                     init.xavier_uniform_(module.weight)
+
 
 
 class ResNet34Combined(nn.Module):

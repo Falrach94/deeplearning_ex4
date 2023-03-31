@@ -29,7 +29,7 @@ TR_LOSS_CONFIG = {
     'set_type': 'tr'
 }
 
-VAL_LOSS_TYPE = LossTypes.MSE
+VAL_LOSS_TYPE = LossTypes.ASL
 VAL_LOSS_CONFIG = {
     'gn': GAMMA_NEG,
     'gp': GAMMA_POS,
@@ -46,4 +46,4 @@ AUX_LOSS_CONFIG = {
 
 # metric calculation
 METRIC_CALC = calc_f1_m
-BEST_METRIC_SELECTOR = None# select_best_metric
+BEST_METRIC_SELECTOR = select_best_metric

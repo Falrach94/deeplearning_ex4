@@ -1,5 +1,6 @@
 import sys
 
+import cv2
 import pandas as pd
 import torch
 import torchvision
@@ -21,14 +22,30 @@ class Window(MainWindow):
 
     def load_image(self, image, label, label_new, name):
 
-        t = Compose([torchvision.transforms.ToPILImage(),
-                     torchvision.transforms.GaussianBlur(5, sigma=(0.1, 2.0))])
+        ks = 5
+        padding = ks // 2
+        var = 1
+        self.gauss = torch.tensor(cv2.getGaussianKernel(ks, var), dtype=torch.float)[:,0]
 
+        t = Compose([torchvision.transforms.ToPILImage(),
+                     torchvision.transforms.ToTensor()
+                     ])
+                    # torchvision.transforms.GaussianBlur(5, sigma=(0.1, 2.0))])
+
+
+        oi = image
+        image = t(image)
+        image = image[None, :, : ,:]
+
+        image = torch.nn.functional.conv2d(image, weight=self.gauss.view(1, 1, -1, 1), padding=(padding, 0))
+        image = torch.nn.functional.conv2d(image, weight=self.gauss.view(1, 1, 1, -1), padding=(0, padding))
+
+        image = image.view(300, 300)
 
         self.ax.clear()
         self.ax2.clear()
-        self.ax.imshow(image)
-        self.ax2.imshow(t(image))
+        self.ax.imshow(oi)
+        self.ax2.imshow(image)
         self.canvas.draw()
 
         self.label1.setChecked(label[1])

@@ -45,7 +45,7 @@ class ResNet34Sig(ResNet34Base):
                 nn.Linear(512, 1024),
                 nn.Dropout(p=0.5),
                 nn.ReLU(inplace=True),
-                nn.Linear(256, out_cnt),
+                nn.Linear(1024, out_cnt),
 #                nn.Sigmoid()
             )
         else:
